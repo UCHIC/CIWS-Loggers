@@ -46,66 +46,67 @@ log.set_udp_destination('10.0.0.8')#Home connection
 class watermeter():
     def __init__(self, data_directory):
 
-        logging.debug('Hello from Water Meter 1')
+        logging.debug(data_directory)
 
         #Setting ADC to read values
-        self._sensor = ADCdriver(channel = 2)
-        enumerate_data_directory = True
+        #self._sensor = ADCdriver(channel = 2)
+        #enumerate_data_directory = True
         #Data logger file manipulation
-        if enumerate_data_directory:
-            directorynamer = Filenamer('WaterTrace_%05d/')
-            self.data_directory = join_filename(data_directory, directorynamer.next_filename())
-            while exists(self.data_directory):
-                self.data_directory = join_filename(data_directory, directorynamer.next_filename())
-        else:
-            self.data_directory = data_directory
-        if not exists(self.data_directory):
-            makedirs(self.data_directory)
-            pass
-        self.output_directory = open(self.data_directory + 'WaterTrace_datalog.xml', 'w')
-        self.output_directory.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-        self.output_directory.write("\r\n")
-        self.output_directory.write("<WaterTraceDataLog")
-        self.output_directory.write(">")
+        #if enumerate_data_directory:
+            #directorynamer = Filenamer('WaterTrace_%05d/')
+            #self.data_directory = join_filename(data_directory, directorynamer.next_filename())
+            #while exists(self.data_directory):
+                #self.data_directory = join_filename(data_directory, directorynamer.next_filename())
+        #else:
+            #self.data_directory = data_directory
+        #if not exists(self.data_directory):
+            #makedirs(self.data_directory)
+            #pass
+        #self.output_directory = open(self.data_directory + 'WaterTrace_datalog.xml', 'w')
+        #self.output_directory.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+        #self.output_directory.write("\r\n")
+        #self.output_directory.write("<WaterTraceDataLog")
+        #self.output_directory.write(">")
         #self.output_directory.flush()
 
         # thread stuff
         self._thread = threading.Thread(target=self._thread_run)
-        self._thread.daemon = True
+        #self._thread.daemon = True
 
         self._start = True
 
         # go!
         self._thread.start()
-        
+        #self._thread_run()
 
         pass
 
     def _thread_run(self):
 
-        #print ('started Thread')
+        print ('started Thread')
         while self._start:
             #print ('started Thread')
-            self._data = self._sensor.ADCread_v()
-            element = Element('Water_meter001')
-            element.setAttribute('Meter_Reading','%f' % self._data)
-            element.setAttribute('Free_Space','%d' % getFreeSpace())
-            element.setAttribute('Time','%f' % time.time())
+            #self._data = self._sensor.ADCread_v()
+            #element = Element('Water_meter001')
+            #element.setAttribute('Meter_Reading','%f' % self._data)
+            #element.setAttribute('Free_Space','%d' % getFreeSpace())
+            #element.setAttribute('Time','%f' % time.time())
             
-            self.output_directory.write("\r\n")
-            self.output_directory.write(element.toxml())
+            #self.output_directory.write("\r\n")
+            #self.output_directory.write(element.toxml())
+            pass
 			
         pass
 
-    def fetch(self, output_directory='none'):
+    #def fetch(self, output_directory='none'):
 
-        element = Element('Water_meter001')
-        element.setAttribute('Meter_Reading','%f' % self._data)
-        self.output_directory.write("\r\n")
-        self.output_directory.write(element.toxml())
+        #element = Element('Water_meter001')
+        #element.setAttribute('Meter_Reading','%f' % self._data)
+        #self.output_directory.write("\r\n")
+        #self.output_directory.write(element.toxml())
         
         #element.toxml()
-        pass
+        #pass
 
     
 
@@ -116,16 +117,17 @@ class watermeter():
 
     def __del__(self):
         self._thread.join()
-        output_directory.write("\n</WaterTraceDataLog>")
-        output_directory.flush()
+        #output_directory.write("\n</WaterTraceDataLog>")
+        #output_directory.flush()
 
         pass
 
 
 def test():
 
-    meter = watermeter('/media/card/Datalog/')
-    meter._thread_run()
+    meter = watermeter('Uno')
+    meter = watermeter('Dos')
+    #meter._thread_run()
     #print (getFreeSpace())
     pass
 

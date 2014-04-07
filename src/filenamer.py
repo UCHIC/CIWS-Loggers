@@ -39,5 +39,5 @@ if __name__ == '__main__':
 
     for i, filename in enumerate(f):
         if i == 9: break
-        print (filename)
+        print filename
 

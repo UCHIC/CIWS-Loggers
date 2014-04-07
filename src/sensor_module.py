@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/env python
 
 #Water meter monitor
@@ -78,6 +80,20 @@ sps = 860  # 860 samples per second
 ADC2 = 0x4a
 #ADC3 = 0x4b
 
+#Site information
+Datalogger_name = "RPI_LOGGER2"
+Site_name = "Bus Building 1st floor Men Bathroom"
+Site_description = "Meter1: Motion Sensor  -  Meter2: NEPTUNE 1 1/2 in T-10  - Meter3: Badger 25 5/8 - Meter4: Badger 25 5/8 "
+Port1_name = "Meter1"
+Conv_factor1 = 0.01
+Port2_name = "MCT_rev"
+Conv_factor2 = 0.015526316
+Port3_name = "MCF_rev"
+Conv_factor3 = 0.01
+Port4_name = "MHF_rev"
+Conv_factor4 = 0.01
+
+
 
 def signal_handler(signal, frame):
         print 'You pressed Ctrl+C!'
@@ -105,6 +121,8 @@ class SensorModule():
         if not exists(self.data_directory):
             makedirs(self.data_directory)
             pass
+
+        
 
         #Opening/Creating and initializing csv file in write mode
 ##        #File for port 0
@@ -134,10 +152,14 @@ class SensorModule():
         #Initializing Datalog File
         self._output_file3 = open(self.data_directory + 'sensors_datalog' + '.csv', 'w')
         self._write3 = csv.writer(self._output_file3, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        metadata = ['Port 3', sitename]
-        header=["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATT_VOLT","PORT1", "PORT2", "PORT3", "PORT4"]
-        self._write3.writerow(metadata)
-        self._write3.writerow(header)
+        header1 = ["Datalogger Name:",Datalogger_name]
+        header2 = ["Site Name:",Site_name]
+	header3 = ["Site Descrption:",Site_description]
+        header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATT_VOLT",Port1_name, Port2_name, Port3_name, Port4_name]
+        self._write3.writerow(header1)
+        self._write3.writerow(header2)
+        self._write3.writerow(header3)
+	self._write3.writerow(header4)
         self._output_file3.close()
 
 
@@ -163,6 +185,13 @@ class SensorModule():
         self._MotionPause = 5
 
         self._record = 0
+
+        self._conv_factor1 = Conv_factor1
+        self._conv_factor2 = Conv_factor2
+        self._conv_factor3 = Conv_factor3
+        self._conv_factor4 = Conv_factor4
+
+        self._time_support = time_support
 
 
         #Defining data buffers
@@ -218,7 +247,7 @@ class SensorModule():
                 if self._volts0 > self._threshold0:
                     if capture:
                         self._pulse_count0 = self._pulse_count0 + 1
-                        logging.debug('Motion detected')
+                        #logging.debug('System running... :)')
                         haltTime = time.time()
                         capture = False
                     self._halt = (time.time()-haltTime)
@@ -245,11 +274,12 @@ class SensorModule():
                     #Dataloging
                     self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write3)
 
+                    self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
                     #Reinitialize buffers and variables
                     self._reset()
 
                 #Debug
-                self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                #self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
 
 
 
@@ -258,7 +288,7 @@ class SensorModule():
         os.system('clear')
         print 'Duration: %.3f' %self._duration
         print '---------------------'
-        print 'ADC0: %.6f' %(self._volts0) + 'Count: %d' %reading1
+        print 'ADC0: %.6f' %(self._volts0) + 'Count: %d' %reading1 
         print 'ADC1: %.6f' %(self._volts1) + 'Count: %d' %reading2
         print 'ADC2: %.6f' %(self._volts2) + 'Count: %d' %reading3
         print 'ADC3: %.6f' %(self._volts3) + 'Count: %d' %reading4
@@ -266,6 +296,31 @@ class SensorModule():
         print self._disk_usage("/")
         print 'Press Ctrl+C to exit'
         pass
+    def _print_flowrate(self,reading1, reading2, reading3, reading4):
+
+        os.system('clear')
+        print 'Duration: %.3f' %self._duration
+        print '---------------------'
+        print 'ADC0: %.6f' %(self._volts0) + ' Flowrate: %f' %self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM' 
+        print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM'
+        print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM'
+        print 'ADC3: %.6f' %(self._volts3) + ' Flowrate: %f' %self._rev_to_gpm(reading4, self._conv_factor4, self._time_support) + ' GPM'
+        print '---------------------'
+        #print self._disk_usage("/")
+        print 'Press Ctrl+C to exit'
+        pass
+    def _rev_to_gpm(self, reading, conv_factor, time_support):
+
+        volume = reading*conv_factor #Gallons per time support
+        gpm = (volume/time_support)*60
+        return gpm
+
+    def _rev_to_volume(self, reading, conv_factor, time_support):
+
+        volume = reading*conv_factor #Gallons per time support
+        return volume
+
+
     def _capture_wm(self, Reading1, Reading2, Reading3, Reading4, write):
 
         Record = self._record

@@ -36,15 +36,15 @@ adc = ADS1x15(address=0x4a,ic=ADS1015)
 
 # Read channel 0 in single-ended mode using the settings above
 while 1:
-	volts0 = adc.readADCSingleEnded(0, gain, sps)/1000
-	#volts1 = adc.readADCSingleEnded(1, gain, sps)/1000
+	#volts0 = adc.readADCSingleEnded(0, gain, sps)/1000
+	volts1 = adc.readADCSingleEnded(1, gain, sps)/1000
 	#volts2 = adc.readADCSingleEnded(2, gain, sps)/1000
         #volts3 = adc.readADCSingleEnded(3, gain, sps)/1000
 	#if volts > 1:
 		#print "%.6f" % (volts)
         print "Sensor 2"
-	print "%.6f" %(volts0)
-	#print "%.6f" %(volts1)
+	#print "%.6f" %(volts0)
+	print "%.6f" %(volts1)
 	#print "%.6f" %(volts2)
 	#print "%.6f" %(volts3)
 	time.sleep(1)

@@ -274,12 +274,12 @@ class SensorModule():
                     #Dataloging
                     self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write3)
 
-                    self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                    #self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
                     #Reinitialize buffers and variables
                     self._reset()
 
                 #Debug
-                #self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
 
 
 

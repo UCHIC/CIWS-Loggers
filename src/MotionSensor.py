@@ -35,7 +35,7 @@ from subprocess import Popen, PIPE, STDOUT
 log.setLevel(logging.DEBUG)
 
 
-#log.set_udp_destination('192.168.2.3')
+log.set_udp_destination('192.168.2.150')
 #log.set_udp_destination('129.123.189.171')
 #log.set_udp_destination('10.0.0.8')#Home connection
 #log.set_udp_destination('estimated.local')
@@ -73,7 +73,7 @@ sps = 250  # 250 samples per second
 #ADC1 = 0x49
 ADC2 = 0x4a
 #ADC3 = 0x4b
-
+logging.debug(5)
 class pcounter():
     def __init__(self, adc, data_directory='/home/pi/Datalog/',sensor_channel = '0', sensor_id='None'):
 

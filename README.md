@@ -4,11 +4,11 @@ WaterMonitor
 Code Related Logging Data using Embedded Computers
 
 Requirements:
-Raspberry PI versions A, B and B+
-Debian GNU/Linux installed
+-Raspberry PI versions A, B and B+
+-Debian GNU/Linux installed
 
-Modifications to the kernel:
-Enable I2C modules on the raspberry Pi
+
+Modify the Kernel to enable I2C modules on the raspberry Pi
 =======================================
 Follow these instructions using the LXterminal:
 Run the following command:

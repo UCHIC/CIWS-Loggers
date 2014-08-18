@@ -1,5 +1,3 @@
-
-
 #!/usr/bin/env python
 
 #Water meter monitor
@@ -15,15 +13,14 @@ import subprocess
 import log
 from ADC_driver import ADCdriver
 import threading
-#import fcntl
-#import termios
 import struct
 import time, signal
 from Adafruit_ADS1x15 import ADS1x15
 import csv
 import datetime as date
 
-# file manipulation
+# File manipulation libraries
+#------------------------------------------------------------------
 from os      import remove as remove_file
 from os 	 import makedirs
 from shutil  import copy   as copy_file
@@ -32,27 +29,22 @@ from os.path import exists
 from os.path import dirname
 import os
 from xml.dom.minidom import Element
-
 from filenamer import Filenamer
-
 from collections import namedtuple
-
 from array import array
-
+#------------------------------------------------------------------
+from subprocess import Popen, PIPE, STDOUT
 _ntuple_diskusage = namedtuple('usage', 'total used free')
 
 
-#from cStringIO import StringIO
-from subprocess import Popen, PIPE, STDOUT
-#from isaac_link import Isaac_link
-
-
+#------------------------------------------------------------------
 log.setLevel(logging.DEBUG)
 #log.set_udp_destination('estimated.local')
 log.set_udp_destination('localhost')
+#------------------------------------------------------------------
 
-
-
+#ADC configurations
+#------------------------------------------------------------------
 ADS1015 = 0x00  # 12-bit ADC
 
 # Select the gain
@@ -79,20 +71,24 @@ sps = 860  # 860 samples per second
 #ADC1 = 0x49
 ADC2 = 0x4a
 #ADC3 = 0x4b
+#------------------------------------------------------------------
+
 
 #Site information
-Datalogger_name = "RPI_LOGGER2"
+#------------------------------------------------------------------
+Datalogger_name = "RPI_LOGGER"
 Site_name = "Bus Building 1st floor men Bathroom"
-Site_description = "Port1: Motion Sensor  -  Port2: Neptune T10 1 1/2 - Port3: Badger 25 5/8 - Port4: Badger 25 5/8 "
-Port1_name = "PeopleCounter"
+Site_description = "Port1:Not defined   -  Port2:Not defined - Port3:Not defined - Port4:Not defined"
+Port1_name = "Not defined"
 Conv_factor1 = 0.01
-Port2_name = "MCT_rev"
+Port2_name = "Not defined"
 Conv_factor2 = 0.01
 #0.015526316
-Port3_name = "MHF_rev"
+Port3_name = "Not defined"
 Conv_factor3 = 0.01
-Port4_name = "MCF_rev"
+Port4_name = "Not defined"
 Conv_factor4 = 0.01
+#------------------------------------------------------------------
 
 
 
@@ -101,6 +97,9 @@ def signal_handler(signal, frame):
         sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 #print 'Press Ctrl+C to exit'
+
+#Sensor_Module Class start here
+#------------------------------------------------------------------
 class SensorModule():
 
     def __init__(self,data_directory = '/home/pi/Datalog/',sensor_id='BUS_MEN_BATHROOM',sitename = 'WATER_METERS', enumerate_directory = True, time_support = 5):
@@ -126,42 +125,18 @@ class SensorModule():
         
 
         #Opening/Creating and initializing csv file in write mode
-##        #File for port 0
-##        self._output_file0 = open(self.data_directory + 'sensorPORT0' + '.csv', 'w')
-##        self._write0 = csv.writer(self._output_file0, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-##        metadata = ['Port 0', sitename]
-##        header=["TIMESTAMP","RECORD","MEM_SPACE","BATT_VOLT","SENSOR_READING"]
-##        self._write0.writerow(metadata)
-##        self._write0.writerow(header)
-##
-##        #File for port 1
-##        self._output_file1 = open(self.data_directory + 'sensorPORT1' + '.csv', 'w')
-##        self._write1 = csv.writer(self._output_file1, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-##        metadata = ['Port 0', sitename]
-##        header=["TIMESTAMP","RECORD","MEM_SPACE","BATT_VOLT","SENSOR_READING"]
-##        self._write1.writerow(metadata)
-##        self._write1.writerow(header)
-##
-##        #File for port 2
-##        self._output_file2 = open(self.data_directory + 'sensorPORT2' + '.csv', 'w')
-##        self._write2 = csv.writer(self._output_file2, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-##        metadata = ['Port 2', sitename]
-##        header=["TIMESTAMP","RECORD","MEM_SPACE","BATT_VOLT","SENSOR_READING"]
-##        self._write2.writerow(metadata)
-##        self._write2.writerow(header)
-
         #Initializing Datalog File
-        self._output_file3 = open(self.data_directory + 'sensors_datalog' + '.csv', 'w')
-        self._write3 = csv.writer(self._output_file3, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        self._output_file = open(self.data_directory + 'sensors_datalog' + '.csv', 'w')
+        self._write = csv.writer(self._output_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         header1 = ["Datalogger Name:",Datalogger_name]
         header2 = ["Site Name:",Site_name]
 	header3 = ["Site Descrption:",Site_description]
         header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATT_VOLT",Port1_name, Port2_name, Port3_name, Port4_name]
-        self._write3.writerow(header1)
-        self._write3.writerow(header2)
-        self._write3.writerow(header3)
-	self._write3.writerow(header4)
-        self._output_file3.close()
+        self._write.writerow(header1)
+        self._write.writerow(header2)
+        self._write.writerow(header3)
+	self._write.writerow(header4)
+        self._output_file.close()
 
 
 
@@ -206,10 +181,6 @@ class SensorModule():
         self._reading_2 = 0
         self._reading_3 = 0
         self._reading_4 = 0
-
-
-        
-
 
         #Go
         self._run()
@@ -319,7 +290,7 @@ class SensorModule():
 
     def _rev_to_volume(self, reading, conv_factor, time_support):
 
-        volume = reading*conv_factor #Gallons per time support
+        volume = reading*conv_factor #Gallons
         return volume
 
 
@@ -331,14 +302,8 @@ class SensorModule():
 
         Time = time.time()
         Date_Time = date.datetime.now()
-
-        #data = [Date_Time, Record,MEM_space, Bat_Volt, Reading,self._volts3]
         data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading1, Reading2, Reading3, Reading4]
-        #write.writerow(data)
         self._log_data_csv(data)
-
-        pass
-    def _capture_pc(self):
 
         pass
 
@@ -351,7 +316,6 @@ class SensorModule():
         return pulse
 
     def pulse_count(self,array):
-
         count = array.count(1)
         return count
 
@@ -387,17 +351,13 @@ class SensorModule():
         self._intarray1 = array('i')
         self._intarray2 = array('i')
         self._intarray3 = array('i')
-        
-        
         pass
 
-    def _disk_usage(self, path):
-            
+    def _disk_usage(self, path):    
         st = os.statvfs(path)
         free = st.f_bavail * st.f_frsize
         total = st.f_blocks * st.f_frsize
         used = (st.f_blocks - st.f_bfree) * st.f_frsize
-        
         self._ntuple_diskusage(total, used, free)
         return free
 

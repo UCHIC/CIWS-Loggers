@@ -77,16 +77,16 @@ ADC2 = 0x4a
 #Site information
 #------------------------------------------------------------------
 Datalogger_name = "RPI_LOGGER"
-Site_name = "Bus Building 1st floor men Bathroom"
+Site_name = "David Rosenberg's House"
 Site_description = "Port1:Not defined   -  Port2:Not defined - Port3:Not defined - Port4:Not defined"
 Port1_name = "Not defined"
 Conv_factor1 = 0.01
-Port2_name = "Not defined"
+Port2_name = "Battery"
 Conv_factor2 = 0.01
 #0.015526316
 Port3_name = "Not defined"
 Conv_factor3 = 0.01
-Port4_name = "Not defined"
+Port4_name = "WaterMeter_Rev"
 Conv_factor4 = 0.01
 #------------------------------------------------------------------
 
@@ -245,7 +245,7 @@ class SensorModule():
                     self._record = self._record + 1
                     
                     #Dataloging
-                    self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write3)
+                    self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write)
 
                     #self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
                     #Reinitialize buffers and variables

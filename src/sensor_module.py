@@ -131,7 +131,8 @@ class SensorModule():
         header1 = ["Datalogger Name:",Datalogger_name]
         header2 = ["Site Name:",Site_name]
 	header3 = ["Site Descrption:",Site_description]
-        header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATT_VOLT",Port1_name, Port2_name, Port3_name, Port4_name]
+        #header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATT_VOLT",Port1_name, Port2_name, Port3_name, Port4_name]
+        header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATT_VOLT",Port4_name]
         self._write.writerow(header1)
         self._write.writerow(header2)
         self._write.writerow(header3)
@@ -247,12 +248,12 @@ class SensorModule():
                     #Dataloging
                     self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write)
 
-                    #self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                    self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
                     #Reinitialize buffers and variables
                     self._reset()
 
                 #Debug
-                self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                #self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
 
 
 
@@ -274,9 +275,9 @@ class SensorModule():
         os.system('clear')
         print 'Duration: %.3f' %self._duration
         print '---------------------'
-        print 'ADC0: %.6f' %(self._volts0) + ' Persons: %f' %reading1 #%self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM' 
-        print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s' %Port2_name
-        print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s' %Port3_name
+        #print 'ADC0: %.6f' %(self._volts0) + ' Persons: %f' %reading1 #%self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM' 
+        #print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s' %Port2_name
+        #print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s' %Port3_name
         print 'ADC3: %.6f' %(self._volts3) + ' Flowrate: %f' %self._rev_to_gpm(reading4, self._conv_factor4, self._time_support) + ' GPM %s' %Port4_name
         print '---------------------'
         #print self._disk_usage("/")
@@ -298,11 +299,12 @@ class SensorModule():
 
         Record = self._record
         MEM_space_available = self._disk_usage("/")
-        Bat_Volt = 5
+        Bat_Volt = Reading2
 
         Time = time.time()
         Date_Time = date.datetime.now()
-        data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading1, Reading2, Reading3, Reading4]
+        #data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading1, Reading2, Reading3, Reading4]
+        data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading4]
         self._log_data_csv(data)
 
         pass

@@ -28,8 +28,9 @@ sudo nano /etc/modprobe.d/raspi-blacklist.conf
 
 Add # to the lines that appered on the file so that they look as the following:
 
-#blacklist spi-bcm2708
-#blacklist i2c-bcm2708
+blacklist spi-bcm2708
+
+blacklist i2c-bcm2708
 
 Reboot the Raspberry Pi and you are ready to go!!!
 

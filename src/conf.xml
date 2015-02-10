@@ -1,0 +1,12 @@
+<data>
+    <setup>
+        <item name="Datalogger:" value = "Raspi01"></item>
+        <item name="Sitename:" value = "Bussiness Building Men's Bathroom"></item>
+        <item name="Port1:" value = "PeopleCounter"></item>
+        <item name="Port2:" value = "MCT_rev"></item>
+        <item name="Port3:" value = "MCF_rev"></item>
+        <item name="Port4:" value = "MHF_rev"></item>
+	</setup>
+    <setup>
+    </setup>
+</data>

@@ -8,6 +8,7 @@
 from lib_include import *
 from adc_settings import *
 from conf_reader import *
+import send_email as sm
 
 _ntuple_diskusage = namedtuple('usage', 'total used free')
 
@@ -105,8 +106,14 @@ class SensorModule():
         self._reading_3 = 0
         self._reading_4 = 0
 
+
+        #Starting system monitor
+        sm.system_monitor()
+
         #Go
         self._run()
+
+
         pass
     
 

@@ -12,7 +12,10 @@ try:
     Port4_name = itemlist[5].attributes['value'].value
     Site_description = itemlist[6].attributes['value'].value
     Time_support = itemlist[7].attributes['value'].value
-    print Time_support
+    Data_directory = itemlist[8].attributes['value'].value
+    
+    #This section is used for debug
+    #print Port3_name
 except:
 
     print "Error or no configuration file found. Please create one following the default format and try again."
@@ -26,4 +29,4 @@ Conv_factor2 = 0.01
 Conv_factor3 = 0.01
 Conv_factor4 = 0.01
 
-print 'Configuration done.'
+#print 'Configuration done.'

@@ -108,82 +108,80 @@ class SensorModule():
 
 
         #Starting system monitor
-        sm.system_monitor()
+        #sm.system_monitor()
 
         #Go
         self._run()
 
 
         pass
-    
 
-
-def _run(self):
-    capture = True
-    sample = 0
-    while self._start:
-        time_lapse = 0
-        acquire = True
-        self._startTime = time.time()
-        
-        while acquire:
-
-            #This section reads the voltage levels on the 4 port ADCs
-            #--------------------------------------------------------------------------------------------------------    
-            self._volts0 = self._adc.readADCSingleEnded(0, gain, sps)/1000#RAW READING - RECOMENDED FOR MOTION SENSOR
-            self._volts1 = self._adc.readADCSingleEnded(1, gain, sps)/1000#LM311 READING 
-            self._volts2 = self._adc.readADCSingleEnded(2, gain, sps)/1000#LM311 READING
-            self._volts3 = self._adc.readADCSingleEnded(3, gain, sps)/1000#LM311 READING
-            #--------------------------------------------------------------------------------------------------------
-
-            #This section converts input data into pulses
-            #--------------------------------------------------------------------------------------------------------
-            self._intarray.append(self._pulse_detection(self._volts0, self._threshold0))
-            self._intarray1.append(self._pulse_detection(self._volts1, self._threshold1))
-            self._intarray2.append(self._pulse_detection(self._volts2, self._threshold2))
-            self._intarray3.append(self._pulse_detection(self._volts3, self._threshold3))
-            #--------------------------------------------------------------------------------------------------------
+    def _run(self):
+        capture = True
+        sample = 0
+        while self._start:
+            time_lapse = 0
+            acquire = True
+            self._startTime = time.time()
             
+            while acquire:
 
-            #This section is for specific used with a motion sensor
-            #--------------------------------------------------------------------------------------------------------
-            if self._volts0 < self._threshold0:
-                if capture:
-                    self._pulse_count0 = self._pulse_count0 + 1
-                    #logging.debug('System running... :)')
-                    haltTime = time.time()
-                    capture = False
-                self._halt = (time.time()-haltTime)
-                if self._halt > self._MotionPause:
-                    capture = True
-            #--------------------------------------------------------------------------------------------------------
+                #This section reads the voltage levels on the 4 port ADCs
+                #--------------------------------------------------------------------------------------------------------    
+                self._volts0 = self._adc.readADCSingleEnded(0, gain, sps)/1000#RAW READING - RECOMENDED FOR MOTION SENSOR
+                self._volts1 = self._adc.readADCSingleEnded(1, gain, sps)/1000#LM311 READING 
+                self._volts2 = self._adc.readADCSingleEnded(2, gain, sps)/1000#LM311 READING
+                self._volts3 = self._adc.readADCSingleEnded(3, gain, sps)/1000#LM311 READING
+                #--------------------------------------------------------------------------------------------------------
 
-
-            #Pulse count mode definition 1)Count X occurrences, 2)Count falling edge, 3)Count rising edge.
-            #Make adjustments here, if required.
-            #--------------------------------------------------------------------------------------------------------
-            #self._reading_1 = self._falling_edge_count(self._intarray)
-            self._reading_1 = self._pulse_count0
-            self._reading_2 = self._falling_edge_count(self._intarray1)
-            self._reading_3 = self._falling_edge_count(self._intarray2)
-            self._reading_4 = self._falling_edge_count(self._intarray3)
-            #--------------------------------------------------------------------------------------------------------
-
-            #This section creates the wait time based on the data collection time frame defined
-            self._duration = (time.time() - self._startTime)
-            if self._duration > self._sample_time:
-                acquire = False
-                self._record = self._record + 1
+                #This section converts input data into pulses
+                #--------------------------------------------------------------------------------------------------------
+                self._intarray.append(self._pulse_detection(self._volts0, self._threshold0))
+                self._intarray1.append(self._pulse_detection(self._volts1, self._threshold1))
+                self._intarray2.append(self._pulse_detection(self._volts2, self._threshold2))
+                self._intarray3.append(self._pulse_detection(self._volts3, self._threshold3))
+                #--------------------------------------------------------------------------------------------------------
                 
-                #Dataloging
-                self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write)
 
-                self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
-                #Reinitialize buffers and variables
-                self._reset()
+                #This section is for specific used with a motion sensor
+                #--------------------------------------------------------------------------------------------------------
+                if self._volts0 < self._threshold0:
+                    if capture:
+                        self._pulse_count0 = self._pulse_count0 + 1
+                        #logging.debug('System running... :)')
+                        haltTime = time.time()
+                        capture = False
+                    self._halt = (time.time()-haltTime)
+                    if self._halt > self._MotionPause:
+                        capture = True
+                #--------------------------------------------------------------------------------------------------------
 
-            #Debug
-            #self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+
+                #Pulse count mode definition 1)Count X occurrences, 2)Count falling edge, 3)Count rising edge.
+                #Make adjustments here, if required.
+                #--------------------------------------------------------------------------------------------------------
+                #self._reading_1 = self._falling_edge_count(self._intarray)
+                self._reading_1 = self._pulse_count0
+                self._reading_2 = self._falling_edge_count(self._intarray1)
+                self._reading_3 = self._falling_edge_count(self._intarray2)
+                self._reading_4 = self._falling_edge_count(self._intarray3)
+                #--------------------------------------------------------------------------------------------------------
+
+                #This section creates the wait time based on the data collection time frame defined
+                self._duration = (time.time() - self._startTime)
+                if self._duration > self._sample_time:
+                    acquire = False
+                    self._record = self._record + 1
+                    
+                    #Dataloging
+                    self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write)
+
+                    self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                    #Reinitialize buffers and variables
+                    self._reset()
+
+                #Debug
+                #self._print_readings(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
 
     def _print_readings(self,reading1, reading2, reading3, reading4):
 

@@ -30,11 +30,11 @@ class system_monitor():
         self._start = True
         
         #Start email report
-        self._thread = thread.start_new_thread(self.run,())
+        self._thread = thread.start_new_thread(self.start_monitor,())
  
         pass
 
-    def run(self):
+    def start_monitor(self):
 
         while self._start:
             self.send_email()

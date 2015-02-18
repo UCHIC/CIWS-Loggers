@@ -2,7 +2,7 @@ from xml.dom import minidom
 
 
 try:
-    xmldoc = minidom.parse('conf.xml')
+    xmldoc = minidom.parse('../../conf.xml')
     itemlist = xmldoc.getElementsByTagName('item') 
     Datalogger_name = itemlist[0].attributes['value'].value
     Site_name = itemlist[1].attributes['value'].value

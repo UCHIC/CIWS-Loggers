@@ -6,7 +6,7 @@
 #ADC 1015 SENSOR MODULE FOR ADDRESS 0x4a
 
 from lib_include import *
-from adc_settings import *
+#from adc_settings import *
 from conf_reader import *
 import send_email as sm
 
@@ -65,12 +65,12 @@ class SensorModule():
 
 
         #Starting ADC
-        self._adc = ADS1x15(address=ADC2,ic=ADS1015)
+        #self._adc = ADS1x15(address=ADC2,ic=ADS1015)
         self._start = True
 
         #Datalogger interval settings
 
-        self._sample_time = time_support
+        self._sample_time = int(time_support)
         self._count = 0
         self._count1 = 0
         self._pulse_count0 = 0
@@ -119,13 +119,12 @@ class SensorModule():
     def _run(self):
         capture = True
         sample = 0
-        while self._start:
+        while self._start: 
             time_lapse = 0
             acquire = True
             self._startTime = time.time()
             
             while acquire:
-
                 #This section reads the voltage levels on the 4 port ADCs
                 #--------------------------------------------------------------------------------------------------------    
                 self._volts0 = self._adc.readADCSingleEnded(0, gain, sps)/1000#RAW READING - RECOMENDED FOR MOTION SENSOR
@@ -168,14 +167,14 @@ class SensorModule():
                 #--------------------------------------------------------------------------------------------------------
 
                 #This section creates the wait time based on the data collection time frame defined
+                
                 self._duration = (time.time() - self._startTime)
-                if self._duration > self._sample_time:
+                if self._duration >= self._sample_time:
                     acquire = False
                     self._record = self._record + 1
                     
                     #Dataloging
                     self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write)
-
                     self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
                     #Reinitialize buffers and variables
                     self._reset()

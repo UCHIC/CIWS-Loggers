@@ -70,7 +70,7 @@ class SensorModule():
 
         #Datalogger interval settings
 
-        self._sample_time = int(time_support)
+        self._sample_time = float(time_support)
         self._count = 0
         self._count1 = 0
         self._pulse_count0 = 0

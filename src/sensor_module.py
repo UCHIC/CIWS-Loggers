@@ -228,8 +228,8 @@ class SensorModule():
 
         Time = time.time()
         Date_Time = date.datetime.now()
-        #data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading1, Reading2, Reading3, Reading4]
-        data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading4]
+        data = [Date_Time, Record,MEM_space_available, Reading1, Reading2, Reading3, Reading4]
+        #data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading4]
         self._log_data_csv(data)
 
         pass

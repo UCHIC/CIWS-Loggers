@@ -91,7 +91,7 @@ class SensorModule():
         self._conv_factor3 = Conv_factor3
         self._conv_factor4 = Conv_factor4
 
-        self._time_support = time_support
+        self._time_support = float(time_support)
 
 
         #Defining data buffers

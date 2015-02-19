@@ -6,7 +6,7 @@
 #ADC 1015 SENSOR MODULE FOR ADDRESS 0x4a
 
 from lib_include import *
-#from adc_settings import *
+from adc_settings import *
 from conf_reader import *
 import send_email as sm
 
@@ -65,7 +65,7 @@ class SensorModule():
 
 
         #Starting ADC
-        #self._adc = ADS1x15(address=ADC2,ic=ADS1015)
+        self._adc = ADS1x15(address=ADC2,ic=ADS1015)
         self._start = True
 
         #Datalogger interval settings

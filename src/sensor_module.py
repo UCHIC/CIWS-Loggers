@@ -200,9 +200,9 @@ class SensorModule():
         os.system('clear')
         print 'Duration: %.3f' %self._duration
         print '---------------------'
-        #print 'ADC0: %.6f' %(self._volts0) + ' Persons: %f' %reading1 #%self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM' 
-        #print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s' %Port2_name
-        #print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s' %Port3_name
+        print 'ADC0: %.6f' %(self._volts0) + ' Persons: %f' %reading1 #%self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM' 
+        print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s' %Port2_name
+        print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s' %Port3_name
         print 'ADC3: %.6f' %(self._volts3) + ' Flowrate: %f' %self._rev_to_gpm(reading4, self._conv_factor4, self._time_support) + ' GPM %s' %Port4_name
         print '---------------------'
         #print self._disk_usage("/")

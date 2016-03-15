@@ -6,7 +6,7 @@ To add: Brief description of the project.
 
 
 
-#Sponsors and Credit
+##Sponsors and Credit
 
 
 

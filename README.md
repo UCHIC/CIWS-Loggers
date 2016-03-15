@@ -2,7 +2,7 @@ UWRL Smart Water Metering Project
 ============
 To add: Brief description of the project.
 
-Getting started
+Getting Started
 ============
 
 Code Related Logging Data using Embedded Computers

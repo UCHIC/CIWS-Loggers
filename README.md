@@ -1,9 +1,9 @@
-UWRL Smart Water Metering Project
-============
+#UWRL Smart Water Metering Project
+
 To add: Brief description of the project.
 
-Getting Started
-============
+##Getting Started
+
 
 Code Related Logging Data using Embedded Computers
 
@@ -12,8 +12,8 @@ Requirements:
 -Debian GNU/Linux installed
 
 
-Modify the Kernel to enable I2C modules on the raspberry Pi
--
+###Modify the Kernel to enable I2C modules on the raspberry Pi
+
 Follow these instructions using the LXterminal:
 Run the following command:
 sudo nano /etc/modules
@@ -38,7 +38,7 @@ blacklist i2c-bcm2708
 
 Reboot the Raspberry Pi and you are ready to go!!!
 
-Sponsors and Credit
-=====================
+#Sponsors and Credit
+
 
 

@@ -1,13 +1,14 @@
 #Brief decription of source code sections
 
-###Conf_reader
+###Conf_reader.py
 
-###filenamer
+###filenamer.py
 
-###lib_include
+###lib_include.py
 
-###log
+###log.py
 
-###sensor_module
+###sensor_module.py
 
-###udp_listener
+###udp_listener.py
+Run this code in separate terminal from the one the main smart water meter code is running to listen to the messages from the sensor.

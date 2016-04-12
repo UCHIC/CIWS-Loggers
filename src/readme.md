@@ -10,5 +10,6 @@
 
 ###sensor_module.py
 
+
 ###udp_listener.py
-Run this code in separate terminal from the one the main smart water meter code is running to listen to the messages from the sensor.
+Run this code from the terminal to listen to the messages from the smart water meter sensor.

@@ -14,3 +14,5 @@
 4 - pair of screw in terminal blocks  
 1 - Deep cycle Battery with at least 10AH 12v  
 1 - Pelycan box with capacity to hold the datalogger and battery  
+
+![alt tag](https://github.com/UCHIC/WaterMonitor/doc/images/MCP3008__to_RPI.png)

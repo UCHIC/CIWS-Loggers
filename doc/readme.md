@@ -15,4 +15,4 @@
 1 - Deep cycle Battery with at least 10AH 12v  
 1 - Pelycan box with capacity to hold the datalogger and battery  
 
-![alt tag](https://github.com/UCHIC/WaterMonitor/doc/images/MCP3008__to_RPI.png)
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/MCP3008__to_RPI.png)

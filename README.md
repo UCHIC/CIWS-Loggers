@@ -1,6 +1,6 @@
 #UWRL Smart Water Metering Project
 
-To add: Brief description of the project.
+This repository contains files and documentation for a smart water solution being researched and developed by the Utah Water Research Laboratory at Utah State University.
 
 ##Getting Started
 

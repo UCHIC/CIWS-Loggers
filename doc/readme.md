@@ -5,12 +5,12 @@
 1 - Perma-Proto HAT for Pi  with GPIO header  
 1 - AH3761 High sensitivity hall effect lacth  
 1 - Mini DC/DC Step-Down (Buck) Converter - 5V @ 1A output - TSR12450   
-7 - 10k resistors
-2 - 1k resistors
-1 - red led
-1 - green led
-1 - 12 pin header
-4 - header jumpers
-4 - pair of screw in terminal blocks
-1 - Deep cycle Battery with at least 10AH 12v
-1 - Pelycan box with capacity to hold the datalogger and battery
+7 - 10k resistors  
+2 - 1k resistors  
+1 - red led  
+1 - green led  
+1 - 12 pin header  
+4 - header jumpers  
+4 - pair of screw in terminal blocks  
+1 - Deep cycle Battery with at least 10AH 12v  
+1 - Pelycan box with capacity to hold the datalogger and battery  

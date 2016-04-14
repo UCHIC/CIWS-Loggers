@@ -16,3 +16,4 @@
 1 - Pelycan box with capacity to hold the datalogger and battery  
 
 ![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/MCP3008__to_RPI.png)
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/AGGIEWATER_PORTS.png)

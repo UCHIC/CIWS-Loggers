@@ -6,6 +6,10 @@ This repository contains files and documentation for a smart water metering solu
 ![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/AGGIEWATER_SYSTEM_CLOSEUP3.png)
 
 ##Getting Started
+###Specifications
+###Setting up and starting the system
+###Calibration
+###Data retrieval
 
 
 ##License

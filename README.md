@@ -21,6 +21,21 @@ Right-click on the network adapter you want to assign an IP address and click Pr
 
 ![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/static_ip.png)
 
+####SSH into the Raspberry Pi
+We have assigned an unique static IP address to all the prototypes we have created that can be found in a label on the lid of the weather proff case. The label also contains user and password information to access the Raspberry Pi.
+#####Windows
+Use Putty or any other terminal emulator.  
+
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/putty.png)
+#####Mac and linux
+Use the system default terminal type the following and hit enter:  
+
+   <pre>
+   ssh pi@192.168.0.XX
+   </pre>
+
+When prompted for credentials type the password provided and hit enter.  
+
 ###Calibration
 ###Data retrieval
 

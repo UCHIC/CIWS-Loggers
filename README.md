@@ -15,6 +15,12 @@ This repository contains files and documentation for a smart water metering solu
 ###Setting up and starting the system
 To start using the this system just plug the power on/off connector and wait 20 seconds for the system to boot. Make sure your battery is fully charge to extract the most of the data collection run. Once the system is up, plug an ethernet cable between the Raspberry and a laptop computer and follow the intructions below.
 
+####Change laptop computer network adapter ip address
+
+Right-click on the network adapter you want to assign an IP address and click Properties. Highlight Internet Protocol Version 4 (TCP/IPv4) then click the Properties button. Now change the IP, Subnet mask, Default Gateway, and DNS Server Addresses. When you're finished click OK. This setting is only  needed once if the same laptop computer is used to communicate to the AggieWater system.
+
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/static_ip.png)
+
 ###Calibration
 ###Data retrieval
 

@@ -44,7 +44,7 @@ date -s "2 OCT 2006 18:00:00"
 </pre>
 
 ####Set conf.xml file
-We have created an .xml file that contains the basic set up information for the system to start the datalogging routine. This file can be used to add the required METADATA for the identification of the site:
+We have created an .xml file that contains the basic set up information for the system to start the datalogging routine. This file can be used to add the required METADATA for the identification of the site and variables.
 ```
 <data>
     <items>
@@ -60,6 +60,31 @@ We have created an .xml file that contains the basic set up information for the 
     </items>
 </data>
 ```
+Use the following instructions to modify the conf.xml file.  
+
+Type on the terminal:
+```
+nano conf.xml
+```
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/conf.png)
+
+Modify conf.xml accordignly. When finished use the hotkey (<kbd>CTRL</kbd>+<kbd>X</kbd>), hit (<kbd>Y</kbd>) to accept modifications, verify filename and hit (<kbd>ENTER</kbd>) to save the file.
+
+We are now ready to start logging data.
+
+####Run sensor_module.py
+This is the main script that will be running while collecting data. Use the following command to start the sensor_module.py script:
+```
+cd WaterMonitor/src/
+sudo python sensor_module.py &
+```
+
+####Stop sensor_module.py
+```
+sudo killall python
+```
+
+####Using the listener.py
 ###Calibration
 ###Data retrieval
 

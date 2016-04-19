@@ -102,7 +102,7 @@ You can download for free the software FileZilla from here https://filezilla-pro
 
 Use FileZilla's site manager to enter the credentials of your AggieWater system, this prevent from having to enter the same information all over everytime data is collected. 
 
-![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/filezilla_sitemanager.png)
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/filezilla_site.png)
 
 ![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/filezilla_data.png)
 

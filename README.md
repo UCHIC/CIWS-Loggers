@@ -96,9 +96,22 @@ In order to stop the listener just use the hotkey (<kbd>CTRL</kbd>+<kbd>C</kbd>)
 ###Calibration
 In order to obtain accurates flow readings the sensor needs to be calibrated by determining the conversion factor to use when converting from water meter rotation to volume of water. We will be adding some calibration files in this section.
 ###Data retrieval
+A new data file is created everytime the sensor_module.py script is initialized, if the sensor_module.py script is not re-initialized the data is appended to the same file created during last initialization of the script.  
 
+You can download for free the software FileZilla from here https://filezilla-project.org/download.php?type=client.  
 
+Use FileZilla's site manager to enter the credentials of your AggieWater system, this prevent from having to enter the same information all over everytime data is collected. 
 
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/filezilla_sitemanager.png)
+
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/filezilla_data.png)
+
+In order to connect to the site and collect the data:  
+1- Find your site and hit connect.  
+2- Find the location on your local computer where to store the data.  
+3- Find the data on the raspberry /home/pi/Datalog directory and drag the file to your local directory.   
+
+Data is now retrieved you can disconnect from the AggieWater system and enjoy proccessing.
 ##License
 
 

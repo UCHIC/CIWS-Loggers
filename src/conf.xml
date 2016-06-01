@@ -1,3 +1,4 @@
+#Place this file in the directory /home/pi/
 <data>
     <items>
         <item name="Datalogger:" value = "00000"></item>#Insert datalogger serial number

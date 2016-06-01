@@ -23,3 +23,7 @@ This is the main script to run the AggieWater data collection system. This scrip
 ###udp_listener.py
 
 Run this script from the terminal to listen to the messages from the AggieWater smart water meter sensor.
+
+###conf.xml
+
+Use this file to configure the datalogger.

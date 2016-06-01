@@ -28,4 +28,7 @@ from array import array
 from subprocess import Popen, PIPE, STDOUT
 import RPi.GPIO as GPIO
 
+#------------------------------------------------------------------
+import socket
+
 

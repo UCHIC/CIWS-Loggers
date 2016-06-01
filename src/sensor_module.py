@@ -11,6 +11,9 @@ from conf_reader import *
 
 _ntuple_diskusage = namedtuple('usage', 'total used free')
 
+#------------------------------------------------------------------
+
+
 
 #------------------------------------------------------------------
 log.setLevel(logging.DEBUG)
@@ -54,19 +57,18 @@ class SensorModule():
         header1 = ["Datalogger Name:",Datalogger_name]
         header2 = ["Site Name:",Site_name]
         header3 = ["Site Descrption:",Site_description]
-        header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE",Port1_name, Port2_name, Port3_name, Port4_name]
+        header4 = ["TIMESTAMP","RECORD","MEM_SPACE_AVAILABLE","BATTERY_VOLTAGE",Port1_name, Port2_name, Port3_name, Port4_name]
         self._write.writerow(header1)
         self._write.writerow(header2)
         self._write.writerow(header3)
         self._write.writerow(header4)
         self._output_file.close()
-##
-##
-##
-##        #Starting ADC
-##        self._adc = ADS1x15(address=ADC2,ic=ADS1015)
+
+        #Starting ADC
+        self._set_MCP3008()
+
         self._start = True
-##
+
         #Datalogger interval settings
 
         self._sample_time = float(time_support)
@@ -105,12 +107,15 @@ class SensorModule():
         self._reading_3 = 0
         self._reading_4 = 0
 
-
-        #Starting system monitor
-        #sm.system_monitor()
+        #UDP
+        self._UDP_IP = "127.0.0.1"
+        self._UDP_PORT = 5005
+        
+        
 
         #Go
-        self._set_MCP3008()
+        self._blink_led(self._led_gpio)
+        
         self._run()
 
 
@@ -163,6 +168,7 @@ class SensorModule():
                     #Dataloging
                     self._capture_wm(self._reading_1, self._reading_2, self._reading_3, self._reading_4, self._write)
                     self._print_flowrate(self._reading_1, self._reading_2, self._reading_3, self._reading_4)
+                    self._blink_led(self._led_gpio)
                     #Reinitialize buffers and variables
                     self._reset()
                 #--------------------------------------------------------------------------------------------------------
@@ -184,16 +190,28 @@ class SensorModule():
         pass
     def _print_flowrate(self,reading1, reading2, reading3, reading4):
 
-        os.system('clear')
-        print 'Duration: %.3f' %self._duration
-        print '---------------------'
-        print 'ADC0: %.6f' %(self._volts0) + ' FLowrate: %f' %self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM %s' %Port1_name
-        print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s' %Port2_name
-        print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s' %Port3_name
-        print 'ADC3: %.6f' %(self._volts3) + ' Flowrate: %f' %self._rev_to_gpm(reading4, self._conv_factor4, self._time_support) + ' GPM %s' %Port4_name
-        print '---------------------'
-        #print self._disk_usage("/")
-        print 'Press Ctrl+C to exit'
+        #os.system('clear')
+##        print 'Duration: %.3f' %self._duration
+##        print '---------------------'
+##        print 'ADC0: %.6f' %(self._volts0) + ' FLowrate: %f' %self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM %s' %Port1_name
+##        print 'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s' %Port2_name
+##        print 'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s' %Port3_name
+##        print 'ADC3: %.6f' %(self._volts3) + ' Flowrate: %f' %self._rev_to_gpm(reading4, self._conv_factor4, self._time_support) + ' GPM %s' %Port4_name
+##        print '---------------------'
+##        #print self._disk_usage("/")
+##        print 'Press Ctrl+C to exit'
+
+        message = ('Duration: %.3f' %self._duration + '\n' + '---------------------\n' +
+                        'ADC0: %.6f' %(self._volts0) + ' FLowrate: %f' %self._rev_to_gpm(reading1, self._conv_factor1, self._time_support) + ' GPM %s \n' %Port1_name +
+                        'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s \n' %Port2_name +
+                        'ADC1: %.6f' %(self._volts1) + ' Flowrate: %f' %self._rev_to_gpm(reading2, self._conv_factor2, self._time_support) + ' GPM %s \n' %Port2_name +
+                        'ADC2: %.6f' %(self._volts2) + ' Flowrate: %f' %self._rev_to_gpm(reading3, self._conv_factor3, self._time_support) + ' GPM %s \n' %Port3_name +
+                        'ADC3: %.6f' %(self._volts3) + ' Flowrate: %f' %self._rev_to_gpm(reading4, self._conv_factor4, self._time_support) + ' GPM %s \n' %Port4_name +
+                        '---------------------')
+       # print message
+        #print 'Press Ctrl+C to exit'
+        self._UDP_send(message)
+           
         pass
     def _rev_to_gpm(self, reading, conv_factor, time_support):
 
@@ -211,11 +229,11 @@ class SensorModule():
 
         Record = self._record
         MEM_space_available = self._disk_usage("/")
-        Bat_Volt = Reading2
+        Bat_Volt = self._get_battery_volt()
 
         Time = time.time()
         Date_Time = date.datetime.now()
-        data = [Date_Time, Record,MEM_space_available, Reading1, Reading2, Reading3, Reading4]
+        data = [Date_Time, Record,MEM_space_available,Bat_Volt, Reading1, Reading2, Reading3, Reading4]
         #data = [Date_Time, Record,MEM_space_available, Bat_Volt, Reading4]
         self._log_data_csv(data)
 
@@ -279,6 +297,8 @@ class SensorModule():
         GPIO.setwarnings(False)
 
         GPIO.setmode(GPIO.BCM)
+        self._led_gpio = 13
+        
 
         self._SPICLK = 18
         self._SPIMISO = 23
@@ -290,6 +310,7 @@ class SensorModule():
         GPIO.setup(self._SPIMISO, GPIO.IN)
         GPIO.setup(self._SPICLK, GPIO.OUT)
         GPIO.setup(self._SPICS, GPIO.OUT)
+        GPIO.setup(self._led_gpio, GPIO.OUT)
 
         self._battery_adc = 0
         self._adc1 = 1
@@ -318,6 +339,17 @@ class SensorModule():
         adc_read = self._readadc(self._adc4,self._SPICLK, self._SPIMOSI, self._SPIMISO, self._SPICS)
         adc_volt = float(adc_read*(4.2/1023))
         return adc_volt
+
+    def _blink_led(self, led_port):
+        port = led_port
+        GPIO.output(port, True)
+        time.sleep(0.3)
+        GPIO.output(port,False)
+        time.sleep(0.3)
+        GPIO.output(port, True)
+        time.sleep(0.3)
+        GPIO.output(port,False)
+        pass
 
     # read SPI data from MCP3008 chip, 8 possible adc's (0 thru 7)
     def _readadc(self,adcnum, clockpin, mosipin, misopin, cspin):
@@ -353,7 +385,12 @@ class SensorModule():
         
         adcout >>= 1       # first bit is 'null' so drop it
         return adcout
+    def _UDP_send(self, message):
+        sock = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+        sock.sendto(message, (self._UDP_IP, self._UDP_PORT))
         
+        pass
     def __del__(self):
         print 'Files Closed'
         pass

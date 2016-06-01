@@ -1,11 +1,11 @@
 <data>
     <items>
-        <item name="Datalogger:" value = "Raspi01"></item>
-        <item name="Sitename:" value = "Bussiness Building Men's Bathroom"></item>
-        <item name="Port1:" value = "PeopleCounter"></item>
-        <item name="Port2:" value = "MCT_rev" initial_value = "11500"></item>#Init value defines the meter reading at the time of data collection start.
-        <item name="Port3:" value = "MCF_rev" initial_value = "11500"></item>
-        <item name="Port4:" value = "MHF_rev" initial_value = "11500"></item>
+        <item name="Datalogger:" value = "00000"></item>#Insert datalogger serial number
+        <item name="Sitename:" value = "add site ID here"></item>
+        <item name="Port1:" value = "meter1" initial_value = "11500"></item>#Init value defines the meter reading at the time of data collection start.
+        <item name="Port2:" value = "meter2" initial_value = "11500"></item>
+        <item name="Port3:" value = "meter3" initial_value = "11500"></item>
+        <item name="Port4:" value = "meter4" initial_value = "11500"></item>
 		<item name="Site_description" value= "Brief site description goes here."></item>
 		<item name="Time_support" value= "4"></item>
 		<item name="Data_directory" value="Datalog/"></item> #Use /home/pi/Datalog for a raspberry pi

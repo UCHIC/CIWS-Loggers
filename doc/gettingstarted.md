@@ -1,3 +1,16 @@
+##Configuring and deploying the system
+The following images show how we are configuring and deploying the residential piggy-back smart metering devices.
+
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/AGGIEWATER_SYSTEM_CLOSEUP3.png)
+
+![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/AGGIEWATER_PACK.png)
+
+1. Datalogger using Raspberry Pi and custom made Pi hat.  
+2. Hall effect senser wired to the datalogger.  
+3. Battery pack.  
+4. Power on and off connector.  
+5. Weather proof case.
+
 ##Setting up and starting the system
 
 To start using the this system just plug in the power on/off connector and wait 20 seconds for the system to boot. Make sure your battery is fully charge to extract the most of the data collection run. Once the system is up, plug an ethernet cable between the Raspberry and a laptop computer and follow the intructions below.

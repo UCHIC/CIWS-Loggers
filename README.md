@@ -1,24 +1,19 @@
 #AggieWater Smart Water Metering
 
-This repository contains files and documentation for a smart water metering solution developed by the Utah Water Research Laboratory at Utah State University using low cost, commercially available embedded computers and sensors. This system can turn most analog, positive displacement water meters with detachable register into a smart water meter with capabilities to store high frequency flowrate data for up to a week or more in a battery run. Data collected using this device look like the following:
+This repository contains files and documentation for a smart water metering effort under development at the Utah Water Research Laboratory at Utah State University. We are using low cost, commercially available, embedded computers and sensors to log data from existing analog residential water meters as well as commercial water meters with pulsed or current loop outputs (4-20 mA) on USU's campus. 
+
+We are developing ways to turn most analog, positive displacement water meters with detachable registers into a smart water meter with capabilities to store high frequency flowrate data for up to a week or more in a battery run. We are also developing new cyberinfrastructure and techniques for collecting high frequency data from commercial water meters. 
+
+The following is an example of the type of data we are collecting from individual residences:
 
 ![Data](/doc/images/data.png)
 
    
 #Getting Started
 
-Visit the [documentation page](/doc/readme.md) for full instructions on how to build and communicate with an AggieWater smart metering device. The following images show how we are configuring and deploying the devices.
+Visit the [documentation page](/doc/readme.md) for instructions on how we are building and communicating with AggieWater smart metering devices. 
 
-![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/AGGIEWATER_SYSTEM_CLOSEUP3.png)
-
-![alt tag](https://github.com/UCHIC/WaterMonitor/blob/master/doc/images/AGGIEWATER_PACK.png)
-
-1. Datalogger using Raspberry Pi and custom made Pi hat.  
-2. Hall effect senser wired to the datalogger.  
-3. Battery pack.  
-4. Power on and off connector.  
-5. Weather proof case.
-
+Visit the source code folder if you are interested in our data collection scripts.
 
 ##License
 

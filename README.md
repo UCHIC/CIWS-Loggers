@@ -13,7 +13,7 @@ The following is an example of the type of data we are collecting from individua
 
 Visit the [documentation page](/doc/readme.md) for instructions on how we are building and communicating with AggieWater smart metering devices. 
 
-Visit the source code folder if you are interested in our data collection scripts.
+Visit the [source code](https://github.com/UCHIC/WaterMonitor/tree/master/src) folder if you are interested in our data collection scripts.
 
 ##License
 

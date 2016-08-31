@@ -15,7 +15,7 @@ Visit the [documentation page](/doc/readme.md) for instructions on how we are bu
 
 Visit the [source code](https://github.com/UCHIC/WaterMonitor/tree/master/src) folder if you are interested in our data collection scripts.
 
-##License
+#License
 
 This material is open and licensed under the New Berkeley Software Distribution (BSD) License. Full text of the license follows.
 

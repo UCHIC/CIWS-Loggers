@@ -1,2 +1,4 @@
 .DS_Store
 RPI3_Configuration.txt
+src/campusmeters/serverconfig.json
+*.pyc

@@ -1,6 +1,6 @@
 ## Documentation Index
 
-### Documentation for the AggieWater "Piggy-Back" Residential Smart Meter Device
+### Documentation for the "Piggy-Back" Residential Smart Meter Device
 
 * [Getting started](gettingstarted.md) - Learn how to set up, start, and communicate with the residential "piggy-back" smart metering device
 * [Sensor placement](sensorplacement.md) - Learn about where to place the Hall effect sensor on an analog, positive displacement meter for data collection using the "piggy-back" smart metering device

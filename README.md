@@ -1,4 +1,4 @@
-#AggieWater Smart Water Metering
+## Cyberinfrastructure for Intelligent Water Supply
 
 This repository contains files and documentation for a smart water metering effort under development at the Utah Water Research Laboratory at Utah State University. We are using low cost, commercially available, embedded computers and sensors to log data from existing analog residential water meters as well as commercial water meters with pulsed or current loop outputs (4-20 mA) on USU's campus. 
 
@@ -8,11 +8,13 @@ The following is an example of the type of data we are collecting from individua
 
 ![Data](/doc/images/data.png)
    
-#Getting Started
+## Getting Started
 
-Visit the [documentation page](/doc/readme.md) for instructions on how we are building and communicating with AggieWater smart metering devices. 
+Visit the [documentation page](/doc/readme.md) for instructions on how we are building and communicating with smart metering devices. 
 
-Visit the [source code](https://github.com/UCHIC/WaterMonitor/tree/master/src) folder if you are interested in our data collection scripts.
+Visit the [source code](https://github.com/UCHIC/ciws/tree/master/src) folder if you are interested in:
+* Our data collection scripts for Raspberry Pi computers
+* Our data visualization and analysis scripts for data we are working with
 
 #Sponsors and Credit
 

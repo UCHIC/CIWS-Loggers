@@ -10,30 +10,27 @@
 #   Adafruit ADS1015 ADC
 #
 # This script makes high frequency measurements of flow through water meters
-# installed on USU's student residence hall buildings. It measures the
+# installed in USU's student residence hall buildings. It measures the
 # 4-20 mA output of the meters and converts it to gallons per minute. It
 # outputs flow rate, the incremental flow for each time period, and totalized
 # flow since the program started.
 #
 # The sampling rate and data recording rate are configurable
 #
-# TODO:
-# 1. Build program for multi meter sites
 # ----------------------------------------------------------------------------
 import time
 # Import the ADS1x15 module.
 import Adafruit_ADS1x15
-import sys
 
 # Set all site specific configuration options for deployment
 # ----------------------------------------------------------
-siteCode = "LLC_BLDG_A_HotSupply"
+siteCode = "Mountain_View_Tower"
 # Set the scanning and recording intervals at which the program should run
 scanInterval = 1.0          # Time between scans within the main loop in seconds
-recordInterval = 30.0       # Time between recorded values in seconds
+recordInterval = 1.0        # Time between recorded values in seconds
 # Set meter Specific Values
-maxFlowRate = 200.0          # Maximum flow rate of meter at 20 mA output (gal/min)
-calibrationFactor = 1.0     # A value to scale the output voltages based on simple one point calibration
+maxFlowRate = 500.0          # Maximum flow rate of meter at 20 mA output (gal/min)
+calibrationFactor = 1.0      # A value to scale the output voltages based on simple one point calibration
 
 # Create an ADS1015 ADC (12-bit) instance with default address
 # ------------------------------------------------------------
@@ -57,9 +54,6 @@ adc = Adafruit_ADS1x15.ADS1015()
 GAIN = 1
 bitConversionFactor = 2  # mV per bit per the table above
 
-# Get the meter reading at the time of the deployment passed as a command line argument
-initialMeterReading = sys.argv[1]
-
 # Set up the data log file
 # ------------------------
 localTime = time.localtime(time.time())
@@ -70,16 +64,14 @@ outputFileName = 'datalog_' + siteCode + '_' + str(localTime.tm_year) + '-' + st
 # Data file header lines - these lines get written to the beginning of the file when it's created
 loggerName = '"Campus Meter Data Log for ' + siteCode + '\"'
 print loggerName
-meterReading = '"Meter reading at time of deployment: ' + initialMeterReading + '\"'
-print meterReading
+
 # Data file column header
-dataHeader = '"Date\",\"RecordNumber\",\"SensorVoltage\",\"FlowRate\", \"AvgFlowRate\", ' \
-             '\"IncrementalVolume\", \"TotalizedVolume\"'
+dataHeader = '"Date\",\"RecordNumber\",\"SensorVoltage\",\"FlowRate\",\"AvgFlowRate\",' \
+             '\"IncrementalVolume\",\"TotalizedVolume\"'
 print dataHeader
 # Open the file for writing to make sure the file gets created, write the header, then close it
 with open(outputFilePath + outputFileName, 'w') as outputFile:
     outputFile.write(loggerName + '\n')
-    outputFile.write(meterReading + '\n')
     outputFile.write(dataHeader + '\n')
 
 # Initialize timing variables

@@ -1,8 +1,8 @@
-## Brief decription of the source code for Raspberry Pi computers used for logging data on campus residential building water meters.
+## Source code for Raspberry Pi Computers Logging Data on USU's Campus Residential Buildings
 
 ### meterlog.py
 
-This script is run to log data from a single commercial water meter with a 4-20 mA output. The current output is converted to a voltage using a precision resistor and then measured on the Raspberry Pi using an analog to digital converter (ADC) breakout board.
+This script is run to log data from a single commercial water meter with a 4-20 mA output. The current output is proportional to the flow through the meter and is converted to a voltage using a precision resistor and then measured on the Raspberry Pi using an analog to digital converter (ADC) breakout board. 
 
 ### multi_meterlog.py
 

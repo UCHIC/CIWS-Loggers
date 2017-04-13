@@ -16,7 +16,9 @@ Visit the [source code](https://github.com/UCHIC/ciws/tree/master/src) folder if
 * Our data collection scripts for Raspberry Pi computers
 * Our data visualization and analysis scripts for data we are working with
 
-#Sponsors and Credit
+Visit the [hardware design](https://github.com/UCHIC/CIWS/tree/master/hardwaredesign) folder if you are interested in the custom hardware we are using with Raspberry Pi to enable high frequency data collection on both commercial meters with 4-20 mA outputs and residential meters with analog registers.
+
+## Sponsors and Credit
 
 This project is receiving or has received support from a number of agencies and complementary efforts including:
 

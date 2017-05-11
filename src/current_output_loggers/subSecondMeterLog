@@ -61,11 +61,11 @@ timeInterval = 0.0
 
 #now = time.localtime(time.time())
 #remainder = recordInterval - (now.tm_sec % recordInterval)
+# **** set up a variable for now.tm_sec ****
 #time.sleep(remainder)
 #previousTime = time.time()
 #previousRecordTime = previousTime
-now = time.time(time.time())
-remainder - recordInterval - (now.tm_sec % recordInterval)
+now = datetime.utcnow()
 millis = (time.time() * 1000)
 
 
@@ -90,6 +90,15 @@ recordIntervalVol = 0.0
 # ______________________Main Program___________________________
 
 while True:
+
+    currTime = datetime.datetime()
+
+    if (currTime - prevTime) >= scanInterval:
+        sampleCount += 1
+
+        #format date/time string
+
+        sensorVolts = calibrationFactor * bitConvversion * adc.read_adc(flowPin, gain=GAIN)/1000
 
 
 

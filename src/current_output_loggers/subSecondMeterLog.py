@@ -71,6 +71,9 @@ timeInterval = 0.0
 # This is always the case, because no DST.
 
 now = datetime.now(timezone('MST'))
+# I'm not sure if now.tm_sec will work for milliseconds.
+# rem = now.tm_sec * scanInterval ????
+# remainder = recordInterval - (rem % recordInterval)
 remainder = recordInterval - (now.tm_sec % recordInterval)
 time.sleep(remainder)
 prevTime = datetime.datetime()

@@ -7,10 +7,10 @@ import Adafruit_ADS1x15
 # _____________Site Specific settings____________________
 
 siteCode = "Richards_Hall"              # Location of the reading
-scanIntervalStr = "1s"                  # String to define the interval in the output file name (line #42)
+scanIntervalStr = "1s"                  # String used in the output file name
 scanInterval = 1.0                      # Time between scans within the main loop (sec)
 recordInterval = 1.0                    # Time between recorded values (sec)
-scanIntervalDivisor = 60                # Reference to (Line #123) -- used to get total flow for scan interval
+scanIntervalDivisor = 60                # Reference to (Line ###) -- used to get total flow for scan interval
 # For 1s should be == 60.0
 # For 500ms should be == 120.0
 # For 250ms should be == 240.0
@@ -69,16 +69,18 @@ timeInterval = 0.0
 
 # Arizona Mountain Standard Time (MST) == UTC -7.0
 # This is always the case, because no DST.
-
 now = datetime.now(timezone('MST'))
-# I'm not sure if now.tm_sec will work for milliseconds.
-# rem = now.tm_sec * scanInterval ????
-# remainder = recordInterval - (rem % recordInterval)
+
+# Use one of the following depending on sampling frequency:
+# remainder = recordInterval - (now.second % recordInterval)
+# remainder = recordInterval - (now.microsecond % recordInterval)
 remainder = recordInterval - (now.tm_sec % recordInterval)
 time.sleep(remainder)
-prevTime = datetime.datetime()
-prevRecTime = prevTime
 
+# Using datetime.datetime.now() will give an AttributeError
+# import datetime.now() needs to be used???
+prevTime = datetime.datetime.now()
+prevRecTime = prevTime
 
 # ______________________Sensor Variables_______________________
 # Initial values for sensor variables, these reset every epoch
@@ -101,7 +103,8 @@ totalVol = 0.0                              # Total flow volume since epoch (gal
 
 while True:
     # Set the current time
-    currTime = datetime.datetime()
+    # This will give the same error as the above line.
+    currTime = datetime.datetime.now()
 
     # If the time between scans is greater than the set scan
     # interval run the program.

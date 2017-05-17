@@ -112,7 +112,6 @@ while True:
         sampleCount += 1
 
         # format date/time string
-        # Maybe change this back to 'now' instead of timeStamp
         timeStamp = now.strftime("%Y-%m-%d %H:%M:%S.%f")
 
         # Take the measurement from the meter and convert it from V to mV
@@ -133,7 +132,6 @@ while True:
         avgFlowRate = flowSum / sampleCount                                  # in (gal/min)
 
         # data record array
-        # Maybe have to change 'timeStamp' back to 'now'???
         outputList = [timeStamp, sampleNumber, sensorVoltage, flowRate, avgFlowRate, recordIntervalVol, totalVol]
         dataRecord = ','.join(map(str, outputList))
         print dataRecord

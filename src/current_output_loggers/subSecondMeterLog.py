@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 import Adafruit_ADS1x15
 
@@ -10,19 +10,12 @@ siteCode = "Richards_Hall"              # Location of the reading
 scanIntervalStr = "1s"                  # String used in the output file name
 scanInterval = 1.0                      # Time between scans within the main loop (sec)
 recordInterval = 1.0                    # Time between recorded values (sec)
-scanIntervalDivisor = 60                # Reference to (Line ###) -- used to get total flow for scan interval
-# For 1s should be == 60.0
-# For 500ms should be == 120.0
-# For 250ms should be == 240.0
-# For 200ms should be == 300.0
-# For 100ms should be == 600.0
 maxFlowRate = 500.0                     # Max flow corresponding to a 20mA output (gal/min)
 calibrationFactor = 1.0                 # Scale output voltages to one point calibration
 
 # __________________Gain Settings_________________________
 
-adc = Adafruit_ADS1x15.ADS1015()        # Initialize the 12 bit ADC
-
+adc = Adafruit_ADS1x15.ADS1115()        # Initialize the 16 bit ADC
 # This setting changes the range of voltages that are read
 # See table 3 in the ADS1015/ADS1115 data-sheet for more info on gain.
 #  - 2/3 = +/-6.144V 1 bit = 3 mV
@@ -31,14 +24,13 @@ adc = Adafruit_ADS1x15.ADS1015()        # Initialize the 12 bit ADC
 #  -   4 = +/-1.024V 1 bit = 0.5 mV
 #  -   8 = +/-0.512V 1 bit = 0.25 mV
 #  -  16 = +/-0.256V 1 bit = 0.125 mV
-
 GAIN = 1
-bitConversion = 2
+bitConversion = 0.125
 
 # ___________________Data Log Output File__________________
 
 localTime = time.localtime(time.time())
-outputFilePath = '/home/pi/CampusMeters'
+outputFilePath = '/home/pi/CampusMeters/'
 outputFileName = 'datalog_' + scanIntervalStr + '_' + siteCode + '_' + str(localTime.tm_year) \
                  + '-' + str(localTime.tm_mon) + '-' + str(localTime.tm_mday) \
                  + '_' + str(localTime.tm_hour) + ':' + str(localTime.tm_min) \
@@ -58,7 +50,7 @@ with open(outputFilePath + outputFileName, 'w') as outputFile:
     outputFile.write(dataHeader + '\n')
 
 # _____________________Timing Variables______________________
-# Initial set up of timing variables this resets every the code is run.
+# Initial set up of timing variables, these reset every epoch.
 sampleNumber = 1
 currTime = 0.0
 prevTime = 0.0
@@ -88,7 +80,7 @@ prevRecTime = prevTime
 flowPin = 0                                 # Pin connection on ADC to which the meter is connected
 resistorValue = 200                         # Shunt Resistor value in ohms
 minVoltage = (0.004 * resistorValue)        # Minimum voltage corresponding to 4 mA meter reading
-maxVoltage = (0.02 * resistorValue)         # Maximum voltage corresponding to 20 mA meter reading
+maxVoltage = (0.020 * resistorValue)        # Maximum voltage corresponding to 20 mA meter reading
 voltageRange = maxVoltage - minVoltage      # Voltage range corresponding to 4-20 mA output
 sensorVoltage = 0.0                         # Voltage input from the meter
 flowRate = 0.0                              # Instantaneous flow rate from the meter (gal/min)
@@ -112,7 +104,9 @@ while True:
         sampleCount += 1
 
         # format date/time string
-        timeStamp = now.strftime("%Y-%m-%d %H:%M:%S.%f")
+        timeStamp = now.strftime("\"%Y-%m-%d %H:%M:%S.%f\"",)
+        # This variable does not update when run, only prints the time of epoch
+        # now = time.strftime("\"%Y-%m-%d %H:%M:%S\"", time.localtime(currTime))
 
         # Take the measurement from the meter and convert it from V to mV
         sensorVoltage = calibrationFactor * bitConversion * adc.read_adc(flowPin, gain=GAIN) / 1000

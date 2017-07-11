@@ -1,16 +1,16 @@
 import time
 from datetime import datetime, timedelta
-from pytz import timezone
+import pytz
 import Adafruit_ADS1x15
 
 
 # _____________Site Specific settings____________________
 
 siteCode = "Richards_Hall"              # Location of the reading
-scanIntervalStr = "1s"                  # String used in the output file name
-scanInterval = 1.0                      # Time between scans within the main loop (sec)
-recordInterval = 1.0                    # Time between recorded values (sec)
-maxFlowRate = 500.0                     # Max flow corresponding to a 20mA output (gal/min)
+scanIntervalStr = "500ms"                  # String used in the output file name
+scanInterval = timedelta(milliseconds=500)                     # Time between scans within the main loop (sec)
+recordInterval = timedelta(milliseconds=500)                   # Time between recorded values (sec)
+maxFlowRate = 250.0                     # Max flow corresponding to a 20mA output (gal/min)
 calibrationFactor = 1.0                 # Scale output voltages to one point calibration
 
 # __________________Gain Settings_________________________
@@ -30,7 +30,7 @@ bitConversion = 0.125
 # ___________________Data Log Output File__________________
 
 localTime = time.localtime(time.time())
-outputFilePath = '/home/pi/CampusMeters/'
+outputFilePath = '/home/pi/CampusMeters/datalogs/'
 outputFileName = 'datalog_' + scanIntervalStr + '_' + siteCode + '_' + str(localTime.tm_year) \
                  + '-' + str(localTime.tm_mon) + '-' + str(localTime.tm_mday) \
                  + '_' + str(localTime.tm_hour) + ':' + str(localTime.tm_min) \
@@ -57,21 +57,18 @@ prevTime = 0.0
 prevRecTime = 0.0
 timeInterval = 0.0
 
-# Not sure if the following are totally correct, need to run tests to see if they will
-
 # Arizona Mountain Standard Time (MST) == UTC -7.0
 # This is always the case, because no DST.
-now = datetime.now(timezone('MST'))
+mtnStdTm = pytz.timezone('MST')
+now = datetime.now(mtnStdTm)
 
 # Use one of the following depending on sampling frequency:
 # remainder = recordInterval - (now.second % recordInterval)
 # remainder = recordInterval - (now.microsecond % recordInterval)
-remainder = recordInterval - (now.tm_sec % recordInterval)
-time.sleep(remainder)
+# remainder = recordInterval - (now.microsecond % recordInterval)
 
-# Using datetime.datetime.now() will give an AttributeError
-# import datetime.now() needs to be used???
-prevTime = datetime.datetime.now()
+# time.sleep(remainder)
+prevTime = datetime.now()
 prevRecTime = prevTime
 
 # ______________________Sensor Variables_______________________
@@ -95,8 +92,7 @@ totalVol = 0.0                              # Total flow volume since epoch (gal
 
 while True:
     # Set the current time
-    # This will give the same error as the above line.
-    currTime = datetime.datetime.now()
+    currTime = datetime.now()
 
     # If the time between scans is greater than the set scan
     # interval run the program.
@@ -104,9 +100,8 @@ while True:
         sampleCount += 1
 
         # format date/time string
+        now = datetime.now(mtnStdTm)
         timeStamp = now.strftime("\"%Y-%m-%d %H:%M:%S.%f\"",)
-        # This variable does not update when run, only prints the time of epoch
-        # now = time.strftime("\"%Y-%m-%d %H:%M:%S\"", time.localtime(currTime))
 
         # Take the measurement from the meter and convert it from V to mV
         sensorVoltage = calibrationFactor * bitConversion * adc.read_adc(flowPin, gain=GAIN) / 1000
@@ -118,8 +113,12 @@ while True:
         else:
             flowRate = 0.0
 
+        # have to figure out how to use timedelta in place of scaninterval/recordinterval
+        # timeInterval = timedelta(milliseconds=500)
+        # TypeError: unsupported operand type(s) for *: 'float' and 'datetime.timedelta'
+        
         timeInterval = (currTime - prevTime)                                 # Time of scan interval in (s)
-        scanIntervalVol = (flowRate * timeInterval) / scanIntervalDivisor    # Total flow vol for scan interval (gal)
+        scanIntervalVol = (flowRate * timeInterval) / 60                     # Total flow vol for scan interval (gal)
         recordIntervalVol += scanIntervalVol                                 # Total flow  vol for record interval (gal)
         totalVol += scanIntervalVol                                          # Total flow vol since epoch (gal)
         flowSum += flowRate                                                  # Flow sum used to calculate avg flow

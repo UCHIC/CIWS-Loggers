@@ -7,9 +7,9 @@ import Adafruit_ADS1x15
 # _____________Site Specific settings____________________
 
 siteCode = "Richards_Hall"              # Location of the reading
-scanIntervalStr = "500ms"                  # String used in the output file name
-scanInterval = timedelta(milliseconds=500)                     # Time between scans within the main loop (sec)
-recordInterval = timedelta(milliseconds=500)                   # Time between recorded values (sec)
+scanIntervalStr = "500ms"               # String used in the output file name
+# scanInterval = 0.50                     # Time between scans within the main loop (sec)
+recordInterval = 0.50                   # Time between recorded values (sec)
 maxFlowRate = 250.0                     # Max flow corresponding to a 20mA output (gal/min)
 calibrationFactor = 1.0                 # Scale output voltages to one point calibration
 
@@ -56,18 +56,15 @@ currTime = 0.0
 prevTime = 0.0
 prevRecTime = 0.0
 timeInterval = 0.0
+tmDelta = timedelta(millisecond=500)
 
 # Arizona Mountain Standard Time (MST) == UTC -7.0
 # This is always the case, because no DST.
 mtnStdTm = pytz.timezone('MST')
 now = datetime.now(mtnStdTm)
 
-# Use one of the following depending on sampling frequency:
-# remainder = recordInterval - (now.second % recordInterval)
-# remainder = recordInterval - (now.microsecond % recordInterval)
-# remainder = recordInterval - (now.microsecond % recordInterval)
-
-# time.sleep(remainder)
+remainder = recordInterval - (now.second % recordInterval)
+time.sleep(remainder)
 prevTime = datetime.now()
 prevRecTime = prevTime
 
@@ -93,10 +90,11 @@ totalVol = 0.0                              # Total flow volume since epoch (gal
 while True:
     # Set the current time
     currTime = datetime.now()
+    elapsedTime = (currTime - prevTime)
 
     # If the time between scans is greater than the set scan
     # interval run the program.
-    if (currTime - prevTime) >= scanInterval:
+    if elapsedTime >= tmDelta:
         sampleCount += 1
 
         # format date/time string
@@ -113,11 +111,7 @@ while True:
         else:
             flowRate = 0.0
 
-        # have to figure out how to use timedelta in place of scaninterval/recordinterval
-        # timeInterval = timedelta(milliseconds=500)
-        # TypeError: unsupported operand type(s) for *: 'float' and 'datetime.timedelta'
-        
-        timeInterval = (currTime - prevTime)                                 # Time of scan interval in (s)
+        timeInterval = 0.500                                                 # Time of scan interval in (s)
         scanIntervalVol = (flowRate * timeInterval) / 60                     # Total flow vol for scan interval (gal)
         recordIntervalVol += scanIntervalVol                                 # Total flow  vol for record interval (gal)
         totalVol += scanIntervalVol                                          # Total flow vol since epoch (gal)
@@ -132,7 +126,7 @@ while True:
         prevTime = currTime
 
         # If the record interval has passed save the data record to the .csv file
-        if (currTime - prevTime) >= recordInterval:
+        if elapsedTime >= tmDelta:
             with open(outputFilePath + outputFileName, 'a') as outputFile:
                 outputFile.write(dataRecord + '\n')
 

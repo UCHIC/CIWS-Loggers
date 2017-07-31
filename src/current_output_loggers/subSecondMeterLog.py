@@ -7,9 +7,8 @@ import Adafruit_ADS1x15
 # _____________Site Specific settings____________________
 
 siteCode = "Richards_Hall"              # Location of the reading
-scanIntervalStr = "500ms"               # String used in the output file name
-# scanInterval = 0.50                     # Time between scans within the main loop (sec)
-recordInterval = 0.50                   # Time between recorded values (sec)
+scanIntervalStr = "100ms"               # String used in the output file name
+recordInterval = 0.10                   # Time between recorded values (sec)
 maxFlowRate = 250.0                     # Max flow corresponding to a 20mA output (gal/min)
 calibrationFactor = 1.0                 # Scale output voltages to one point calibration
 
@@ -56,7 +55,8 @@ currTime = 0.0
 prevTime = 0.0
 prevRecTime = 0.0
 timeInterval = 0.0
-tmDelta = timedelta(millisecond=500)
+# change depending on scan interval
+tmDelta = timedelta(millisecond=100)
 
 # Arizona Mountain Standard Time (MST) == UTC -7.0
 # This is always the case, because no DST.

@@ -1,0 +1,49 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+# Added this code 05/21/2018 by D.H.
+# It disables HDMI. We are doing this to save battery power.
+/usr/bin/tvservice -o
+
+# Added this code 05/21/2018 by D.H.
+# It disables the hciuart service 
+# (see post by Ruffio at https://www.raspberrypi.org/forums/viewtopic.php?t=148109
+# Note that I already disabled the UART hardware in /boot/config.txt
+sudo systemctl disable hciuart
+
+# Added this code 05/21/2018, D.H.
+# Disable the Wi-Fi adapter per StackExchange Forum post
+sudo iwconfig wlan0 txpower off
+
+# Added this code 06/05/2018 by D.H.
+# This code is a test to make a GPIO signal such that it toggles as the Raspberry
+# Pi is halting. This will allow us to detect that the Pi is halting. By knowing this,
+# the microcontroller can then safely cut power to the Raspberry Pi completely.
+# source: https://raspberrypi.stackexchange.com/questions/22579/pi-headless-how-to-confirm-that-the-pi-is-shut-down
+#
+# Call the python script to do our bidding, as described above.
+python /home/pi/haltsig.py
+
+# Added this code 07/02/2018 by D.H.
+# This code starts the data logger script (hybrid_logger.py) at boot time, so it automatically runs at startup
+#
+# Call the python script to do our bidding, as described above.
+python /home/pi/hybrid_logger.py
+
+exit 0

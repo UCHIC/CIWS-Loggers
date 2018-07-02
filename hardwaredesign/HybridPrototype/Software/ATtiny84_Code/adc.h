@@ -27,6 +27,7 @@
 #define i_1v1 0x21
 #define temp_sensor 0x22
 
+void ADC_init(void);              // Initialize ADC
 void ADC_Enable(void);						// Enable ADC
 void select_ADC_reference(char reference);	// Select ADC Reference Voltage
 void select_ADC_input(char input);			// Select ADC Input

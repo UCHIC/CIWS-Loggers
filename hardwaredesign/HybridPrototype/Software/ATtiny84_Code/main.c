@@ -95,7 +95,7 @@ int main(void)
 		{
 			lenData[0] = (recordNum >> 8);	// Store the number of records in the lenData array.
 			lenData[1] = recordNum & 0x00FF;
-			EEPROM_Write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
+			EEPROM_write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
 			
 			recordNum = 0;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			EEPROM_Busy = 1;				// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.
@@ -109,7 +109,7 @@ int main(void)
 		{
 			lenData[0] = (recordNum >> 8);	// Store the number of records in the lenData array.
 			lenData[1] = recordNum & 0x00FF;
-			EEPROM_Write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
+			EEPROM_write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
 		
 			recordNum = 0;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			PORTA |= (1 << PA3);			// Set a signal to keep Raspberry Pi on so user can retrieve data
@@ -176,7 +176,7 @@ ISR(TIM1_COMPA_vect)
 	dataIndex += 4;								// Update Array size information
 	if(!EEPROM_Busy)							// If the EEPROM is not being read by the Raspberry Pi
 	{	
-		EEPROM_Write(chipAddr, EEPROM_Index, dataStorage, dataIndex); // Write Data to EEPROM
+		EEPROM_write(chipAddr, EEPROMindex, dataStorage, dataIndex); // Write Data to EEPROM
 		EEPROMindex += dataIndex;
 		dataIndex = 0;
 	}

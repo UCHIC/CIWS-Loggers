@@ -11,6 +11,6 @@
 
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
-pin = 26
+pin = 25
 GPIO.setup(pin,GPIO.OUT)
 GPIO.output(pin,GPIO.HIGH)

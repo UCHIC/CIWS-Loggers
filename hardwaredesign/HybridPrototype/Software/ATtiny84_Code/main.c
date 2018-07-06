@@ -105,7 +105,7 @@ int main(void)
 			EEPROM_Busy = 0;				// Let the other functions know that the EEPROM is free to be written
 			rpi_off();						// Turn off Raspberry Pi (The Raspberry Pi shuts itself off. This function will wait until the Raspberry Pi sends a signal to cut its power).
 		}
-		if (PINA & (1 << PA1) == 0)	// Check if the manual Raspberry Pi power-on button has been pushed
+		if ((PINA & (1 << PA1)) == 0)	// Check if the manual Raspberry Pi power-on button has been pushed
 		{
 			lenData[0] = (recordNum >> 8);	// Store the number of records in the lenData array.
 			lenData[1] = recordNum & 0x00FF;

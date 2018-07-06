@@ -172,7 +172,7 @@ ISR(TIM1_COMPA_vect)
 	dataStorage[dataIndex] = (recordNum >> 8);		// record number
 	dataStorage[dataIndex + 1] = recordNum & 0x00FF;
 	dataStorage[dataIndex + 2] = currentPulseCount;	// stored pulse count
-	dataStorage[dataIndex + 3] = get_volt() * 4;	// battery voltage * 4 (Divided by 4 in hardware to be within voltage reference range)
+	dataStorage[dataIndex + 3] = get_volt();	// battery voltage
 	dataIndex += 4;								// Update Array size information
 	if(!EEPROM_Busy)							// If the EEPROM is not being read by the Raspberry Pi
 	{	

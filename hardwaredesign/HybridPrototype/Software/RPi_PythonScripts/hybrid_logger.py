@@ -138,7 +138,7 @@ for i in range(numRecords):                     # loop reads an entire four byte
     recordNumLow  = bus.read_byte(0x50)
     pulseCount    = bus.read_byte(0x50)
     battVolt      = bus.read_byte(0x50)
-    battVolt	  = (battVolt * 3.3 * 4) / 255
+    battVolt	  = (battVolt * 3.3 * 5) / 255
 
     recordNum = (recordNumHigh << 8) + recordNumLow     # splice together the high and low bytes of recordNum 
     recordNum = recordNum + int(lastRecord)		# Compute current record number based on last record number    
@@ -182,8 +182,8 @@ stayOn = GPIO.input(stayOnPin)                  # read the status of the Stay On
 if stayOn == True:
     time.sleep(crunchTime)                      # have the script wait for crunchTime seconds before an automatic system poweroff
 
-#os.system("sudo poweroff")                      # automatic system poweroff                       
-print "Powered off"
+print "Powering Off"
+os.system("sudo poweroff")                      # automatic system poweroff                       
 
 
 

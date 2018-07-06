@@ -1,0 +1,5 @@
+This project was compiled successfully using AVRDUDE with avr-gcc on Linux (Lubuntu 18.04) and Windows (WinAVR software).
+Programming was done with a USB programmer based on the "usbtiny" design.
+
+In Makefile: On Linux, AVRDUDE_PORT = usb
+             On Windows, AVRDUDE_PORT = com1

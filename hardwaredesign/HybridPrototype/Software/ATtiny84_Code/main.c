@@ -83,20 +83,22 @@ int main(void)
 	|      it up with interrupts.                 |
 	|                                             |
 	\*===========================================*/
-	
+
 	rpi_ioinit();				// Initialize Raspberry Pi power control and signalling hardware
 	int0_init();				// Initialize Interrupts
 	EEPROM_init();				// Initialize EEPROM Interface
 	ADC_init();					// Initialize ADC
 	timer_init();				// Initialize Timer
+	unsigned short lastRecord;
 	while(1)					// Loop:
-	{	
+	{
 		if (recordNum >= recordMax)		// Check if it's time to wake up RPi
 		{
-			lenData[0] = (recordNum >> 8);	// Store the number of records in the lenData array.
-			lenData[1] = recordNum & 0x00FF;
+			lastRecord = recordNum - 1;	// The number of records will be one less than the current recordNum
+			lenData[0] = (lastRecord >> 8);	// Store the number of records in the lenData array.
+			lenData[1] = lastRecord & 0x00FF;
 			EEPROM_write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
-			
+
 			recordNum = 0;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			EEPROM_Busy = 1;				// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.
 			EEPROMindex = 2;				// Reset EEPROM index (remember, data starts at 2)
@@ -107,10 +109,11 @@ int main(void)
 		}
 		if ((PINA & (1 << PA1)) == 0)	// Check if the manual Raspberry Pi power-on button has been pushed
 		{
-			lenData[0] = (recordNum >> 8);	// Store the number of records in the lenData array.
-			lenData[1] = recordNum & 0x00FF;
+			lastRecord = recordNum - 1;	// The number of records will be one less than the current recordNum
+			lenData[0] = (lastRecord >> 8);	// Store the number of records in the lenData array.
+			lenData[1] = lastRecord & 0x00FF;
 			EEPROM_write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
-		
+
 			recordNum = 0;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			PORTA |= (1 << PA3);			// Set a signal to keep Raspberry Pi on so user can retrieve data
 			EEPROM_Busy = 1;				// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.

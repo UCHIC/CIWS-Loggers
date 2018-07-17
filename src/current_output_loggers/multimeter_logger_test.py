@@ -41,8 +41,10 @@ recordInterval = 1.0        # Time between recorded values in seconds
 # Set meter Specific Values
 coldInMaxFlowRate = 200.0         # Maximum flow rate of the cold water inflow meter at 20 mA output (gal/min)
 coldInCalibrationFactor = 1.0     # One point calibration value to scale the cold water meter output voltages
-hotInMaxFlowRate = 200.0           # Maximum flow rate of the hot water inflow meter at 20 mA output (gal/min)
+coldInCalibration = 0.0072			 # Arithmetic Calibration value to adjust the cold water meter output voltages
+hotInMaxFlowRate = 50.0           # Maximum flow rate of the hot water inflow meter at 20 mA output (gal/min)
 hotInCalibrationFactor = 1.0      # One point calibration value to scale the hot water meter output voltages
+hotInCalibration = 0.0082			 # Arithmetic Calibration value to adjust the hot water meter output voltages
 BOUNCE = 2000                        # De-bouncing time (milliseconds)
 
 # Set up the GPIO pin for the pulse counting meter
@@ -215,8 +217,8 @@ while True:
         hotOutFlowRate = 60 * (hotOutPulseCount * pulseVolume) / timeInterval  # Flow rate (gal/min)
 
         # Get the voltage measurements from the Octave meters - divide by 1000 to convert from mV to V
-        coldInSensorVolts = coldInCalibrationFactor * bitConversionFactor * adc.read_adc(coldInflowPin, gain=GAIN) / 1000
-        hotInSensorVolts = hotInCalibrationFactor * bitConversionFactor * adc.read_adc(hotInFlowPin, gain=GAIN) / 1000
+        coldInSensorVolts = (coldInCalibrationFactor * bitConversionFactor * adc.read_adc(coldInflowPin, gain=GAIN) / 1000) + coldInCalibration
+        hotInSensorVolts = (hotInCalibrationFactor * bitConversionFactor * adc.read_adc(hotInFlowPin, gain=GAIN) / 1000) + hotInCalibration
 
         # Check to see if the sensor voltages are greater than the minimum - if not, set flow to zero
         # Add an arbitrary buffer onto the minVoltage (0.0001 V) to avoid small errors when the flow is zero
@@ -300,7 +302,21 @@ while True:
 #
 #   Added variable "hotOutPulseCountScan", assigned to hotOutPulseCount before "hotOutPulseCount = 0.0"
 #       Allows data to be displayed
-#
+# 
 #   Changed Record Interval to 1 second for testing purposes
 #
 #   End of Line
+
+# Known Issues (Josh Tracy, 7/16/18):
+#	ADC-measured voltage slightly off from multi-meter measured voltage -- Probably fine
+#	Water flow-rate waaayyyyy off from meter reading -- Incorrect meter setup likely. Testing today.
+#
+#	End of Line
+
+# Fixing Issues (Josh Tracy, 7/17/18):
+# ADC-measured voltage slightly off -- one-point calibration fix on each channel
+# Water flow-rate waaayyyyy off from meter reading -- Incorrect meter setup. Fixed.
+
+# New Issue (Josh Tracy, 7/17/18):
+# Voltages being read are not consistent with the resistor value and current output.
+# Probable electrical issue

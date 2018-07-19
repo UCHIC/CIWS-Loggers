@@ -41,10 +41,10 @@ recordInterval = 1.0        # Time between recorded values in seconds
 # Set meter Specific Values
 coldInMaxFlowRate = 200.0         # Maximum flow rate of the cold water inflow meter at 20 mA output (gal/min)
 coldInCalibrationFactor = 1.0     # One point calibration value to scale the cold water meter output voltages
-coldInCalibration = 0.0042			 # Arithmetic Calibration value to adjust the cold water meter output voltages
+coldInCalibration = 0.004			 # Arithmetic Calibration value to adjust the cold water meter output voltages
 hotInMaxFlowRate = 50.0           # Maximum flow rate of the hot water inflow meter at 20 mA output (gal/min)
 hotInCalibrationFactor = 1.0      # One point calibration value to scale the hot water meter output voltages
-hotInCalibration = 0.0042			 # Arithmetic Calibration value to adjust the hot water meter output voltages
+hotInCalibration = 0.004			 # Arithmetic Calibration value to adjust the hot water meter output voltages
 
 # Set up the GPIO pin for the pulse counting meter
 # ------------------------------------------------
@@ -122,7 +122,7 @@ timeInterval = 0.0        # Timing Variable
 # ----------------------------
 coldInflowPin = 0           # Analog port on the ADC to which the cold water inflow meter is connected
 hotInFlowPin = 1            # Analog port on the ADC to which the hot water inflow meter is connected
-resistorValue = 200.5       # The value of the shunt resistor in ohms used for the 4-20 mA current loop measurement -- Adjust for each resistor for better precision.
+resistorValue = 200         # The value of the shunt resistor in ohms used for the 4-20 mA current loop measurement -- Adjust for each resistor for better precision.
 minVoltage = (0.004 * resistorValue)  # The minimum voltage value that can be measured based on Ohm's Law
 maxVoltage = (0.020 * resistorValue)  # The maximum voltage that can be measured
 voltageRange = maxVoltage - minVoltage  # Voltage range based on resistor value in volts

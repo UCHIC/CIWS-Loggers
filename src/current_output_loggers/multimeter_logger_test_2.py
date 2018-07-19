@@ -44,7 +44,7 @@ coldInCalibrationFactor = 1.0     # One point calibration value to scale the col
 coldInCalibration = 0.0042			 # Arithmetic Calibration value to adjust the cold water meter output voltages
 hotInMaxFlowRate = 50.0           # Maximum flow rate of the hot water inflow meter at 20 mA output (gal/min)
 hotInCalibrationFactor = 1.0      # One point calibration value to scale the hot water meter output voltages
-hotInCalibration = 0.0052			 # Arithmetic Calibration value to adjust the hot water meter output voltages
+hotInCalibration = 0.0042			 # Arithmetic Calibration value to adjust the hot water meter output voltages
 
 # Set up the GPIO pin for the pulse counting meter
 # ------------------------------------------------

@@ -109,6 +109,7 @@ print dataHeader
 # Open the file for writing to make sure the file gets created, write the header, then close it
 with open(outputFilePath + outputFileName, 'w') as outputFile:
     outputFile.write(loggerName + '\n')
+    outputFile.write(dataHeader + '\n')
 
 # Initialize timing variables
 # --------------------

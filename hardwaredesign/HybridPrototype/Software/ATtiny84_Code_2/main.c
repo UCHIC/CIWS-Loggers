@@ -82,7 +82,9 @@ int main(void)
 	|                                             |
 	\*===========================================*/
 	
+	_delay_ms(1000);
 	rpi_ioinit();				// Initialize Raspberry Pi power control and signalling hardware
+	I2C_stop();					// Provide a solid stop condition for the I2C buffer chip
 	int0_init();				// Initialize Interrupts
 	EEPROM_init();				// Initialize EEPROM Interface
 	timer_init();				// Initialize Timer

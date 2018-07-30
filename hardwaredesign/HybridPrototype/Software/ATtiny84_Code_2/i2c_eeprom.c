@@ -1,5 +1,6 @@
 #include "i2c_eeprom.h"
 #include "usi_i2c_master.h"
+#include <util/delay.h>
 
 void EEPROM_write(unsigned char chip_addr, unsigned int addr, unsigned char* data, unsigned int data_size)
 {
@@ -35,5 +36,19 @@ void EEPROM_read(unsigned char chip_addr, unsigned int addr, unsigned char* data
 void EEPROM_init(void)
 {
 	USI_I2C_Master_Init();
+	return;
+}
+
+void I2C_stop(void)
+{
+	DDR_USI |=  (1 << PORT_USI_SDA);			// Set as outputs
+	DDR_USI |=  (1 << PORT_USI_SCL);
+	PORT_USI &= ~(1 << PORT_USI_SDA);			// SDA Low
+	PORT_USI &= ~(1 << PORT_USI_SCL);			// SCL Low
+	_delay_ms(100);								// Wait 0.1 seconds
+	PORT_USI |=  (1 << PORT_USI_SCL);			// SCL High
+	_delay_ms(100);								// Wait 0.1 seconds
+	PORT_USI |=  (1 << PORT_USI_SDA);			// SDA High
+	
 	return;
 }

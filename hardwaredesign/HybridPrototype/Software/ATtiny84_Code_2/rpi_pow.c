@@ -7,7 +7,7 @@ void rpi_ioinit(void)
 {
 	DDRA |= (1 << PA7); 		// PA7 output -- PA7 is connected to a MOSFET switch, and determines if power is supplied to the Raspberry Pi.
 	PORTA &= ~(1 << PA7);		// Start Raspberry Pi off (Signal Active HIGH)
-	DDRA &= ~(1 << PA0);		// PA0 output -- PA0 controls the enable state of an I2C buffer chip, which will isolate the RPi from the I2C bus when powered off.
+	DDRA |= (1 << PA0);		// PA0 output -- PA0 controls the enable state of an I2C buffer chip, which will isolate the RPi from the I2C bus when powered off.
 	PORTA &= ~(1 << PA0);		// Start buffer chip unenabled.
 	DDRA &= ~(1 << PA2);		// PA2 input  -- PA2 is connected to a GPIO on the Raspberry Pi. This signal is on as long as the Raspberry Pi is on, with the exception of startup and shutdown delays.
 	DDRA &= ~(1 << PA1);		// PA1 input  -- PA1 is connected to a button, which the user will push in order to manually turn on the Raspberry Pi and keep it on in order to retrieve datalog files.

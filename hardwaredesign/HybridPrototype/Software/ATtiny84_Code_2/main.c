@@ -11,7 +11,7 @@ void timer_init(void);
 const unsigned short recordMax = 32000;		// Global constant which tracks how full the external EEPROM is. When 32000 records are reached, the Raspberry Pi will be woken up. At 32000, the wake-up will be ~ 1/day, and will not quite fill one EEPROM chip (128 kB). 
 
 unsigned char pulseCount = 0;				// Global Variable which holds the current pulse count from the register.
-unsigned short recordNum = 0;				// Global Variable which holds the current record number.
+unsigned short recordNum = 1;				// Global Variable which holds the current record number.
 unsigned char EEPROM_Busy = 0;				// Global Flag used to note when the EEPROM is being read by the Raspberry Pi, and should therefore not be written to.
 
 unsigned char dataStorage[120];				// Global Array used to store records (Record Number, Pulse Count, Battery Voltage). Each record will be 3 bytes. When the Timer interrupt triggers and the Raspberry Pi is NOT reading the EEPROMS, then the contents of this array will be written to EEPROM.
@@ -90,10 +90,7 @@ int main(void)
 	timer_init();				// Initialize Timer
 	unsigned short lastRecord = 0;
 	while(1)					// Loop:
-	{	
-		// Temporary for testing
-		//_delay_ms(4000);
-		//EEPROM_write(chipAddr, 0, 
+	{	 
 		if (recordNum >= recordMax)		// Check if it's time to wake up RPi
 		{
 			lastRecord = --recordNum;			// Use the last record number written
@@ -101,7 +98,7 @@ int main(void)
 			lenData[1] = lastRecord & 0x00FF;
 			EEPROM_write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
 			
-			recordNum = 0;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
+			recordNum = 1;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			EEPROM_Busy = 1;				// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.
 			EEPROMindex = 2;				// Reset EEPROM index (remember, data starts at 2)
 			rpi_on();						// If it is time, wake up RPi
@@ -117,7 +114,7 @@ int main(void)
 			lenData[1] = lastRecord & 0x00FF;
 			EEPROM_write(chipAddr, 0, lenData, 2); // Write length to EEPROM address 0
 		
-			recordNum = 0;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
+			recordNum = 1;					// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			EEPROM_Busy = 1;				// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.
 			EEPROMindex = 2;				// Reset EEPROM index
 			rpi_on();						// Turn on Raspberry Pi

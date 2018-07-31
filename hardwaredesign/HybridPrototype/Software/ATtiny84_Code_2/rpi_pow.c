@@ -21,11 +21,11 @@ void rpi_ioinit(void)
 void rpi_on(void)
 {
 	PORTA |= (1 << PA7);		// Turn on RPi
+	PORTA |= (1 << PA0);		// Activate I2C buffer, connect RPi to I2C bus
 	DDRA |= (1 << PA3);		// Set PA3 output
 	PORTA &= ~(1 << PA3);		// Start "Stay On" Signal off
 	_delay_ms(5000);
 	while(!(PINA & 0x4));		// Wait while RPi signal is low
-	PORTA |= (1 << PA0);		// Activate I2C buffer, connect RPi to I2C bus
 	return;
 }
 

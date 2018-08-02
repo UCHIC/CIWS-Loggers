@@ -52,7 +52,7 @@ crunchTime = 600                                # Amount of time user has to gra
 
 lastRecord = 0					# The last record number of the last run, initially set to zero.
 
-if os.path.exists("/home/pi/LastRecord"):		# Determine the last record number to compute current record number in this run
+if os.path.exists("/home/pi/LastRecord"):	# Determine the last record number to compute current record number in this run
 	fh = open("/home/pi/LastRecord", "r")
 	lastRecord = fh.read()
 	fh.close()
@@ -91,7 +91,7 @@ GPIO.setup(stayOnPin,GPIO.IN)                   # set pin as an input
 #--------------------------------------------------------------------------------------------------
 
 
-filename = "/home/pi/test.csv"	# Define a path/filename to be used.
+filename = "/home/pi/test.csv"			# Define a path/filename to be used.
 dataLoggerName = "0000"				# Define a Data Logger name
 siteName = "0000"                               # Define a Site Name
 siteDescription = "UWRL Test Facility"          # Define a Site Description
@@ -135,9 +135,9 @@ numRecordsLow  = bus.read_byte(0x50)            # read low  byte of the number o
 dummy          = bus.read_byte(0x50)		# clear dummy byte
 dummy          = bus.read_byte(0x50)		# clear dummy byte
 
-numRecords = (numRecordsHigh << 8) + numRecordsLow  # splice together the low and high bytes to get the number of records
+numRecords = (numRecordsHigh << 8) + numRecordsLow  			# splice together the low and high bytes to get the number of records
 
-firstRecordTime = currTime - (numRecords * samplePeriod) - bootDelay # calculate starting time in seconds
+firstRecordTime = currTime - (numRecords * samplePeriod) - bootDelay 	# calculate starting time in seconds
 
 # EEPROM loop
 for i in range(numRecords):                     # loop reads an entire three byte record (sample) + one dummy byte for EEPROM organization purposes

@@ -5,3 +5,11 @@ by the Raspberry Pi. When the Raspberry Pi is finished, it shuts down and power 
 
 An electronic hardware schematic is provided, showing the ATtiny84 system connected to a Raspberry Pi. C code is provided for the ATtiny84
 microcontroller, and Python scripts are provided for the Raspberry Pi computer.
+
+      |   |              _________________
+      |   |             |                 |
+     _|   |_            |    ATtiny84     |
+    |_Meter_|-----------| Microcontroller |
+      |   |             |_________________|
+      |   |
+      |   |

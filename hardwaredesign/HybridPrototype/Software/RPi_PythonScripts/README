@@ -5,3 +5,4 @@ Currently, the Raspberry Pi runs hybrid_logger_2.py. For this script to be run o
 sudo python /home/pi/hybrid_logger_2.py 
 
 Note that this assumes the script is in the /home/pi/ directory.
+The old version had two scripts, haltsig.py and hybrid_logger.py. The functionalities are now in one script.

@@ -12,7 +12,7 @@ void rpi_ioinit(void)
 	DDRA &= ~(1 << PA2);		// PA2 input  -- PA2 is connected to a GPIO on the Raspberry Pi. This signal is on as long as the Raspberry Pi is on, with the exception of startup and shutdown delays.
 	DDRA &= ~(1 << PA1);		// PA1 input  -- PA1 is connected to a button, which the user will push in order to manually turn on the Raspberry Pi and keep it on in order to retrieve datalog files.
 	DDRA &= ~(1 << PA3);		// PA3 output -- PA3 is connected to a GPIO on the Raspberry Pi. This signal is set on a manual button press, to tell the Raspberry Pi not to shut itself off as it normally does. 
-								// PA3 is started as an input so as not to drive the pin while the RPi is off. (Try to avoid driving an unpowered device with powered signals)
+					// PA3 is started as an input so as not to drive the pin while the RPi is off. (Try to avoid driving an unpowered device with powered signals)
 	DDRA &= ~(1 << PA5);		// PA5 input  -- PA5 is connected to a GPIO on the Raspberry Pi. This signal tells the ATtiny whether or not the EEPROM is free to be written.
 	asm("nop");
 	return;
@@ -31,9 +31,9 @@ void rpi_on(void)
 
 void rpi_off(void)
 {
-	while(PINA & 0x4);			// Wait while RPi signal is high
+	while(PINA & 0x4);		// Wait while RPi signal is high
 	DDRA &= ~(1 << PA3);		// Set PA3 back to Input
-	_delay_ms(5000);			// Wait 10 seconds
+	_delay_ms(5000);		// Wait 10 seconds
 	_delay_ms(5000);
 	PORTA &= ~(1 << PA7);		// Turn off RPi
 	

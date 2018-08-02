@@ -5,10 +5,10 @@
 #include "i2c_eeprom.h"
 #include "rpi_pow.h"
 
-void int0_init(void);						// Function definitions
+void int0_init(void);					// Function definitions
 void timer_init(void);
 
-const unsigned short recordMax = 32000;		// Global constant which tracks how full the external EEPROM is. When 32000 records are reached, the Raspberry Pi will be woken up. At 32000, the wake-up will be ~ 1/day, and will not quite fill one EEPROM chip (128 kB). 
+const unsigned short recordMax = 32000;			// Global constant which tracks how full the external EEPROM is. When 32000 records are reached, the Raspberry Pi will be woken up. At 32000, the wake-up will be ~ 1/day, and will not quite fill one EEPROM chip (128 kB). 
 
 unsigned char pulseCount = 0;				// Global Variable which holds the current pulse count from the register.
 unsigned short recordNum = 1;				// Global Variable which holds the current record number.
@@ -19,12 +19,12 @@ unsigned char lenData[2];					// Global Array used to store the length of the Da
 unsigned char dataIndex = 0;				// Global variable which holds the current array index. This is used to know how much of the dataStorage[] needs to be written to EEPROM.
 unsigned int EEPROMindex = 2;				// Global variable which holds the current EEPROM index, so memory in EEPROM is not overwritten. This index starts at two to leave two bytes to specify the length of the data.
 
-const char chipAddr = 0x50;					// I2C address of the EEPROM chip
+const char chipAddr = 0x50;				// I2C address of the EEPROM chip
 
 int main(void)
 {
 	/*===========================================*\
-	| The main function	for the Residential  	  |
+	| The main function	for the Residential   	  |
 	| Piggy-Back CIWS Meterloggers. An ATtiny84   |
 	| reads pulses from a residential water meter |
 	| and prepares the data to be read by a       |
@@ -33,7 +33,7 @@ int main(void)
 	| to reduce power consumption. The aim is to  |
 	| keep the Raspberry Pi's computing power but |
 	| reduce the power consumption of the device. |
-	|											  |
+	|					      					  |
 	| This is accomplished as follows:            |
 	|                                             |
 	| 1) Initialization:                          |

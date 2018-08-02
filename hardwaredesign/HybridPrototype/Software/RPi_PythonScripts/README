@@ -1,0 +1,7 @@
+This folder holds the Python Scripts run by the Raspberry Pi Computer on the Hybrid Prototype.
+
+Currently, the Raspberry Pi runs hybrid_logger_2.py. For this script to be run on startup, add the following line to /etc/rc.local:
+
+sudo python /home/pi/hybrid_logger_2.py 
+
+Note that this assumes the script is in the /home/pi/ directory.

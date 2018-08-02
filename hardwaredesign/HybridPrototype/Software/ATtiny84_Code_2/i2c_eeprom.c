@@ -45,9 +45,9 @@ void I2C_stop(void)
 	DDR_USI |=  (1 << PORT_USI_SCL);
 	PORT_USI &= ~(1 << PORT_USI_SDA);			// SDA Low
 	PORT_USI &= ~(1 << PORT_USI_SCL);			// SCL Low
-	_delay_ms(100);								// Wait 0.1 seconds
+	_delay_ms(100);						// Wait 0.1 seconds
 	PORT_USI |=  (1 << PORT_USI_SCL);			// SCL High
-	_delay_ms(100);								// Wait 0.1 seconds
+	_delay_ms(100);						// Wait 0.1 seconds
 	PORT_USI |=  (1 << PORT_USI_SDA);			// SDA High
 	
 	return;

@@ -14,8 +14,8 @@ unsigned char pulseCount = 0;				// Global Variable which holds the current puls
 unsigned short recordNum = 1;				// Global Variable which holds the current record number.
 unsigned char EEPROM_Busy = 0;				// Global Flag used to note when the EEPROM is being read by the Raspberry Pi, and should therefore not be written to.
 
-unsigned char dataStorage[120];				// Global Array used to store records (Record Number, Pulse Count, Battery Voltage). Each record will be 3 bytes. When the Timer interrupt triggers and the Raspberry Pi is NOT reading the EEPROMS, then the contents of this array will be written to EEPROM.
-unsigned char lenData[2];					// Global Array used to store the length of the Data in the EEPROM. An array is used because the functions to write to EEPROM expect an array. This array is written to the first two bytes of the EEPROM chip.
+unsigned char dataStorage[360];				// Global Array used to store records (Record Number, Pulse Count, Battery Voltage). Each record will be 3 bytes. When the Timer interrupt triggers and the Raspberry Pi is NOT reading the EEPROMS, then the contents of this array will be written to EEPROM.
+unsigned char lenData[2];				// Global Array used to store the length of the Data in the EEPROM. An array is used because the functions to write to EEPROM expect an array. This array is written to the first two bytes of the EEPROM chip.
 unsigned char dataIndex = 0;				// Global variable which holds the current array index. This is used to know how much of the dataStorage[] needs to be written to EEPROM.
 unsigned int EEPROMindex = 2;				// Global variable which holds the current EEPROM index, so memory in EEPROM is not overwritten. This index starts at two to leave two bytes to specify the length of the data.
 

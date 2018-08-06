@@ -8,7 +8,7 @@
 void int0_init(void);					// Function definitions
 void timer_init(void);
 
-#const unsigned short recordMax = 32000;		// Global constant which tracks how full the external EEPROM is. When 32000 records are reached, the Raspberry Pi will be woken up. At 32000, the wake-up will be ~ 1/day, and will not quite fill one EEPROM chip (128 kB). 
+//const unsigned short recordMax = 32000;		// Global constant which tracks how full the external EEPROM is. When 32000 records are reached, the Raspberry Pi will be woken up. At 32000, the wake-up will be ~ 1/day, and will not quite fill one EEPROM chip (128 kB). 
 const unsigned short recordMax = 10;
 
 unsigned char pulseCount = 0;				// Global Variable which holds the current pulse count from the register.

@@ -101,6 +101,7 @@ int main(void)
 			recordNum = 1;				// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			EEPROM_Busy = 1;			// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.
 			EEPROMindex = 4;			// Reset EEPROM index (remember, data starts at 2)
+			release_I2C_Bus();			// Release the I2C bus
 			rpi_on();				// If it is time, wake up RPi
 			while(PINA & (1 << PA5));		// Wait until Raspberry Pi has finished writing to EEPROM
 			PORTA &= ~(1 << PA0);			// Unenable the I2C buffer, disconnect RPi from I2C bus
@@ -117,6 +118,7 @@ int main(void)
 			recordNum = 1;				// Reset recordNum. recordNum is relative to the ATtiny loop and the full record number will be computed on the Raspberry Pi.
 			EEPROM_Busy = 1;			// Let the other functions know that the EEPROM is being read by the Pi and should not be written to.
 			EEPROMindex = 4;			// Reset EEPROM index
+			release_I2C_Bus();			// Release the I2C bus
 			rpi_on();				// Turn on Raspberry Pi
 			PORTA |= (1 << PA3);			// Set a signal to keep Raspberry Pi on so user can retrieve data
 			while(PINA & (1 << PA5));		// Wait until Raspberry Pi has finished writing to EEPROM

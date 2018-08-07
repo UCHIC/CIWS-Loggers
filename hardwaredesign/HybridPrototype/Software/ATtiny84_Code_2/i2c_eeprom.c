@@ -52,3 +52,9 @@ void I2C_stop(void)
 	
 	return;
 }
+
+void release_I2C_Bus(void)
+{
+	DDR_USI &= ~(1 << PORT_USI_SDA);
+	DDR_USI &= ~(1 << PORT_USI_SCL);
+}

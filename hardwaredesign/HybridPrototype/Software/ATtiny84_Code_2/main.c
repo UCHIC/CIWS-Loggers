@@ -105,6 +105,7 @@ int main(void)
 			rpi_on();				// If it is time, wake up RPi
 			while(PINA & (1 << PA5));		// Wait until Raspberry Pi has finished writing to EEPROM
 			PORTA &= ~(1 << PA0);			// Unenable the I2C buffer, disconnect RPi from I2C bus
+			EEPROM_init();				// Re-Initialize EEPROM Interface
 			EEPROM_Busy = 0;			// Let the other functions know that the EEPROM is free to be written
 			rpi_off();				// Turn off Raspberry Pi (The Raspberry Pi shuts itself off. This function will wait until the Raspberry Pi sends a signal to cut its power).
 		}
@@ -123,6 +124,7 @@ int main(void)
 			PORTA |= (1 << PA3);			// Set a signal to keep Raspberry Pi on so user can retrieve data
 			while(PINA & (1 << PA5));		// Wait until Raspberry Pi has finished writing to EEPROM
 			PORTA &= ~(1 << PA0);			// Unenable the I2C buffer, disconnect RPi from I2C bus
+			EEPROM_init();				// Re-Initialize EEPROM Interface
 			EEPROM_Busy = 0;			// Let the other functions know that the EEPROM is free to be written
 			rpi_off();				// Turn off Raspberry Pi (The Raspberry Pi is shut off by the user. This function will wait until the Raspberry Pi sends a signal to cut its power).
 			PORTA &= ~(1 << PA3);			// Turn off "Stay On" Signal

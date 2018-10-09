@@ -691,7 +691,6 @@ void handleSerial()             // Serial Handling function
         Serial.print(F("\n>> Logger: Done. \n>> User 1: "));
         break;
         
-                                // Easter Eggs!
       case 'J':
         Serial.print(F(">> Logger: J <3 J\n>> User 1: "));
         break;

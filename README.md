@@ -20,10 +20,6 @@ Visit the [hardware design](https://github.com/UCHIC/CIWS/tree/master/hardwarede
 
 ## Sponsors and Credit
 
-This project is receiving or has received support from a number of agencies and complementary efforts including:
-
-![NSF](/doc/images/nsf.gif)
-
 This material is based on work supported by National Science Foundation Grant [CBET 1552444](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1552444).  Any opinions, findings, and conclusions or recommendations expressed are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
 
-
+![NSF](/doc/images/nsf.gif)

@@ -12,11 +12,9 @@ The following is an example of the type of data we are collecting from individua
 
 Visit the [documentation page](/doc/readme.md) for instructions on how we are building and communicating with smart metering devices. 
 
-Visit the [source code](https://github.com/UCHIC/ciws/tree/master/src) folder if you are interested in:
-* Our data collection scripts for Raspberry Pi computers
-* Our data visualization and analysis scripts for data we are working with
+Visit the [source code](https://github.com/UCHIC/ciws/tree/master/src) folder if you are interested in our data collection scripts for the dataloggers we are prototyping.
 
-Visit the [hardware design](https://github.com/UCHIC/CIWS/tree/master/hardwaredesign) folder if you are interested in the custom hardware we are using with Raspberry Pi to enable high frequency data collection on both commercial meters with 4-20 mA outputs and residential meters with analog registers.
+Visit the [hardware design](https://github.com/UCHIC/CIWS/tree/master/hardwaredesign) folder if you are interested in the custom data logging hardware we are using to enable high frequency data collection on both commercial meters with 4-20 mA outputs and residential meters with analog registers.
 
 ## Sponsors and Credit
 

@@ -56,12 +56,20 @@ byte monthnum    = 0;
 char *months     = 0;
 byte years       = 0;
 
+volatile bool FLAG = false;
+
 void setup()
 {
   // put your setup code here, to run once:
   Wire.begin();
   Serial.begin(9600);
   while(!Serial);
+
+  pinMode(7, OUTPUT);
+  digitalWrite(7, HIGH);
+
+  pinMode(3, INPUT);
+  attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
   
   Serial.println(F("PCF8523 Registers:"));
   Wire.beginTransmission(deviceAddr);
@@ -106,6 +114,11 @@ void setup()
     reg += 1;
   }
   Serial.println();
+
+  if(seconds >= 128)
+  {
+    Serial.println(F("/!\\ WARNING: RTC oscillator frozen. Recommend reset.\n"));
+  }
 
   seconds  = (seconds & 0x0F)  + ((seconds >> 4) * 10);
   minutes  = (minutes & 0x0F)  + ((minutes >> 4) * 10);
@@ -227,4 +240,22 @@ void setup()
 void loop()
 {  
   // put your main code here, to run repeatedly:
+  while(1)
+  {
+    if(FLAG)
+    {
+      digitalWrite(7, LOW);
+      FLAG = false;
+      Wire.beginTransmission(deviceAddr);
+      Wire.write(reg_Control_2);
+      Wire.write(byte(0x02));
+      Wire.endTransmission();
+      digitalWrite(7, HIGH);
+    }
+  }
+}
+
+void INT1_ISR()                 // Serial On Button ISR. Activate Serial Interface
+{
+  FLAG = true;
 }

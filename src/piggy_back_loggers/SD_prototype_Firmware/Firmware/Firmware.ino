@@ -1,7 +1,8 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.7
 // Utah Water Research Lab
-// Updated: 10/23/2018
+// Updated: 10/25/2018
+// Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow...
 
 /*******************************************************************************************\
@@ -60,12 +61,52 @@
 #include <avr/power.h>
 #include "handleSerial.h"
 
-void setup() {
-  // put your setup code here, to run once:
+// DANIEL
+/*********************************************************************************\
+ * Setup: Declare variables
+ *          May need to be global (If not global, this goes in void setup()
+ *          Put in a "state" struct? A state struct can just go in a header file.
+\*********************************************************************************/
 
+void setup() 
+{
+  // Initialize Serial Library
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop() 
+{
+  // JOSH
+  /*****************************************\
+  * ButtonCheck: Is the button pressed?
+  * If button is pressed:
+  *   Set serialActive flag.
+  \*****************************************/  
+  if(/*buttonPressed*/)
+    /*serialActive*/ = true;
+    
+  // JOSH
+  /*****************************************\
+  * Serial: User I/O over serial
+  * serialActive flag is set:
+  *   call function handleSerial();
+  \*****************************************/
+  if(/*serialActive*/)
+    handleSerial(/*State*/);
 
+  // DANIEL
+  /*****************************************\
+  * 4-second update: Update at 4 seconds
+  * If 4-second flag is set:
+  *   <Pseudocode>
+  \*****************************************/
+
+  // JOSH
+  /*****************************************\
+  * Sleep: put processor to sleep
+  *        to be woken by interrupts
+  * If sleepEnable is set:
+  *   call function Sleep();
+  \*****************************************/
+  if(/*sleepEnable*/)
+    Sleep();
 }

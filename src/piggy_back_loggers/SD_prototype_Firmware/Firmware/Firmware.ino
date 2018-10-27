@@ -36,8 +36,6 @@
 *   1. Setup
 *   2. Handle Serial (for start-up configuration)
 *   3. Loop
-*        Enter Sleep (low-power mode)
-*        < Will wake up on Interrupt and continue: >
 *        If serial is enabled
 *          Handle serial input
 *        If four seconds are up
@@ -46,6 +44,9 @@
 *          Power-on the SD card
 *          Write data
 *          Power-off the SD card
+*        If sleep is enabled (disabled when serial is enabled)
+*          Enter Sleep (low-power mode)
+*          < Will wake up on Interrupt and continue: >
 *      Repeat Loop
 *      
 * Interrupts:
@@ -57,20 +58,26 @@
 
 #include <SPI.h>
 #include <SD.h>
-#include <avr/sleep.h>
-#include <avr/power.h>
 #include "handleSerial.h"
+#include "powerSleep.h"
 
 // DANIEL
 /*********************************************************************************\
  * Setup: Declare variables
  *          May need to be global (If not global, this goes in void setup()
  *          Put in a "state" struct? A state struct can just go in a header file.
+ *        
 \*********************************************************************************/
 
 void setup() 
 {
   // Initialize Serial Library
+  // Initialize TWI Library
+      // No need to initialize SD library -- SD.begin() initializes SD card.
+  // Setup Digital I/O pins
+  // Setup Interrupts
+  // Disable unneeded peripherals
+  disableUnneededPeripherals();
 }
 
 void loop() 
@@ -108,5 +115,5 @@ void loop()
   *   call function Sleep();
   \*****************************************/
   if(/*sleepEnable*/)
-    Sleep();
+    enterSleep();
 }

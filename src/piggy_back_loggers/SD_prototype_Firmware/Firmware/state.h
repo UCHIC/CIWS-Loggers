@@ -10,11 +10,10 @@ typedef struct
   volatile bool logging;
   volatile bool flag4;
   volatile bool serialOn;
-  volatile bool SDinit;
+  volatile bool SDin;
   const char filename[12] = "datalog.csv";
 } State_t;
 
 void resetState(State_t* State);
-
 
 #endif

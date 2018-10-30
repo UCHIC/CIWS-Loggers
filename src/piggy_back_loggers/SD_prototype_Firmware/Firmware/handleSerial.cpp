@@ -51,12 +51,18 @@ void handleSerial(State_t* State)
 
       case 's':
         State->logging = true;
+        Serial.print(F(">> Logger: Logging started.\n>> User:   "));
         break;
 
       case 'S':
+        State->logging = false;
+        Serial.print(F(">> Logger: Logging stopped.\n>> User:   "));
         break;
 
       case 'u':
+        break;
+        
+      case 'v':
         break;
 
       case '\n':

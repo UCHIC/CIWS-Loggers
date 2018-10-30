@@ -2,15 +2,18 @@
 
 #include <SPI.h>
 #include <SD.h>
+#include "state.h"
+#include "powerSleep.h"
 
-void handleSerial()
+void handleSerial(State_t* State)
 {
+  Serial.print(F(">> User:   "));
   char input; 
   if(Serial.available() > 0)    // Check if serial data is available.
   {
     input = Serial.read();
     if (input != '\n')          // Ignore newline characters.
-      Serial.println(input);
+      Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors probably don't need this.
 
     switch(input)               // Switch statement for all defined inputs
     {
@@ -21,6 +24,10 @@ void handleSerial()
         break;
 
       case 'e':
+        Serial.print(F(">> Logger: Exitting... "));
+        State->serialOn = false;
+        Serial.print(F(">> Logger: Finished."));
+        power_usart0_disable();
         break;
 
       case 'E':
@@ -37,13 +44,13 @@ void handleSerial()
         Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
         Serial.print(F("           S  -- Stop datalogging\n"));
         Serial.print(F("           u  -- Update date/time\n"));
-        Serial.print(F(">> User 1: "));
         break;
 
       case 'i':
         break;
 
       case 's':
+        State->logging = true;
         break;
 
       case 'S':
@@ -56,8 +63,18 @@ void handleSerial()
         break;
 
       default:                                  // If the command is invalid, prompt the user and introduce 'h' option.
-        Serial.print(F(">> Logger: Unknown command. Use the command \"h\" for a list of commands.\n>> User 1: "));
+        Serial.print(F(">> Logger: Unknown command. Use the command \"h\" for a list of commands.\n"));
         break;
     }
-  }  
+  }
+}
+
+void serialPowerUp()
+{
+  power_usart0_enable();
+  Serial.begin(9600);
+  while(!Serial);
+  Serial.print(F(">> Logger: Logger ready.\n"));
+
+  return;
 }

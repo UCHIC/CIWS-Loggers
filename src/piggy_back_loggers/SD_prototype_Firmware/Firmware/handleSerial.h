@@ -1,6 +1,9 @@
 #ifndef HANDLESERIAL_H
 #define HANDLESERIAL_H
 
-void handleSerial();
+#include "state.h"
+
+void handleSerial(State_t* State);
+void serialPowerUp();
 
 #endif

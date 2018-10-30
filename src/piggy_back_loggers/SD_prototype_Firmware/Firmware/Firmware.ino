@@ -60,24 +60,29 @@
 #include <SD.h>
 #include "handleSerial.h"
 #include "powerSleep.h"
+#include "state.h"
 
 // DANIEL
 /*********************************************************************************\
- * Setup: Declare variables
- *          May need to be global (If not global, this goes in void setup()
- *          Put in a "state" struct? A state struct can just go in a header file.
- *        
+ * Setup:
+ *    System State structure
+ *    Initialize TWI?
+ *    Setup Digital I/O pins
+ *      Pin 2 (INT0)
+ *      Pin 3 (INT1)
+ *      Pin 4 (SD power on/off)
+ *      Pin 5 (Serial Activate Button)
+ *    Setup interrupts
 \*********************************************************************************/
+
+State_t State;                    // System State structure
+File dataFile;                    // File pointer for SD Card operations
 
 void setup() 
 {
-  // Initialize Serial Library
-  // Initialize TWI Library
-      // No need to initialize SD library -- SD.begin() initializes SD card.
-  // Setup Digital I/O pins
-  // Setup Interrupts
-  // Disable unneeded peripherals
-  disableUnneededPeripherals();
+  resetState(&State);             // Setup the System State structure
+  
+  disableUnneededPeripherals();   // Disable unneeded peripherals
 }
 
 void loop() 
@@ -85,35 +90,40 @@ void loop()
   // JOSH
   /*****************************************\
   * ButtonCheck: Is the button pressed?
-  * If button is pressed:
-  *   Set serialActive flag.
+  * If button is pressed (active-low):
+  *   Set serialOn flag.
   \*****************************************/  
-  if(/*buttonPressed*/)
-    /*serialActive*/ = true;
+  if(digitalRead(5) == 0)
+  {
+    State.serialOn = true;
+    serialPowerUp();
+  }
     
   // JOSH
   /*****************************************\
   * Serial: User I/O over serial
-  * serialActive flag is set:
+  * serialOn flag is set:
   *   call function handleSerial();
   \*****************************************/
-  if(/*serialActive*/)
-    handleSerial(/*State*/);
+  if(State.serialOn)
+    handleSerial(&State);
 
   // DANIEL
   /*****************************************\
   * 4-second update: Update at 4 seconds
   * If 4-second flag is set:
-  *   <Pseudocode>
+  *   <Pseudocode> (I would recommend
+  *                 putting this in a
+  *                 function)
   \*****************************************/
 
   // JOSH
   /*****************************************\
   * Sleep: put processor to sleep
   *        to be woken by interrupts
-  * If sleepEnable is set:
+  * If serialOn is not set:
   *   call function Sleep();
   \*****************************************/
-  if(/*sleepEnable*/)
-    enterSleep();
+  if(!State.serialOn)
+    enterSleep(&State);
 }

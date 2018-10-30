@@ -2,8 +2,9 @@
 
 #include <avr/sleep.h>
 #include <avr/power.h>
+#include "state.h"
 
-void enterSleep()
+void enterSleep(State_t* State)
 {
   /*** Setup Sleep options ***/
   
@@ -19,7 +20,7 @@ void enterSleep()
   sleep_disable();
 
   /*** Re-enable necessary peripherals ***/
-  if(/*serialActive*/)
+  if(State->serialOn)
   {
     power_usart0_enable();
   }
@@ -36,9 +37,9 @@ void disableUnneededPeripherals()
   power_timer1_disable();
   power_timer2_disable();
   power_twi_disable();
+  power_usart0_disable();
 
-  /*** Enable needed Peripherals ***/     // May actually disable these too, and re-enable them later.
-  power_usart0_enable();
+  /*** Enable needed Peripherals ***/     // May actually disable this too, and re-enable them later.
   power_spi_enable();
 
   return;

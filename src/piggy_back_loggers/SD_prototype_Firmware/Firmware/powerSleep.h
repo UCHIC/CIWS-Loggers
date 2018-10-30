@@ -3,9 +3,8 @@
 
 #include <avr/sleep.h>
 #include <avr/power.h>
-#include "state.h"
 
-void enterSleep(State_t* State);
+void enterSleep();
 void disableUnneededPeripherals();
 
 #endif

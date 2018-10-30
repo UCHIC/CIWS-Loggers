@@ -174,5 +174,11 @@ void stopLogging(State_t* State)
   return;
 }
 
-void updateDateTime();
-void viewFiles();
+void updateDateTime()
+{
+  
+}
+void viewFiles()
+{
+  
+}

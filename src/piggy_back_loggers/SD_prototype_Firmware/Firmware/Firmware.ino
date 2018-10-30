@@ -125,5 +125,5 @@ void loop()
   *   call function Sleep();
   \*****************************************/
   if(!State.serialOn)
-    enterSleep(&State);
+    enterSleep();
 }

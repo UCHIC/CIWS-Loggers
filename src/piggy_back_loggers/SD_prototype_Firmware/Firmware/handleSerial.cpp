@@ -7,7 +7,6 @@
 
 void handleSerial(State_t* State)
 {
-  Serial.print(F(">> User:   "));
   char input; 
   if(Serial.available() > 0)    // Check if serial data is available.
   {
@@ -44,6 +43,7 @@ void handleSerial(State_t* State)
         Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
         Serial.print(F("           S  -- Stop datalogging\n"));
         Serial.print(F("           u  -- Update date/time\n"));
+        Serial.print(F(">> User:   "));
         break;
 
       case 'i':
@@ -63,7 +63,7 @@ void handleSerial(State_t* State)
         break;
 
       default:                                  // If the command is invalid, prompt the user and introduce 'h' option.
-        Serial.print(F(">> Logger: Unknown command. Use the command \"h\" for a list of commands.\n"));
+        Serial.print(F(">> Logger: Unknown command. Use the command \"h\" for a list of commands.\n>> User:   "));
         break;
     }
   }
@@ -74,7 +74,7 @@ void serialPowerUp()
   power_usart0_enable();
   Serial.begin(9600);
   while(!Serial);
-  Serial.print(F(">> Logger: Logger ready.\n"));
+  Serial.print(F(">> Logger: Logger ready.\n>> User:   "));
 
   return;
 }

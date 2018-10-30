@@ -5,5 +5,15 @@
 
 void handleSerial(State_t* State);
 void serialPowerUp();
+void cleanSD(State_t* State);
+void viewDateTime();
+void exitSerial(State_t* State);
+void ejectSD(State_t* State);
+void printHelp();
+void initSD(State_t* State);
+void startLogging(State_t* State);
+void stopLogging(State_t* State);
+void updateDateTime();
+void viewFiles();
 
 #endif

@@ -7,7 +7,7 @@ void resetState(State_t* State)
   State->logging = false;
   State->flag4 = false;
   State->serialOn = false;
-  State->SDinit = false;
+  State->SDin = false;
 
   return;
 }

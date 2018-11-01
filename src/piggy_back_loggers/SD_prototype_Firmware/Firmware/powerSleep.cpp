@@ -1,5 +1,6 @@
 #include "powerSleep.h"
 
+#include <Arduino.h>
 #include <avr/sleep.h>
 #include <avr/power.h>
 
@@ -30,6 +31,39 @@ void disableUnneededPeripherals()
   power_timer2_disable();
   power_twi_disable();
   power_usart0_disable();
+  power_spi_disable();
+
+  return;
+}
+
+void serialPowerUp()
+{
+  power_usart0_enable();
+  Serial.begin(9600);
+  while(!Serial);
+  Serial.print(F(">> Logger: Logger ready.\n>> User:   "));
+
+  return;
+}
+
+void serialPowerDown()
+{
+  power_usart0_disable();
+
+  return;
+}
+
+void SDPowerUp()
+{
+  power_spi_enable();
+  digitalWrite(4, LOW);
+
+  return;
+}
+
+void SDPowerDown()
+{
+  digitalWrite(4, HIGH);
   power_spi_disable();
 
   return;

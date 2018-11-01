@@ -6,75 +6,72 @@
 #include "powerSleep.h"
 
 void handleSerial(State_t* State)
-{
-  char input; 
+{ 
   if(Serial.available() > 0)    // Check if serial data is available.
   {
-    input = Serial.read();
-    if (input != '\n')          // Ignore newline characters.
-      Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors probably don't need this.
+    char input = getInput();    // Obtain user input.
 
     switch(input)               // Switch statement for all defined inputs
     {
-      case 'c':                                         // Delete files on the SD Card. Protected from deleting while in use.
+      case 'c':                 // Delete files on the SD Card. Protected from deleting while in use.
         cleanSD(State);
         break;
 
-      case 'd':
+      case 'd':                 // View the current date and time.
         viewDateTime();
         break;
 
-      case 'e':
+      case 'e':                 // User exit serial. Allows device to go into low-power mode.
         exitSerial(State);
         break;
 
-      case 'E':
+      case 'E':                 // Let system know the SD Card is to be removed.
         ejectSD(State);
         break;
 
-      case 'h':                                         // Help list
+      case 'h':                 // Print help list.
         printHelp();
         break;
 
-      case 'i':
+      case 'i':                 // Let system know an SD Card is inserted. Actual card initialization is handled elsewhere when powered on/off.
         initSD(State);
         break;
 
-      case 's':
+      case 's':                 // Start logging data from meter.
         startLogging(State);
         break;
 
-      case 'S':
+      case 'S':                 // Stop logging data from meter.
         stopLogging(State);
         break;
 
-      case 'u':
+      case 'u':                 // Update date and time.
         updateDateTime();
-        break;
-        
-      case 'v':
-        viewFiles();
         break;
 
       case '\n':
         break;
 
-      default:                                  // If the command is invalid, prompt the user and introduce 'h' option.
+      default:                  // If the command is invalid, prompt the user and introduce 'h' option.
         Serial.print(F(">> Logger: Unknown command. Use the command \"h\" for a list of commands.\n>> User:   "));
         break;
     }
   }
 }
 
-void serialPowerUp()
-{
-  power_usart0_enable();
-  Serial.begin(9600);
-  while(!Serial);
-  Serial.print(F(">> Logger: Logger ready.\n>> User:   "));
-
-  return;
-}
+/*******************************************************************************************************************************\
+ * Supporting Functions:
+ *   void cleanSD(State_t* State);          Complete
+ *   void viewDateTime();
+ *   void exitSerial(State_t* State);       Complete
+ *   void ejectSD(State_t* State);          Complete
+ *   void printHelp();                      Complete
+ *   void initSD(State_t* State);           Complete
+ *   void startLogging(State_t* State);     Complete
+ *   void stopLogging(State_t* State);      Complete
+ *   void updateDateTime();
+ *   char getInput();
+\********************************************************************************************************************************/
 
 void cleanSD(State_t* State)
 {
@@ -86,14 +83,12 @@ void cleanSD(State_t* State)
   
   if(!State->logging)
   {
-    power_spi_enable();
-    digitalWrite(4, LOW);
+    SDPowerUp();
     SD.begin();
     Serial.print(F(">> Logger: Cleaning SD Card... "));
     SD.remove(F("datalog.csv"));
     Serial.print(F(">> Logger: SD Card clean!\n>> User:   "));
-    digitalWrite(4, HIGH);
-    power_spi_disable();
+    SDPowerDown();
   }
   else
   {
@@ -105,7 +100,11 @@ void cleanSD(State_t* State)
 
 void viewDateTime()
 {
-  
+  // Request Time and Date from RTC
+  // Construct a Timestamp
+  // Print the Timestamp
+
+  return;
 }
 
 void exitSerial(State_t* State)
@@ -113,7 +112,7 @@ void exitSerial(State_t* State)
   Serial.print(F(">> Logger: Exitting... "));
   State->serialOn = false;
   Serial.print(F(">> Logger: Finished."));
-  power_usart0_disable();
+  serialPowerDown();
   
   return;  
 }
@@ -132,6 +131,7 @@ void ejectSD(State_t* State)
   }
   State->SDin = false;
   Serial.print(F(">> Logger: SD Card may now be removed.\n>> User:   "));
+  
   return;
 }
 
@@ -155,12 +155,27 @@ void printHelp()
 
 void initSD(State_t* State)
 {
+  SDPowerUp();
+  if(SD.begin())
+  {
+    State->SDin = true;
+    Serial.print(F(">> Logger: SD Ready.\n>> User:   "));
+  }
+  else
+  {
+    State->SDin = false; // Should already be false, but just in case.
+    Serial.print(F(">> Logger: Error. Is the SD Card inserted?\n>> User:   "));
+  }
+  SDPowerDown();
   
+  return;
 }
 
 void startLogging(State_t* State)
 {
   State->logging = true;
+  EIMSK |= (1 << INT0);         // Enable Hall Effect Sensor interrupt.
+  EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
   Serial.print(F(">> Logger: Logging started.\n>> User:   "));
   
   return;
@@ -168,6 +183,8 @@ void startLogging(State_t* State)
 
 void stopLogging(State_t* State)
 {
+  EIMSK &= ~(1 << INT0);         // Disable Hall Effect Sensor interrupt
+  EIMSK &= ~(1 << INT1);         // Disable 4-Second RTC interrupt.
   State->logging = false;
   Serial.print(F(">> Logger: Logging stopped.\n>> User:   "));
 
@@ -176,9 +193,17 @@ void stopLogging(State_t* State)
 
 void updateDateTime()
 {
-  
+  // Receive Time and Date from user
+  // Write Time and Date to RTC
+
+  return;
 }
-void viewFiles()
+
+char getInput()
 {
-  
+  char input = Serial.read();
+  if (input != '\n')          // Ignore newline characters.
+    Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors probably don't need this.
+
+  return input;
 }

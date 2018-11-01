@@ -6,5 +6,9 @@
 
 void enterSleep();
 void disableUnneededPeripherals();
+void serialPowerUp();
+void serialPowerDown();
+void SDPowerUp();
+void SDPowerDown();
 
 #endif

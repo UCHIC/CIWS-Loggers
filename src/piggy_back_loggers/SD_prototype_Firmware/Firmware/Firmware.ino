@@ -66,7 +66,6 @@
 /*********************************************************************************\
  * Setup:
  *    System State structure
- *    Initialize TWI?
  *    Setup Digital I/O pins
  *      Pin 2 (INT0)
  *      Pin 3 (INT1)

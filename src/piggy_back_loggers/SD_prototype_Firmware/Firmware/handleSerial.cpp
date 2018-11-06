@@ -10,7 +10,7 @@
  * Purpose:       Recieve and process user input
  * Inputs:        Pointer to State_t struct
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  If serial data is available
  *    Obtain user input
  *  If input is c
@@ -31,8 +31,11 @@
  *    Stop logging data from meter
  *  If input is u
  *    Update the date and time
+ *  If input is '\n'
+ *    Ignore
  *  If the input is erroneous
  *    Prompt user for new input and to print help.
+ *  Return
 \**************************************************/
 
 void handleSerial(State_t* State)
@@ -87,6 +90,8 @@ void handleSerial(State_t* State)
         break;
     }
   }
+  
+  return;
 }
 
 /*******************************************************************************************************************************\
@@ -103,6 +108,26 @@ void handleSerial(State_t* State)
  *   char getInput();                       Complete
 \********************************************************************************************************************************/
 
+/*****************************************************************\
+ * Function Name: cleanSD
+ * Purpose:       Delete "datalog.csv" from the SD Card (Protected 
+ *                from deleting while the device is logging).
+ * Inputs:        Pointer to State_t structure
+ * Outputs:       None
+ * pseudocode:
+ *  If the SD is not inserted
+ *    Prompt the user
+ *    Return
+ *  If the device is not logging
+ *    Power on the SD Card
+ *    Initialize the SD Class
+ *    Remove "datalog.csv"
+ *    Power down SD Card
+ *  Else
+ *    Prompt the user
+ *  Return
+\*****************************************************************/
+
 void cleanSD(State_t* State)
 {
   if(!State->SDin)
@@ -115,9 +140,9 @@ void cleanSD(State_t* State)
   {
     SDPowerUp();
     SD.begin();
-    Serial.print(F(">> Logger: Cleaning SD Card... "));
+    Serial.print(F(">> Logger: Removing \"datalog.csv\"... "));
     SD.remove(F("datalog.csv"));
-    Serial.print(F(">> Logger: SD Card clean!\n>> User:   "));
+    Serial.print(F(">> Logger: File removed.\n>> User:   "));
     SDPowerDown();
   }
   else
@@ -128,6 +153,21 @@ void cleanSD(State_t* State)
   return;
 }
 
+/*****************************************\
+ * Function Name: viewDateTime()
+ * Purpose:       Display the current date
+ *                and time information to 
+ *                the user.
+ * Inputs:        None?
+ * Outputs:       None
+ * pseudocode:
+ *  Power on TWI interface
+ *  Request Time and Date from RTC
+ *  Construct a Timestamp
+ *  Print the Timestamp
+ *  Return
+\*****************************************/
+
 void viewDateTime()
 {
   // Request Time and Date from RTC
@@ -136,6 +176,23 @@ void viewDateTime()
 
   return;
 }
+
+/******************************************\
+ * Function Name: exitSerial
+ * Purpose:       Logs the user out of
+ *                the serial interface,
+ *                which allows the 
+ *                processor to enter
+ *                sleep modes.
+ * Inputs:        Pointer to State_t struct
+ * Outputs:       None
+ * pseudocode:
+ *  Print: Exiting...
+ *  Set serialOn flag false
+ *  Print: Finished.
+ *  Power down serial interface
+ *  Return
+\******************************************/
 
 void exitSerial(State_t* State)
 {
@@ -146,6 +203,24 @@ void exitSerial(State_t* State)
   
   return;  
 }
+
+/***************************************************\
+ * Function Name: ejectSD
+ * Purpose:       To let the system know that
+ *                the SD Card is to be ejected.
+ * Inputs:        Pointer to State_t struct.
+ * Outputs:       None (modifies input by ref)
+ * Pseudocode:
+ *  If the device is logging
+ *    Prompt user (do not eject)
+ *    Return
+ *  If the device is unaware of an inserted SD Card
+ *    Prompt user
+ *    Return
+ *  Set SDin flag false
+ *  Prompt user
+ *  Return
+\***************************************************/
 
 void ejectSD(State_t* State)
 {
@@ -165,6 +240,19 @@ void ejectSD(State_t* State)
   return;
 }
 
+/*******************************\
+ * Function Name: printHelp()
+ * Purpose:       Prints a list
+ *                of commands
+ *                recognized by
+ *                the device.
+ * Inputs:        None
+ * Outputs:       None
+ * pseudocode:
+ *  Print list of commands
+ *  Return
+\*******************************/
+
 void printHelp()
 {
   Serial.print(F(">> Logger: List of commands:\n"));
@@ -181,6 +269,27 @@ void printHelp()
 
   return;
 }
+
+/*********************************************\
+ * Function Name: initSD
+ * Purpose:       Let the system know that
+ *                an SD card has been 
+ *                inserted. Actual 
+ *                initialization happens on
+ *                SD Card use.
+ * Inputs:        Pointer to State_t struct
+ * Outputs:       None (modifies input by ref)
+ * Pseudocode:
+ *  Power on SD Card
+ *  If SD initialization is successful
+ *    Set SDin flag true
+ *    Prompt user
+ *  Else
+ *    Set SDin flag false (just in case)
+ *    Prompt user: No SD Card detected
+ *  Power down SD Card
+ *  Return
+\*********************************************/
 
 void initSD(State_t* State)
 {
@@ -200,25 +309,87 @@ void initSD(State_t* State)
   return;
 }
 
+/*********************************************\
+ * Function Name: startLogging
+ * Purpose:       Enable the datalogging
+ *                process. This does so by 
+ *                enabling the interrupts 
+ *                which govern the process.
+ * Inputs:        Pointer to State_t struct
+ * Outputs:       None (input modified by ref)
+ * Pseudocode:
+ *  If SD Card is inserted
+ *    Set logging flag true
+ *    Enable Hall Effect Sensor interrupt
+ *    Enable 4-Second RTC interrupt
+ *    Prompt User
+ *  Else
+ *    Prompt User (no SD Card)
+ *  Return
+\*********************************************/
+
 void startLogging(State_t* State)
 {
-  State->logging = true;
-  EIMSK |= (1 << INT0);         // Enable Hall Effect Sensor interrupt.
-  EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
-  Serial.print(F(">> Logger: Logging started.\n>> User:   "));
-  
+  if(State->SDin)
+  {
+    State->logging = true;
+    EIMSK |= (1 << INT0);         // Enable Hall Effect Sensor interrupt.
+    EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
+    Serial.print(F(">> Logger: Logging started.\n>> User:   "));
+  }
+  else
+  {
+    Serial.print(F(">> Logger: Cannot log without SD Card.\n>> User:   "));
+  }
   return;
 }
+
+/*********************************************\
+ * Function Name: startLogging
+ * Purpose:       Enable the datalogging
+ *                process. This does so by 
+ *                enabling the interrupts 
+ *                which govern the process.
+ * Inputs:        Pointer to State_t struct
+ * Outputs:       None (input modified by ref)
+ * Pseudocode:
+ *  If device is logging
+ *    Set logging flag false
+ *    Disnable Hall Effect Sensor interrupt
+ *    Disable 4-Second RTC interrupt
+ *    Prompt User
+ *  Else
+ *    Prompt User (not loggging)
+ *  Return
+\*********************************************/
 
 void stopLogging(State_t* State)
 {
-  EIMSK &= ~(1 << INT0);         // Disable Hall Effect Sensor interrupt
-  EIMSK &= ~(1 << INT1);         // Disable 4-Second RTC interrupt.
-  State->logging = false;
-  Serial.print(F(">> Logger: Logging stopped.\n>> User:   "));
-
+  if(State->logging)
+  {
+    State->logging = false;
+    EIMSK &= ~(1 << INT0);         // Disable Hall Effect Sensor interrupt
+    EIMSK &= ~(1 << INT1);         // Disable 4-Second RTC interrupt.
+    Serial.print(F(">> Logger: Logging stopped.\n>> User:   "));
+  }
+  else
+  {
+    Serial.print(F(">> Logger: Not logging.\n>> User:   "));
+  }
   return;
 }
+
+/**********************************************\
+ * Function Name: updateDateTime
+ * Purpose:       Allows user to update the
+ *                date and time on the device.
+ * Inputs:        None?
+ * Outputs:       None?
+ * Pseudocode:
+ *  Receive Time and Date from user
+ *  Write Time and Date to RTC
+ *  Return
+\**********************************************/
 
 void updateDateTime()
 {
@@ -227,28 +398,24 @@ void updateDateTime()
 
   return;
 }
+
+/*************************************************************\
+ * Function Name: getInput
+ * Purpose:       Receive user input to process
+ * Inputs:        None
+ * Outputs:       character command
+ * Pseudocode:
+ *  Read Serial input
+ *  If input is not a newline character
+ *    Print the input (convenient for some terminal emulators)
+ *  Return input
+\*************************************************************/
 
 char getInput()
 {
   char input = Serial.read();
   if (input != '\n')          // Ignore newline characters.
     Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors may not need this.
-
-  return input;
-}
-void updateDateTime()
-{
-  // Receive Time and Date from user
-  // Write Time and Date to RTC
-
-  return;
-}
-
-char getInput()
-{
-  char input = Serial.read();
-  if (input != '\n')          // Ignore newline characters.
-    Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors probably don't need this.
 
   return input;
 }

@@ -5,6 +5,36 @@
 #include "state.h"
 #include "powerSleep.h"
 
+/**************************************************\
+ * Function Name: handleSerial(State_t* State)
+ * Purpose:       Recieve and process user input
+ * Inputs:        Pointer to State_t struct
+ * Outputs:       None
+ * Psuedocode:
+ *  If serial data is available
+ *    Obtain user input
+ *  If input is c
+ *    Delete files on the SD Card
+ *  If input is d
+ *    Display the current date and time
+ *  If input is e
+ *    User exit serial
+ *  If input is E
+ *    Let system know the SD Card is to be removed
+ *  If input is h
+ *    Print help list
+ *  If input is i
+ *    Let system know an SD Card is inserted
+ *  If input is s
+ *    Start logging data from meter
+ *  If input is S
+ *    Stop logging data from meter
+ *  If input is u
+ *    Update the date and time
+ *  If the input is erroneous
+ *    Prompt user for new input and to print help.
+\**************************************************/
+
 void handleSerial(State_t* State)
 { 
   if(Serial.available() > 0)    // Check if serial data is available.
@@ -70,7 +100,7 @@ void handleSerial(State_t* State)
  *   void startLogging(State_t* State);     Complete
  *   void stopLogging(State_t* State);      Complete
  *   void updateDateTime();
- *   char getInput();
+ *   char getInput();                       Complete
 \********************************************************************************************************************************/
 
 void cleanSD(State_t* State)
@@ -109,9 +139,9 @@ void viewDateTime()
 
 void exitSerial(State_t* State)
 {
-  Serial.print(F(">> Logger: Exitting... "));
+  Serial.print(F(">> Logger: Exitting... \n"));
   State->serialOn = false;
-  Serial.print(F(">> Logger: Finished."));
+  Serial.print(F(">> Logger: Finished.\n"));
   serialPowerDown();
   
   return;  
@@ -147,7 +177,6 @@ void printHelp()
   Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));
   Serial.print(F("           u  -- Update date/time\n"));
-  Serial.print(F("           v  -- View files\n"));
   Serial.print(F(">> User:   "));
 
   return;
@@ -191,6 +220,22 @@ void stopLogging(State_t* State)
   return;
 }
 
+void updateDateTime()
+{
+  // Receive Time and Date from user
+  // Write Time and Date to RTC
+
+  return;
+}
+
+char getInput()
+{
+  char input = Serial.read();
+  if (input != '\n')          // Ignore newline characters.
+    Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors may not need this.
+
+  return input;
+}
 void updateDateTime()
 {
   // Receive Time and Date from user

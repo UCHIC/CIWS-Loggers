@@ -91,6 +91,7 @@ void loop()
   * ButtonCheck: Is the button pressed?
   * If button is pressed (active-low):
   *   Set serialOn flag.
+  *   call serialPowerUp()
   \*****************************************/  
   if((digitalRead(5) == 0) && !State.serialOn)
   {

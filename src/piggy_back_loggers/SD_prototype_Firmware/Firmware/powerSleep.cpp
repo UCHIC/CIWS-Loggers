@@ -1,8 +1,22 @@
 #include "powerSleep.h"
 
 #include <Arduino.h>
+#include <Wire.h>
 #include <avr/sleep.h>
 #include <avr/power.h>
+
+/***************************************\
+ * Function Name: enterSleep()
+ * Purpose:       Put the controller to
+ *                "sleep" (low-power).
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *   Setup sleep options
+ *   Put processor to sleep
+ *   Continue on wake-up
+ *   Return
+\***************************************/
 
 void enterSleep()
 {
@@ -21,6 +35,26 @@ void enterSleep()
 
   return;
 }
+
+/**********************************************\
+ * Function Name: disableUnneededPeripherals
+ * Purpose:       Cut all power to peripherals
+ *                to save battery life. Some 
+ *                will be turned on again
+ *                temporarily.
+ * Inputs:        None
+ * Outputs:       None
+ * Pseudocode:
+ *   Disable ADC
+ *   Disable Timer0
+ *   Disable Timer1
+ *   Disable Timer2
+ *   Disable TWI
+ *   Disable USART0
+ *   Disable SPI
+ *   Return
+\**********************************************/
+
 void disableUnneededPeripherals()
 {
   /*** Disable Uneeded Peripherals ***/
@@ -36,15 +70,84 @@ void disableUnneededPeripherals()
   return;
 }
 
+/**********************************\
+ * Function Name: twiPowerUp()
+ * Purpose:       Enable power to
+ *                the TWI interface
+ *                when needed.
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *  Power on the TWI interface
+ *  Initialize the TWI class
+ *  Return
+\**********************************/
+
+void twiPowerUp()
+{
+  power_twi_enable();
+  Wire.begin();
+
+  return;
+}
+
+/**********************************\
+ * Function Name: twiPowerDown()
+ * Purpose:       Disable power to
+ *                the TWI interface
+ *                when finished.
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *  Power down the TWI interface
+ *  Return
+\**********************************/
+
+void twiPowerDown()
+{
+  power_twi_disable();
+
+  return;
+}
+
+/*************************************\
+ * Function Name: serialPowerUp()
+ * Purpose:       Enable power to
+ *                the serial interface
+ *                when needed.
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *  Power on the serial interface
+ *  Pause 10 miliseconds
+ *  Initialize Serial at 9600 Baud
+ *  Pause 10 miliseconds
+ *  Prompt user
+ *  Return
+\*************************************/
+
 void serialPowerUp()
 {
   power_usart0_enable();
+  _delay_ms(10);
   Serial.begin(9600);
-  while(!Serial);
+  _delay_ms(10);
   Serial.print(F(">> Logger: Logger ready.\n>> User:   "));
 
   return;
 }
+
+/*************************************\
+ * Function Name: serialPowerDown()
+ * Purpose:       Disable power to
+ *                the serial interface
+ *                when finished.
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *  Power down the serial interface
+ *  Return
+\*************************************/
 
 void serialPowerDown()
 {
@@ -52,6 +155,19 @@ void serialPowerDown()
 
   return;
 }
+
+/**********************************\
+ * Function Name: SDPowerUp()
+ * Purpose:       Enable power to
+ *                the SD Card when
+ *                needed.
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *  Power on the SPI interface
+ *  Enable power to the SD Card
+ *  Return
+\**********************************/
 
 void SDPowerUp()
 {
@@ -61,10 +177,23 @@ void SDPowerUp()
   return;
 }
 
+/**********************************\
+ * Function Name: SDPowerDown()
+ * Purpose:       Disable power to
+ *                the SD Card when
+ *                finished.
+ * Inputs:        None
+ * Outputs:       None
+ * Psuedocode:
+ *  Cut power to the SD Card
+ *  Power down the SPI interface
+ *  Return
+\**********************************/
+
 void SDPowerDown()
 {
-  digitalWrite(4, HIGH);
-  power_spi_disable();
+  digitalWrite(4, HIGH);  // Cut power to the SD Card
+  power_spi_disable();    // Power down the SPI interface
 
   return;
 }

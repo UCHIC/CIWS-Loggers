@@ -11,7 +11,7 @@
  *                "sleep" (low-power).
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *   Setup sleep options
  *   Put processor to sleep
  *   Continue on wake-up
@@ -77,7 +77,7 @@ void disableUnneededPeripherals()
  *                when needed.
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  Power on the TWI interface
  *  Initialize the TWI class
  *  Return
@@ -98,7 +98,7 @@ void twiPowerUp()
  *                when finished.
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  Power down the TWI interface
  *  Return
 \**********************************/
@@ -117,7 +117,7 @@ void twiPowerDown()
  *                when needed.
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  Power on the serial interface
  *  Pause 10 miliseconds
  *  Initialize Serial at 9600 Baud
@@ -144,7 +144,7 @@ void serialPowerUp()
  *                when finished.
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  Power down the serial interface
  *  Return
 \*************************************/
@@ -163,7 +163,7 @@ void serialPowerDown()
  *                needed.
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  Power on the SPI interface
  *  Enable power to the SD Card
  *  Return
@@ -184,7 +184,7 @@ void SDPowerUp()
  *                finished.
  * Inputs:        None
  * Outputs:       None
- * Psuedocode:
+ * pseudocode:
  *  Cut power to the SD Card
  *  Power down the SPI interface
  *  Return

@@ -50,9 +50,9 @@
 *      Repeat Loop
 *      
 * Interrupts:
-*   1. INT0 ()
+*   1. INT0_ISR()
 *      
-*   2. INT1 ()
+*   2. INT1_ISR()
 *      
 \*********************************************************/
 
@@ -61,11 +61,12 @@
 #include "handleSerial.h"
 #include "powerSleep.h"
 #include "state.h"
+#include "RTC_PCF8523.h"
 
 // DANIEL
 /*********************************************************************************\
  * Setup:
- *    System State structure
+ *    System State structure      Complete
  *    Setup Digital I/O pins
  *      Pin 2 (INT0)
  *      Pin 3 (INT1)
@@ -74,13 +75,14 @@
  *    Setup interrupts
 \*********************************************************************************/
 
-State_t State;                    // System State structure
+volatile State_t State;           // System State structure
+Date_t Date;                      // System Time and Date structure
 File dataFile;                    // File pointer for SD Card operations
 
 void setup() 
 {
   resetState(&State);             // Setup the System State structure
-  
+                                  // Load Date_t with Date/Time info
   disableUnneededPeripherals();   // Disable unneeded peripherals
 }
 
@@ -93,7 +95,7 @@ void loop()
   *   Set serialOn flag.
   *   call serialPowerUp()
   \*****************************************/  
-  if((digitalRead(5) == 0) && !State.serialOn)
+  if(/*(digitalRead(5) == 0) && */!State.serialOn)
   {
     State.serialOn = true;
     serialPowerUp();
@@ -106,7 +108,7 @@ void loop()
   *   call function handleSerial();
   \*****************************************/
   if(State.serialOn)
-    handleSerial(&State);
+    handleSerial(&State, &Date);
 
   // DANIEL
   /*****************************************\
@@ -126,4 +128,31 @@ void loop()
   \*****************************************/
   if(!State.serialOn)
     enterSleep();
+}
+
+// DANIEL
+/* Function Title: INT0_ISR()
+ * 
+ * Friendly Name:  Sensor Interrupt Service Routine (ISR)
+ * 
+ * Description: increments the value of the pulse count variable by one, each time this 
+ *              function is called by hardware.
+ */
+void INT0_ISR()
+{
+  State.pulseCount += 1;  // increment pulseCount variable by one
+}
+
+// DANIEL
+/* Function Title: INT1_ISR()
+ * 
+ * Friendly Name:  Real Time Clock OUT Interrupt Service Routine (ISR)
+ * 
+ * Description: sets the 4-second flag to true each time this function
+ *              is called by hardware. The Real Time Clock generates
+ *              the signal that calls this ISR once every four seconds.
+ */
+void INT1_ISR()
+{
+  State.flag4 = true;     // sets the "four second flag" to true
 }

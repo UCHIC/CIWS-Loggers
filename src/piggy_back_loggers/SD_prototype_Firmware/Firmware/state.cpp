@@ -1,6 +1,6 @@
 #include "state.h"
 
-void resetState(State_t* State)
+void resetState(volatile State_t* State)
 {
   State->pulseCount = 0;
   State->recordNum = 1;

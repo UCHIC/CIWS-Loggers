@@ -1,14 +1,17 @@
 #include "handleSerial.h"
 
+#include <Arduino.h>
 #include <SPI.h>
 #include <SD.h>
 #include "state.h"
 #include "powerSleep.h"
+#include "RTC_PCF8523.h"
 
 /**************************************************\
- * Function Name: handleSerial(State_t* State)
+ * Function Name: handleSerial
  * Purpose:       Recieve and process user input
  * Inputs:        Pointer to State_t struct
+ *                Pointer to Date_t struct
  * Outputs:       None
  * pseudocode:
  *  If serial data is available
@@ -38,7 +41,7 @@
  *  Return
 \**************************************************/
 
-void handleSerial(State_t* State)
+void handleSerial(volatile State_t* State, Date_t* Date)
 { 
   if(Serial.available() > 0)    // Check if serial data is available.
   {
@@ -51,7 +54,7 @@ void handleSerial(State_t* State)
         break;
 
       case 'd':                 // View the current date and time.
-        viewDateTime();
+        viewDateTime(Date);
         break;
 
       case 'e':                 // User exit serial. Allows device to go into low-power mode.
@@ -79,7 +82,7 @@ void handleSerial(State_t* State)
         break;
 
       case 'u':                 // Update date and time.
-        updateDateTime();
+        updateDateTime(Date);
         break;
 
       case '\n':
@@ -96,16 +99,17 @@ void handleSerial(State_t* State)
 
 /*******************************************************************************************************************************\
  * Supporting Functions:
- *   void cleanSD(State_t* State);          Complete
- *   void viewDateTime();
- *   void exitSerial(State_t* State);       Complete
- *   void ejectSD(State_t* State);          Complete
- *   void printHelp();                      Complete
- *   void initSD(State_t* State);           Complete
- *   void startLogging(State_t* State);     Complete
- *   void stopLogging(State_t* State);      Complete
- *   void updateDateTime();
- *   char getInput();                       Complete
+ *   void cleanSD(State_t* State, Date_t* Date);    Complete
+ *   void viewDateTime();                           Complete
+ *   void exitSerial(State_t* State);               Complete  Tested
+ *   void ejectSD(State_t* State);                  Complete  
+ *   void printHelp();                              Complete  Tested
+ *   void initSD(State_t* State);                   Complete  
+ *   void startLogging(State_t* State);             Complete  Tested
+ *   void stopLogging(State_t* State);              Complete  Tested
+ *   void updateDateTime();                         Complete
+ *   char getInput();                               Complete  Tested
+ *   char getNestedInput();                         Complete
 \********************************************************************************************************************************/
 
 /*****************************************************************\
@@ -128,7 +132,7 @@ void handleSerial(State_t* State)
  *  Return
 \*****************************************************************/
 
-void cleanSD(State_t* State)
+void cleanSD(volatile State_t* State)
 {
   if(!State->SDin)
   {
@@ -158,21 +162,37 @@ void cleanSD(State_t* State)
  * Purpose:       Display the current date
  *                and time information to 
  *                the user.
- * Inputs:        None?
+ * Inputs:        Pointer to Date_t struct
  * Outputs:       None
  * pseudocode:
  *  Power on TWI interface
- *  Request Time and Date from RTC
- *  Construct a Timestamp
- *  Print the Timestamp
+ *  Request Time and Date from Date_t struct
+ *  Print a Timestamp
  *  Return
 \*****************************************/
 
-void viewDateTime()
+void viewDateTime(Date_t* Date)
 {
-  // Request Time and Date from RTC
-  // Construct a Timestamp
-  // Print the Timestamp
+  twiPowerUp();
+  
+  byte currMinutes = Date->minutes;
+  byte currHours = Date->hours;
+  byte currDays = Date->days;
+  byte currMonths = Date->months;
+  byte currYears = Date->years;
+
+  Serial.print(F(">> Logger: "));
+  Serial.print(currMonths);
+  Serial.print(F("/"));
+  Serial.print(currDays);
+  Serial.print(F("/"));
+  Serial.print(currYears);
+  Serial.print(F(" "));
+  Serial.print(currHours);
+  Serial.print(F(":"));
+  if(currMinutes < 10);
+    Serial.print(F("0"));
+  Serial.print(currMinutes);
 
   return;
 }
@@ -194,7 +214,7 @@ void viewDateTime()
  *  Return
 \******************************************/
 
-void exitSerial(State_t* State)
+void exitSerial(volatile State_t* State)
 {
   Serial.print(F(">> Logger: Exitting... \n"));
   State->serialOn = false;
@@ -222,7 +242,7 @@ void exitSerial(State_t* State)
  *  Return
 \***************************************************/
 
-void ejectSD(State_t* State)
+void ejectSD(volatile State_t* State)
 {
   if(State->logging)
   {
@@ -291,7 +311,7 @@ void printHelp()
  *  Return
 \*********************************************/
 
-void initSD(State_t* State)
+void initSD(volatile State_t* State)
 {
   SDPowerUp();
   if(SD.begin())
@@ -328,7 +348,7 @@ void initSD(State_t* State)
  *  Return
 \*********************************************/
 
-void startLogging(State_t* State)
+void startLogging(volatile State_t* State)
 {
   if(State->SDin)
   {
@@ -363,7 +383,7 @@ void startLogging(State_t* State)
  *  Return
 \*********************************************/
 
-void stopLogging(State_t* State)
+void stopLogging(volatile State_t* State)
 {
   if(State->logging)
   {
@@ -388,13 +408,69 @@ void stopLogging(State_t* State)
  * Pseudocode:
  *  Receive Time and Date from user
  *  Write Time and Date to RTC
+ *  Write Time and Date to Date_t struct
+ *  Prompt User
  *  Return
 \**********************************************/
 
-void updateDateTime()
+void updateDateTime(Date_t* Date)
 {
-  // Receive Time and Date from user
-  // Write Time and Date to RTC
+
+  char month1;
+  char month10;
+  char day1;
+  char day10;
+  char year1;
+  char year10;
+  char hour1;
+  char hour10;
+  char minute1;
+  char minute10;
+
+  Serial.print(F(">> Logger: Updating date and time...\n"));
+  
+  Serial.print(F(">> Logger: Enter new month: (mm)"));
+  month1  = getNestedInput();
+  month10 = getNestedInput();
+
+  Serial.print(F("\n>> Logger: Enter new day: (dd)"));
+  day1  = getNestedInput();
+  day10 = getNestedInput();
+
+  Serial.print(F("\n>> Logger: Enter new year: (yy)"));
+  year1  = getNestedInput();
+  year10 = getNestedInput();
+
+  Serial.print(F("\n>> Logger: Enter new hour: (hh, 24-hour clock)"));
+  hour1  = getNestedInput();
+  hour10 = getNestedInput();
+
+  Serial.print(F("\n>> Logger: Enter new minute: (mm)"));
+  minute1  = getNestedInput();
+  minute10 = getNestedInput();
+
+  // TODO: Binary Coded Decimal, Not Binary
+  byte months  = (byte(month1) - 48) + ((byte(month10) - 48) << 4);
+  byte days    = (byte(day1) - 48) + ((byte(day10) - 48) << 4);
+  byte years   = (byte(year1) - 48) + ((byte(year10) - 48) << 4);
+  byte hours   = (byte(hour1) - 48) + ((byte(hour10) - 48) << 4);
+  byte minutes = (byte(minute1) - 48) + ((byte(minute10) - 48) << 4);
+
+  rtcTransfer(reg_Months, WRITE, months);
+  rtcTransfer(reg_Days, WRITE, days);
+  rtcTransfer(reg_Years, WRITE, years);
+  rtcTransfer(reg_Hours, WRITE, hours);
+  rtcTransfer(reg_Minutes, WRITE, minutes);
+
+  Date->months  = months;
+  Date->days    = days;
+  Date->years   = years;
+  Date->hours   = hours;
+  Date->minutes = minutes;
+
+  viewDateTime(Date);
+
+  Serial.print(F("\n>> Logger: Date and Time reset.\n>> User:   "));
 
   return;
 }
@@ -417,5 +493,39 @@ char getInput()
   if (input != '\n')          // Ignore newline characters.
     Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors may not need this.
 
+  return input;
+}
+
+/********************************************\
+ * Function Name: getNestedInput
+ * Purpose:       Get input from user within
+ *                a command invoked by the
+ *                user.
+ * Inputs:        None
+ * Outputs:       char input
+ * Pseudocode:
+ *  Set finished flag false
+ *  While not finished
+ *    If serial data is available
+ *      input = getInput()
+ *      if input isn't a newline
+ *        finished is true
+ *  Return input
+\********************************************/
+
+char getNestedInput()
+{
+  bool finished = false;
+  char input;
+  while(!finished)
+  {
+    if(Serial.available() > 0)
+    {
+      input = getInput();
+      if(input != '\n')
+        finished = true;
+    }
+  }
+  
   return input;
 }

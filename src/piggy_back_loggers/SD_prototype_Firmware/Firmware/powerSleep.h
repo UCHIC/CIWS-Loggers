@@ -6,6 +6,8 @@
 
 void enterSleep();
 void disableUnneededPeripherals();
+void twiPowerUp();
+void twiPowerDown();
 void serialPowerUp();
 void serialPowerDown();
 void SDPowerUp();

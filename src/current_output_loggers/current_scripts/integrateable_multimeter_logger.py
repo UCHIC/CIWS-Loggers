@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------
-# integrateable_multimeter_logger.py
-# Modified from multimeter_logger.py
+# Name: integrateable_multimeter_logger.py
+# Modified from: multi_meterlog.py
 # Author: Jeff Horsburgh
 # Creation Date: 7/25/2016
 # Modified by: Joshua Tracy

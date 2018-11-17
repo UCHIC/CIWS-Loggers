@@ -43,5 +43,6 @@ typedef struct
 } Date_t;
 
 byte rtcTransfer(byte reg, byte flag, byte value);
+void loadDateTime(Date_t* Date);
 
 #endif

@@ -89,6 +89,8 @@ void setup()
 
   attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, FALLING);   // Setup Interrupts
   attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
+  EIMSK &= ~(1 << INT0);        // Disable Hall Effect Sensor interrupt
+  EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
   
   loadDateTime(&Date);            // Load Date_t with Date/Time info
                                   

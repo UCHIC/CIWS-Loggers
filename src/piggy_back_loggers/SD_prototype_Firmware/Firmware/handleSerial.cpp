@@ -53,38 +53,46 @@ void handleSerial(volatile State_t* State, Date_t* Date)
     {
       case 'c':                 // Delete files on the SD Card. Protected from deleting while in use.
         cleanSD(State);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 'd':                 // View the current date and time.
         viewDateTime(Date);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 'e':                 // User exit serial. Allows device to go into low-power mode.
-        exitSerial(State);
+        exitSerial(State, Date);
         break;
 
       case 'E':                 // Let system know the SD Card is to be removed.
         ejectSD(State);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 'h':                 // Print help list.
         printHelp();
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 'i':                 // Let system know an SD Card is inserted. Actual card initialization is handled elsewhere when powered on/off.
         initSD(State);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 's':                 // Start logging data from meter.
         startLogging(State);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 'S':                 // Stop logging data from meter.
         stopLogging(State);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case 'u':                 // Update date and time.
         updateDateTime(Date);
+        Serial.print(F("\n>> User:   "));
         break;
 
       case '\n':
@@ -138,7 +146,7 @@ void cleanSD(volatile State_t* State)
 {
   if(!State->SDin)
   {
-    Serial.print(F(">> Logger: SD Card not initialized.\n>> User:   "));
+    Serial.print(F(">> Logger: SD Card not initialized."));
     return;
   }
   
@@ -146,14 +154,13 @@ void cleanSD(volatile State_t* State)
   {
     SDPowerUp();
     SD.begin();
-    Serial.print(F(">> Logger: Removing \"datalog.csv\"... "));
     SD.remove(F("datalog.csv"));
-    Serial.print(F(">> Logger: File removed.\n>> User:   "));
+    Serial.print(F(">> Logger: File removed."));
     SDPowerDown();
   }
   else
   {
-    Serial.print(F(">> Logger: Cannot clean SD Card while logging.\n>> User:   "));
+    Serial.print(F(">> Logger: Cannot clean SD Card while logging."));
   }
 
   return;
@@ -174,9 +181,7 @@ void cleanSD(volatile State_t* State)
 \*****************************************/
 
 void viewDateTime(Date_t* Date)
-{
-  twiPowerUp();
-  
+{ 
   byte currMinutes = Date->minutes;
   byte currHours = Date->hours;
   byte currDays = Date->days;
@@ -195,7 +200,6 @@ void viewDateTime(Date_t* Date)
   if(currMinutes < 10)
     Serial.print(F("0"));
   Serial.print(currMinutes);
-  Serial.print(F("\n>> User:   "));
 
   return;
 }
@@ -210,18 +214,19 @@ void viewDateTime(Date_t* Date)
  * Inputs:        Pointer to State_t struct
  * Outputs:       None
  * pseudocode:
- *  Print: Exiting...
+ *  Print: Exiting.
+ *  Print Current Time and date
  *  Set serialOn flag false
- *  Print: Finished.
  *  Power down serial interface
  *  Return
 \******************************************/
 
-void exitSerial(volatile State_t* State)
+void exitSerial(volatile State_t* State, Date_t* Date)
 {
-  Serial.print(F(">> Logger: Exitting... \n"));
+  Serial.print(F(">> Logger: Exitting.\n"));
+  viewDateTime(Date);
   State->serialOn = false;
-  Serial.print(F(">> Logger: Finished.\n"));
+  _delay_ms(1000);
   serialPowerDown();
   
   return;  
@@ -249,16 +254,16 @@ void ejectSD(volatile State_t* State)
 {
   if(State->logging)
   {
-    Serial.print(F(">> Logger: SD Card busy. Use command 'S' to stop datalogging and try again.\n>> User:   "));
+    Serial.print(F(">> Logger: SD Card busy. Use command 'S' to stop datalogging and try again."));
     return;
   }
   if(!State->SDin)
   {
-    Serial.print(F(">> Logger: SD Card already ejected.\n>> User:   "));
+    Serial.print(F(">> Logger: SD Card already ejected."));
     return;
   }
   State->SDin = false;
-  Serial.print(F(">> Logger: SD Card may now be removed.\n>> User:   "));
+  Serial.print(F(">> Logger: SD Card may now be removed."));
   
   return;
 }
@@ -288,7 +293,6 @@ void printHelp()
   Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));
   Serial.print(F("           u  -- Update date/time\n"));
-  Serial.print(F(">> User:   "));
 
   return;
 }
@@ -320,12 +324,12 @@ void initSD(volatile State_t* State)
   if(SD.begin())
   {
     State->SDin = true;
-    Serial.print(F(">> Logger: SD Ready.\n>> User:   "));
+    Serial.print(F(">> Logger: SD Ready."));
   }
   else
   {
     State->SDin = false; // Should already be false, but just in case.
-    Serial.print(F(">> Logger: Error. Is the SD Card inserted?\n>> User:   "));
+    Serial.print(F(">> Logger: Error. Is the SD Card inserted?"));
   }
   SDPowerDown();
   
@@ -357,11 +361,11 @@ void startLogging(volatile State_t* State)
   {
     State->logging = true;
     EIMSK |= (1 << INT0);         // Enable Hall Effect Sensor interrupt.
-    Serial.print(F(">> Logger: Logging started.\n>> User:   "));
+    Serial.print(F(">> Logger: Logging started."));
   }
   else
   {
-    Serial.print(F(">> Logger: Cannot log without SD Card.\n>> User:   "));
+    Serial.print(F(">> Logger: Cannot log without SD Card."));
   }
   return;
 }
@@ -391,11 +395,11 @@ void stopLogging(volatile State_t* State)
   {
     State->logging = false;
     EIMSK &= ~(1 << INT0);         // Disable Hall Effect Sensor interrupt
-    Serial.print(F(">> Logger: Logging stopped.\n>> User:   "));
+    Serial.print(F(">> Logger: Logging stopped."));
   }
   else
   {
-    Serial.print(F(">> Logger: Not logging.\n>> User:   "));
+    Serial.print(F(">> Logger: Not logging."));
   }
   return;
 }
@@ -466,7 +470,7 @@ void updateDateTime(Date_t* Date)
   loadDateTime(Date);
   viewDateTime(Date);
 
-  Serial.print(F("\n>> Logger: Date and Time reset.\n>> User:   "));
+  Serial.print(F("\n>> Logger: Date and Time reset."));
 
   return;
 }

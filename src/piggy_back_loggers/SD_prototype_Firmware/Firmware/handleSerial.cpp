@@ -354,7 +354,6 @@ void startLogging(volatile State_t* State)
   {
     State->logging = true;
     EIMSK |= (1 << INT0);         // Enable Hall Effect Sensor interrupt.
-    EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
     Serial.print(F(">> Logger: Logging started.\n>> User:   "));
   }
   else
@@ -389,7 +388,6 @@ void stopLogging(volatile State_t* State)
   {
     State->logging = false;
     EIMSK &= ~(1 << INT0);         // Disable Hall Effect Sensor interrupt
-    EIMSK &= ~(1 << INT1);         // Disable 4-Second RTC interrupt.
     Serial.print(F(">> Logger: Logging stopped.\n>> User:   "));
   }
   else
@@ -449,7 +447,6 @@ void updateDateTime(Date_t* Date)
   minute1  = getNestedInput();
   minute10 = getNestedInput();
 
-  // TODO: Binary Coded Decimal, Not Binary
   byte months  = (byte(month1) - 48) + ((byte(month10) - 48) << 4);
   byte days    = (byte(day1) - 48) + ((byte(day10) - 48) << 4);
   byte years   = (byte(year1) - 48) + ((byte(year10) - 48) << 4);

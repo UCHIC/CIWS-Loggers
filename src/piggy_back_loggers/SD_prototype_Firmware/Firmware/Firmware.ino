@@ -85,6 +85,7 @@ void setup()
   pinMode(2, INPUT);              // Setup the Digital Pins       
   pinMode(3, INPUT);
   pinMode(4, OUTPUT);
+  digitalWrite(4, HIGH);
   pinMode(5, INPUT);
 
   attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, FALLING);   // Setup Interrupts
@@ -131,6 +132,7 @@ void loop()
   \*****************************************/
   if(State.flag4)
     // Daniel's function
+      // Don't forget to clear flag on RTC!
 
   // JOSH
   /*****************************************\

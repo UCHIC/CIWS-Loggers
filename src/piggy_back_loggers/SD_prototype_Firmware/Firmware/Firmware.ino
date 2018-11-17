@@ -63,7 +63,6 @@
 #include "state.h"
 #include "RTC_PCF8523.h"
 
-// DANIEL
 /*********************************************************************************\
  * Setup:
  *    System State structure      Complete
@@ -82,7 +81,17 @@ File dataFile;                    // File pointer for SD Card operations
 void setup() 
 {
   resetState(&State);             // Setup the System State structure
-                                  // Load Date_t with Date/Time info
+  
+  pinMode(2, INPUT);              // Setup the Digital Pins       
+  pinMode(3, INPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, FALLING);   // Setup Interrupts
+  attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
+  
+  loadDateTime(&Date);            // Load Date_t with Date/Time info
+                                  
   disableUnneededPeripherals();   // Disable unneeded peripherals
 }
 
@@ -95,7 +104,7 @@ void loop()
   *   Set serialOn flag.
   *   call serialPowerUp()
   \*****************************************/  
-  if(/*(digitalRead(5) == 0) && */!State.serialOn)
+  if((digitalRead(5) == 0) && !State.serialOn)
   {
     State.serialOn = true;
     serialPowerUp();
@@ -118,6 +127,8 @@ void loop()
   *                 putting this in a
   *                 function)
   \*****************************************/
+  if(State.flag4)
+    // Daniel's function
 
   // JOSH
   /*****************************************\

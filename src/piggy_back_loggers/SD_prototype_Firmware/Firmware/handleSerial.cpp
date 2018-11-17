@@ -46,6 +46,8 @@ void handleSerial(volatile State_t* State, Date_t* Date)
   if(Serial.available() > 0)    // Check if serial data is available.
   {
     char input = getInput();    // Obtain user input.
+    if(input != '\n')
+      Serial.println();
 
     switch(input)               // Switch statement for all defined inputs
     {
@@ -190,9 +192,10 @@ void viewDateTime(Date_t* Date)
   Serial.print(F(" "));
   Serial.print(currHours);
   Serial.print(F(":"));
-  if(currMinutes < 10);
+  if(currMinutes < 10)
     Serial.print(F("0"));
   Serial.print(currMinutes);
+  Serial.print(F("\n>> User:   "));
 
   return;
 }
@@ -427,25 +430,26 @@ void updateDateTime(Date_t* Date)
 
   Serial.print(F(">> Logger: Updating date and time...\n"));
   
-  Serial.print(F(">> Logger: Enter new month: (mm)"));
-  month1  = getNestedInput();
+  Serial.print(F(">> Logger: Enter new month (mm): "));
   month10 = getNestedInput();
+  month1  = getNestedInput();
 
-  Serial.print(F("\n>> Logger: Enter new day: (dd)"));
-  day1  = getNestedInput();
+  Serial.print(F("\n>> Logger: Enter new day (dd): "));
   day10 = getNestedInput();
+  day1  = getNestedInput();
 
-  Serial.print(F("\n>> Logger: Enter new year: (yy)"));
-  year1  = getNestedInput();
+  Serial.print(F("\n>> Logger: Enter new year (yy): "));
   year10 = getNestedInput();
+  year1  = getNestedInput();
 
-  Serial.print(F("\n>> Logger: Enter new hour: (hh, 24-hour clock)"));
-  hour1  = getNestedInput();
+  Serial.print(F("\n>> Logger: Enter new hour (hh, 24-hour clock): "));
   hour10 = getNestedInput();
+  hour1  = getNestedInput();
 
-  Serial.print(F("\n>> Logger: Enter new minute: (mm)"));
-  minute1  = getNestedInput();
+  Serial.print(F("\n>> Logger: Enter new minute (mm): "));
   minute10 = getNestedInput();
+  minute1  = getNestedInput();
+  Serial.println();
 
   byte months  = (byte(month1) - 48) + ((byte(month10) - 48) << 4);
   byte days    = (byte(day1) - 48) + ((byte(day10) - 48) << 4);
@@ -459,12 +463,7 @@ void updateDateTime(Date_t* Date)
   rtcTransfer(reg_Hours, WRITE, hours);
   rtcTransfer(reg_Minutes, WRITE, minutes);
 
-  Date->months  = months;
-  Date->days    = days;
-  Date->years   = years;
-  Date->hours   = hours;
-  Date->minutes = minutes;
-
+  loadDateTime(Date);
   viewDateTime(Date);
 
   Serial.print(F("\n>> Logger: Date and Time reset.\n>> User:   "));
@@ -488,7 +487,7 @@ char getInput()
 {
   char input = Serial.read();
   if (input != '\n')          // Ignore newline characters.
-    Serial.println(input);    // For the Arduino IDE Serial Monitor. Other serial monitors may not need this.
+    Serial.print(input);    // For the Arduino IDE Serial Monitor. Other serial monitors may not need this.
 
   return input;
 }

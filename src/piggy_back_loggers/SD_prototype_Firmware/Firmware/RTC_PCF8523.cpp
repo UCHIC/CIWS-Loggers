@@ -46,3 +46,72 @@ byte rtcTransfer(byte reg, byte flag, byte value)
   
   return value;
 }
+
+/*********************************************\
+ * Function Name: loadDateTime
+ * Purpose:       Loads date and time info
+ *                from RTC into Date_t struct
+ * Inputs:        Pointer to Date_t struct
+ * Outputs:       None (modifes Date_t struct)
+ * Pseudocode:
+ *  Read seconds from RTC
+ *  Convert from BCD to Binary byte
+ *  Store in Date_t struct
+ *  
+ *  Read minutes from RTC
+ *  Convert from BCD to Binary byte
+ *  Store in Date_t struct
+ *  
+ *  Read hours from RTC
+ *  Convert from BCD to Binary byte
+ *  Store in Date_t struct
+ *  
+ *  Read days from RTC
+ *  Convert from BCD to Binary byte
+ *  Store in Date_t struct
+ *  
+ *  Read months from RTC
+ *  Convert from BCD to Binary byte
+ *  Store in Date_t struct
+ *  
+ *  Read years from RTC
+ *  Convert from BCD to Binary byte
+ *  Store in Date_t struct
+ *  
+ *  Return
+\*********************************************/
+
+void loadDateTime(Date_t* Date)
+{
+  byte seconds  = rtcTransfer(reg_Seconds, READ, 0);
+  byte second10 = seconds >> 4;
+  byte second1  = seconds & 0x0F;
+  Date->seconds = ((second10 * 10) + second1);
+  
+  byte minutes  = rtcTransfer(reg_Minutes, READ, 0);
+  byte minute10 = minutes >> 4;
+  byte minute1  = minutes & 0x0F;
+  Date->minutes = ((minute10 * 10) + minute1);
+  
+  byte hours    = rtcTransfer(reg_Hours,   READ, 0);
+  byte hour10   = hours >> 4;
+  byte hour1    = hours & 0x0F;
+  Date->hours   = ((hour10 * 10) + hour1);
+  
+  byte days     = rtcTransfer(reg_Days,    READ, 0);
+  byte day10    = days >> 4;
+  byte day1     = days & 0x0F;
+  Date->days    = ((day10 * 10) + day1);
+  
+  byte months   = rtcTransfer(reg_Months,  READ, 0);
+  byte month10  = months >> 4;
+  byte month1   = months & 0x0F;
+  Date->months  = ((month10 * 10) + month1);
+  
+  byte years    = rtcTransfer(reg_Years,   READ, 0);
+  byte year10   = years >> 4;
+  byte year1    = years & 0x0F;
+  Date->years   = ((year10 * 10) + year1);
+  
+  return;
+}

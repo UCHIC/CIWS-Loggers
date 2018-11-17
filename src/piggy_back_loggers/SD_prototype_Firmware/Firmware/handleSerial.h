@@ -7,7 +7,7 @@
 void handleSerial(volatile State_t* State, Date_t* Date);
 void cleanSD(volatile State_t* State);
 void viewDateTime(Date_t* Date);
-void exitSerial(volatile State_t* State);
+void exitSerial(volatile State_t* State, Date_t* Date);
 void ejectSD(volatile State_t* State);
 void printHelp();
 void initSD(volatile State_t* State);

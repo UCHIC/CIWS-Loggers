@@ -86,7 +86,9 @@ void disableUnneededPeripherals()
 void twiPowerUp()
 {
   power_twi_enable();
+  _delay_ms(10);
   Wire.begin();
+  _delay_ms(10);
 
   return;
 }

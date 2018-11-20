@@ -47,6 +47,27 @@ byte rtcTransfer(byte reg, byte flag, byte value)
   return value;
 }
 
+void registerDump()
+{
+  twiPowerUp();
+
+  Wire.beginTransmission(deviceAddr);
+  Wire.write(reg_Control_1);
+  Wire.endTransmission();
+  
+  Wire.requestFrom(deviceAddr, byte(20));
+  byte reg = 0;
+  while(Wire.available())
+  {
+    byte c = Wire.read();
+    Serial.print(F("Register "));
+    Serial.print(reg);
+    Serial.print(F(": "));
+    Serial.println(c);
+    reg += 1;
+  }
+}
+
 /*********************************************\
  * Function Name: loadDateTime
  * Purpose:       Loads date and time info

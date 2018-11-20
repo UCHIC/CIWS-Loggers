@@ -70,6 +70,8 @@ void setup()
 
   pinMode(3, INPUT);
   attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
+
+  //resetClock(); Uncomment to reset the RTC Time
   
   Serial.println(F("PCF8523 Registers:"));
   Wire.beginTransmission(deviceAddr);
@@ -117,7 +119,11 @@ void setup()
 
   if(seconds >= 128)
   {
-    Serial.println(F("/!\\ WARNING: RTC oscillator frozen. Recommend reset.\n"));
+    Serial.println(F("/!\\ WARNING: RTC oscillator frozen.\n"));
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Seconds);
+    Wire.write(byte(0x00));
+    Wire.endTransmission();
   }
 
   seconds  = (seconds & 0x0F)  + ((seconds >> 4) * 10);
@@ -258,4 +264,42 @@ void loop()
 void INT1_ISR()                 // Serial On Button ISR. Activate Serial Interface
 {
   FLAG = true;
+}
+
+void resetClock()
+{
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Seconds);
+    Wire.write(byte(0x00));
+    Wire.endTransmission();
+        
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Minutes);
+    Wire.write(byte(0x42));
+    Wire.endTransmission();
+
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Hours);
+    Wire.write(byte(0x12));
+    Wire.endTransmission();
+
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Days);
+    Wire.write(byte(0x23));
+    Wire.endTransmission();
+
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Weekdays);
+    Wire.write(byte(0x02));
+    Wire.endTransmission();
+
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Months);
+    Wire.write(byte(0x10));
+    Wire.endTransmission();
+
+    Wire.beginTransmission(deviceAddr);
+    Wire.write(reg_Years);
+    Wire.write(byte(0x18));
+    Wire.endTransmission();
 }

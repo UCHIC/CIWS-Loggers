@@ -88,6 +88,8 @@ void setup()
   digitalWrite(4, HIGH);
   pinMode(5, INPUT);
 
+  rtcTransfer(reg_Control_2, WRITE, 0x02);
+
   attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, FALLING);   // Setup Interrupts
   attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
   EIMSK &= ~(1 << INT0);        // Disable Hall Effect Sensor interrupt
@@ -131,6 +133,10 @@ void loop()
   *                 function)
   \*****************************************/
   if(State.flag4)
+  {
+    State.flag4 = false;
+    rtcTransfer(reg_Control_2, WRITE, 0x02);
+  } 
     // Daniel's function
       // Don't forget to clear flag on RTC!
 

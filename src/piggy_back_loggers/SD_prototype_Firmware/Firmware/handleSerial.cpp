@@ -28,6 +28,8 @@
  *    Print help list
  *  If input is i
  *    Let system know an SD Card is inserted
+ *  If input is R
+ *    Diagnose RTC (RTC Doctor)
  *  If input is s
  *    Start logging data from meter
  *  If input is S
@@ -77,6 +79,12 @@ void handleSerial(volatile State_t* State, Date_t* Date)
 
       case 'i':                 // Let system know an SD Card is inserted. Actual card initialization is handled elsewhere when powered on/off.
         initSD(State);
+        Serial.print(F("\n>> User:   "));
+        break;
+
+      case 'R':
+        Serial.print(F(">> Logger: Calling the RTC Doctor...\n"));
+        RTC_Doctor();
         Serial.print(F("\n>> User:   "));
         break;
 
@@ -190,15 +198,15 @@ void viewDateTime(Date_t* Date)
 
   Serial.print(F(">> Logger: "));
   Serial.print(currMonths);
-  Serial.print(F("/"));
+  Serial.print('/');
   Serial.print(currDays);
-  Serial.print(F("/"));
+  Serial.print('/');
   Serial.print(currYears);
-  Serial.print(F(" "));
+  Serial.print(' ');
   Serial.print(currHours);
-  Serial.print(F(":"));
+  Serial.print(':');
   if(currMinutes < 10)
-    Serial.print(F("0"));
+    Serial.print('0');
   Serial.print(currMinutes);
 
   return;
@@ -290,6 +298,7 @@ void printHelp()
   Serial.print(F("           E  -- Eject SD card\n"));
   Serial.print(F("           h  -- Display help\n"));
   Serial.print(F("           i  -- Initialize the SD card\n"));
+  Serial.print(F("           R  -- Diagnose the RTC\n"));
   Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));
   Serial.print(F("           u  -- Update date/time\n"));
@@ -333,6 +342,69 @@ void initSD(volatile State_t* State)
   }
   SDPowerDown();
   
+  return;
+}
+
+void RTC_Doctor()
+{
+  // Check/Set Interrupt Enable
+  // Check/Clear Interrupt Flag
+  // Dump Register Contents
+  // Manually alter register contents
+
+  EIMSK &= ~(1 << INT1);         // Disable RTC interrupt.
+  Serial.print(F(">> RTC Doctor: Hi! I'm here to help fix your RTC.\n"));
+  Serial.print(F(">> RTC Doctor: I'm trained to run a couple procedures on your RTC's interrupt control. "));
+  bool finished = false;
+  while(!finished)
+  {
+    Serial.print(F("What will it be?\n"));
+    Serial.print(F("    1 -- Re-Enable the RTC Interrupt\n"));
+    Serial.print(F("    2 -- Reset Interrupt Timer\n"));
+    Serial.print(F("    3 -- Display the RTC Register contents\n"));
+    Serial.print(F("    4 -- Alter a register\n"));
+    Serial.print(F("    5 -- Finish\n"));
+    Serial.print(F(">> User:   "));
+    char input = getNestedInput();
+  
+    switch(input)
+    {
+      case '1':
+        Serial.print(F("\n>> RTC Doctor: Resetting the RTC's Interrupt...\n"));
+        rtcTransfer(reg_Control_2, WRITE, 0x02);
+        Serial.print(F(">> RTC Doctor: Interrupt reset!"));
+        break;
+        
+      case '2':
+        Serial.print(F("\n>> RTC Doctor: Resetting the RTC's Interrupt Timer...\n"));
+        rtcTransfer(reg_Tmr_CLKOUT_ctrl, WRITE, 0x3A);
+        rtcTransfer(reg_Tmr_A_freq_ctrl, WRITE, 0x02);
+        rtcTransfer(reg_Tmr_A_reg, WRITE, 0x04);
+        rtcTransfer(reg_Control_2, WRITE, 0x02);
+        Serial.print(F(">> RTC Doctor: Timer reset!"));
+        break;
+  
+      case '3':
+        Serial.print(F("\n>> RTC Doctor: Here are the contents of the RTC Registers. You will probably want a copy of the PCF8523 Datasheet to interpret these.\n"));
+        registerDump();
+        break;
+  
+      case '4':
+        Serial.print(F("\n>> RTC Doctor: I'll write whatever you tell me to, so be sure to double check."));
+        Serial.print(F("\n>> RTC Doctor: This functionality is not yet implemented."));
+        break;
+        
+      case '5':
+        finished = true;
+        break;
+
+      default:
+        Serial.print(F("\n>> RTC Doctor: I don't understand your input. Try something from the list."));
+    }
+    Serial.print(F("\n>> RTC Doctor: "));
+  }
+  Serial.print(F("Goodbye!"));
+  EIMSK |= (1 << INT1);       
   return;
 }
 

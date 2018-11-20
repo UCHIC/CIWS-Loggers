@@ -42,7 +42,7 @@
 \**************************************************/
 
 void handleSerial(volatile State_t* State, Date_t* Date)
-{ 
+{
   if(Serial.available() > 0)    // Check if serial data is available.
   {
     char input = getInput();    // Obtain user input.
@@ -109,17 +109,17 @@ void handleSerial(volatile State_t* State, Date_t* Date)
 
 /*******************************************************************************************************************************\
  * Supporting Functions:
- *   void cleanSD(State_t* State, Date_t* Date);    Complete
- *   void viewDateTime();                           Complete
+ *   void cleanSD(State_t* State, Date_t* Date);    Complete  ~Tested
+ *   void viewDateTime();                           Complete  Tested
  *   void exitSerial(State_t* State);               Complete  Tested
- *   void ejectSD(State_t* State);                  Complete  
+ *   void ejectSD(State_t* State);                  Complete  Tested
  *   void printHelp();                              Complete  Tested
- *   void initSD(State_t* State);                   Complete  
+ *   void initSD(State_t* State);                   Complete  Tested, won't catch error state (when no card present)
  *   void startLogging(State_t* State);             Complete  Tested
  *   void stopLogging(State_t* State);              Complete  Tested
- *   void updateDateTime();                         Complete
+ *   void updateDateTime();                         Complete  Tested
  *   char getInput();                               Complete  Tested
- *   char getNestedInput();                         Complete
+ *   char getNestedInput();                         Complete  Tested
 \********************************************************************************************************************************/
 
 /*****************************************************************\
@@ -223,8 +223,8 @@ void viewDateTime(Date_t* Date)
 
 void exitSerial(volatile State_t* State, Date_t* Date)
 {
-  Serial.print(F(">> Logger: Exitting.\n"));
   viewDateTime(Date);
+  Serial.print(F("\n>> Logger: Exitting.\n\n"));
   State->serialOn = false;
   _delay_ms(1000);
   serialPowerDown();
@@ -466,6 +466,7 @@ void updateDateTime(Date_t* Date)
   rtcTransfer(reg_Years, WRITE, years);
   rtcTransfer(reg_Hours, WRITE, hours);
   rtcTransfer(reg_Minutes, WRITE, minutes);
+  rtcTransfer(reg_Seconds, WRITE, byte(0x00));
 
   loadDateTime(Date);
   viewDateTime(Date);

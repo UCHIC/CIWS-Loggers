@@ -14,6 +14,7 @@ void initSD(volatile State_t* State);
 void startLogging(volatile State_t* State);
 void stopLogging(volatile State_t* State);
 void updateDateTime(Date_t* Date);
+void RTC_Doctor();
 char getInput();
 char getNestedInput();
 

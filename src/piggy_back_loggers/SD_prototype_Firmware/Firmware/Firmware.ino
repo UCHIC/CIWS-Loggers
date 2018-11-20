@@ -88,6 +88,9 @@ void setup()
   digitalWrite(4, HIGH);
   pinMode(5, INPUT);
 
+  rtcTransfer(reg_Tmr_CLKOUT_ctrl, WRITE, 0x3A);                  // Setup RTC Timer
+  rtcTransfer(reg_Tmr_A_freq_ctrl, WRITE, 0x02);
+  rtcTransfer(reg_Tmr_A_reg, WRITE, 0x04);
   rtcTransfer(reg_Control_2, WRITE, 0x02);
 
   attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, FALLING);   // Setup Interrupts

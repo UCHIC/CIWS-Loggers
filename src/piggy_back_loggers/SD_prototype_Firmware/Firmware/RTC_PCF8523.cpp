@@ -61,6 +61,8 @@ void registerDump()
   {
     byte c = Wire.read();
     Serial.print(F("Register "));
+    if(reg < 10)
+      Serial.print('0');
     Serial.print(reg);
     Serial.print(F(": "));
     Serial.println(c);

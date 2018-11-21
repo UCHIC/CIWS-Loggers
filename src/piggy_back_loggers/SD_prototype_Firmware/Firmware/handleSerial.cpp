@@ -354,7 +354,7 @@ void RTC_Doctor()
 
   EIMSK &= ~(1 << INT1);         // Disable RTC interrupt.
   Serial.print(F(">> RTC Doctor: Hi! I'm here to help fix your RTC.\n"));
-  Serial.print(F(">> RTC Doctor: I'm trained to run a couple procedures on your RTC's interrupt control. "));
+  Serial.print(F(">> RTC Doctor: I'm trained to run a couple procedures on your RTC. "));
   bool finished = false;
   while(!finished)
   {
@@ -366,6 +366,16 @@ void RTC_Doctor()
     Serial.print(F("    5 -- Finish\n"));
     Serial.print(F(">> User:   "));
     char input = getNestedInput();
+
+    char regInput10;
+    char regInput1;
+    byte regInput;
+
+    char hex16;
+    char hex1;
+    byte hexConv16;
+    byte hexConv1;
+    byte hexInput;
   
     switch(input)
     {
@@ -391,7 +401,86 @@ void RTC_Doctor()
   
       case '4':
         Serial.print(F("\n>> RTC Doctor: I'll write whatever you tell me to, so be sure to double check."));
-        Serial.print(F("\n>> RTC Doctor: This functionality is not yet implemented."));
+        Serial.print(F("\n>> RTC Doctor: Which register would you like to alter? (rr): "));
+        regInput10 = getNestedInput();
+        regInput1  = getNestedInput();
+        regInput = (byte(regInput1) - 48) + ((byte(regInput10) - 48) * 10);
+        Serial.print(F("\n>> RTC Doctor: What value would you like to write? (specify in hexadecimal): 0x"));
+        hex16 = getNestedInput();
+        hex1  = getNestedInput();
+        switch(hex16)
+        {
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            hexConv16 = (byte(hex16) - 48) << 4;
+            break;
+
+          case 'A':
+          case 'a':
+          case 'B':
+          case 'b':
+          case 'C':
+          case 'c':
+          case 'D':
+          case 'd':
+          case 'E':
+          case 'e':
+          case 'F':
+          case 'f':
+            hexConv16 = (byte(hex16) - 55) << 4;
+            break;
+            
+          default:
+            hexConv16 = 0;
+            break; 
+        }
+
+        switch(hex1)
+        {
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            hexConv1 = (byte(hex1) - 48);
+            break;
+
+          case 'A':
+          case 'a':
+          case 'B':
+          case 'b':
+          case 'C':
+          case 'c':
+          case 'D':
+          case 'd':
+          case 'E':
+          case 'e':
+          case 'F':
+          case 'f':
+            hexConv1 = (byte(hex1) - 55);
+            break;
+            
+          default:
+            hexConv1 = 0;
+            break; 
+        }
+        hexInput = hexConv16 + hexConv1;
+        rtcTransfer(regInput, WRITE, hexInput);
+        Serial.print(F("\n>> RTC Doctor: Finished! Check the registers to make sure they're correct:\n"));
+        registerDump();
         break;
         
       case '5':

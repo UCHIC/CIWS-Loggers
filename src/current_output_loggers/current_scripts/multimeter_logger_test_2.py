@@ -34,7 +34,7 @@ import RPi.GPIO as GPIO
 
 # Set all site specific configuration options for deployment
 # ----------------------------------------------------------
-siteCode = "UWRL_Test_Facility"
+siteCode = "LLC_BLDG_A"
 # Set the scanning and recording intervals at which the program should run
 scanInterval = 1.0          # Time between scans within the main loop in seconds
 #recordInterval = 30.0       # Time between recorded values in seconds
@@ -42,10 +42,10 @@ recordInterval = 1.0        # Time between recorded values in seconds
 # Set meter Specific Values
 coldInMaxFlowRate = 200.0         # Maximum flow rate of the cold water inflow meter at 20 mA output (gal/min)
 coldInCalibrationFactor = 1.0     # One point calibration value to scale the cold water meter output voltages
-coldInCalibration = 0.004			 # Arithmetic Calibration value to adjust the cold water meter output voltages
+coldInCalibration = 0.002	  # Arithmetic Calibration value to adjust the cold water meter output voltages
 hotInMaxFlowRate = 50.0           # Maximum flow rate of the hot water inflow meter at 20 mA output (gal/min)
 hotInCalibrationFactor = 1.0      # One point calibration value to scale the hot water meter output voltages
-hotInCalibration = 0.004			 # Arithmetic Calibration value to adjust the hot water meter output voltages
+hotInCalibration = 0.002	  # Arithmetic Calibration value to adjust the hot water meter output voltages
 
 # Set up the GPIO pin for the pulse counting meter
 # ------------------------------------------------
@@ -58,14 +58,14 @@ GPIO.setup(GPIOPin, GPIO.IN)
 # Note: the I2C address can be changed from its default address (0x48), and/or
 # the I2C bus can be changed by passing in these optional parameters:
 # adc = Adafruit_ADS1x15.ADS1015(address=0x49, busnum=1)
-#adc = Adafruit_ADS1x15.ADS1015()
+adc = Adafruit_ADS1x15.ADS1015()
 
 # Create an ADS1115 ADC (16-bit) instance with default address
 # ------------------------------------------------------------
 # Note: the I2C address can be changed from its default address (0x48), and/or
 # the I2C bus can be changed by passing in these optional parameters:
 # adc = Adafruit_ADS1x15.ADS1115(address=0x49, busnum=1)
-adc = Adafruit_ADS1x15.ADS1115()
+#adc = Adafruit_ADS1x15.ADS1115()
 
 # Choose a gain setting for the ADC
 # ---------------------------------
@@ -80,8 +80,8 @@ adc = Adafruit_ADS1x15.ADS1115()
 # GAIN = 2/3
 # bitConversionFactor = 3  # mV per bit per the table above
 GAIN = 1
-#bitConversionFactor = 2  # mV per bit per the table above
-bitConversionFactor = 0.125 # Proper bit conversion factor for ADS1115
+bitConversionFactor = 2  # mV per bit per the table above
+#bitConversionFactor = 0.125 # Proper bit conversion factor for ADS1115
 
 # Set up the data log file
 # ------------------------
@@ -122,9 +122,9 @@ timeInterval = 0.0        # Timing Variable
 
 # Define sensor related values
 # ----------------------------
-coldInflowPin = 0           # Analog port on the ADC to which the cold water inflow meter is connected
-hotInFlowPin = 1            # Analog port on the ADC to which the hot water inflow meter is connected
-resistorValue = 200         # The value of the shunt resistor in ohms used for the 4-20 mA current loop measurement -- Adjust for each resistor for better precision.
+coldInFlow = 0           # Analog port on the ADC to which the cold water inflow meter is connected
+hotInFlow = 3            # Analog port on the ADC to which the hot water inflow meter is connected
+resistorValue = 200       # The value of the shunt resistor in ohms used for the 4-20 mA current loop measurement -- Adjust for each resistor for better precision.
 minVoltage = (0.004 * resistorValue)  # The minimum voltage value that can be measured based on Ohm's Law
 maxVoltage = (0.020 * resistorValue)  # The maximum voltage that can be measured
 voltageRange = maxVoltage - minVoltage  # Voltage range based on resistor value in volts
@@ -133,7 +133,7 @@ coldInSensorVolts = 0.0     # Voltage of the analog input from the cold water in
 hotInSensorVolts = 0.0      # Voltage of the analog input from the hot water inflow meter
 global pulseCount
 pulseCount = 0.0            # Pulse count from the hot water return meter
-pulseVolume = 0.1           # The volume of water per measured pulse from the hot water return multi-jet meter
+pulseVolume = 1             # The volume of water per measured pulse from the hot water return multi-jet meter
 
 coldInFlowRate = 0.0        # Instantaneous flow rate measured from cold water inflow meter (gal/min)
 hotInFlowRate = 0.0         # Instantaneous flow rate measured from hot water inflow meter (gal/min)
@@ -206,8 +206,8 @@ while True:
         hotOutFlowRate = 60 * (hotOutPulseCount * pulseVolume) / timeInterval  # Flow rate (gal/min)
 
         # Get the voltage measurements from the Octave meters - divide by 1000 to convert from mV to V
-        coldInSensorVolts = (coldInCalibrationFactor * bitConversionFactor * adc.read_adc(coldInflowPin, gain=GAIN) / 1000) + coldInCalibration
-        hotInSensorVolts = (hotInCalibrationFactor * bitConversionFactor * adc.read_adc(hotInFlowPin, gain=GAIN) / 1000) + hotInCalibration
+        coldInSensorVolts = (coldInCalibrationFactor * bitConversionFactor * adc.read_adc_difference(coldInFlow, gain=GAIN) / 1000) + coldInCalibration
+        hotInSensorVolts = (hotInCalibrationFactor * bitConversionFactor * adc.read_adc_difference(hotInFlow, gain=GAIN) / 1000) + hotInCalibration
 
         # Check to see if the sensor voltages are greater than the minimum - if not, set flow to zero
         # Add an arbitrary buffer onto the minVoltage (0.0001 V) to avoid small errors when the flow is zero

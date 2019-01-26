@@ -2,5 +2,4 @@ This firmware is for the more power-efficient datalogger prototype based around 
 
 Current Issues:
   Faulty peak-counting algorithm (probably ported wrong).
-  Record Number isn't resetting (easy fix)
   Real Time Clock time/date data corrupted on power off.

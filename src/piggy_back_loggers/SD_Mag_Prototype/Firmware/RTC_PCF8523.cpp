@@ -47,6 +47,25 @@ byte rtcTransfer(byte reg, byte flag, byte value)
   return value;
 }
 
+/***********************************************\
+ * Name:    registerDump
+ * Purpose: Prints the contents of all RTC 
+ *          registers to the serial terminal.
+ *          Serial interface must be active
+ *          when this function is called.
+ * Inputs:  None.
+ * Outputs: No function outputs. Just terminal
+ *          output.
+ *          
+ * Pseudocode:
+ *   Power on TWI interface
+ *   Initiate TWI Read from RTC
+ *   Sequentially read 20 bytes from RTC:
+ *     Print Register number (decimal)
+ *     Print Register contents
+ *   Power down TWI interface
+\***********************************************/
+
 void registerDump()
 {
   twiPowerUp();
@@ -70,6 +89,8 @@ void registerDump()
   }
 
   twiPowerDown();
+
+  return;
 }
 
 /*********************************************\

@@ -5,11 +5,6 @@
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow...
 
-/* /!\ BUG: Microcontroller Freezes on request to start logging. */ /*Bug fixed.*/
-/* /!\ BUG: Cannot enter serial */ /*Fixed: Pin 3 needs a pull-up resistor.*/
-
-/* /!\ BUG: SD Card not being written to.*/
-
 /*******************************************************************************************\
 * Hardware Description
 *                     ___________________                             ___

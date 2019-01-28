@@ -5,8 +5,10 @@
 #include <Wire.h>
 #include "powerSleep.h"
 
+/*RTC TWI/I2C Address: 0x68*/
 const byte deviceAddr = 0x68;
 
+/*Hexadecimal Addresses of the RTC Registers*/
 const byte reg_Control_1       = 0x00;
 const byte reg_Control_2       = 0x01;
 const byte reg_Control_3       = 0x02;
@@ -31,6 +33,7 @@ const byte reg_Tmr_B_reg       = 0x13;
 const byte WRITE = 0;
 const byte READ  = 1;
 
+/*Date_t stores all date/time information*/
 typedef struct
 {
   volatile byte seconds;
@@ -42,8 +45,8 @@ typedef struct
   
 } Date_t;
 
-byte rtcTransfer(byte reg, byte flag, byte value);
-void registerDump();
-void loadDateTime(Date_t* Date);
+byte rtcTransfer(byte reg, byte flag, byte value); // TWI transfer with RTC
+void registerDump();                               // View contents of RTC Registers (Serial interface must be active)
+void loadDateTime(Date_t* Date);                   // Load Date_t struct with Date and Time info from the RTC.
 
 #endif

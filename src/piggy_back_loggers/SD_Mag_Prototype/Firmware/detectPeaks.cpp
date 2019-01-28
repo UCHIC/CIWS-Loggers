@@ -24,8 +24,8 @@ bool peakDetected(volatile SignalState_t* signalState)
   }
   else if(s < 0)
   {
-    signalState->slopeIsPositive = 0;
-    signalState->slopeIsNegative = 1;
+    signalState->slopeIsPositive = false;
+    signalState->slopeIsNegative = true;
     if (signalState->x[1] < signalState->x_min)
     {
       signalState->x_min = signalState->x[1];

@@ -112,7 +112,7 @@ void setup()
   rtcTransfer(reg_Tmr_A_freq_ctrl, WRITE, 0x02);
   rtcTransfer(reg_Tmr_A_reg, WRITE, 0x04);
   rtcTransfer(reg_Control_2, WRITE, 0x02);
-  rtcTransfer(reg_Control_3, WRITE, 0x40);                        // Set RTC to switch to Battery on power loss
+  rtcTransfer(reg_Control_3, WRITE, 0x80);                        // Set RTC to switch to Battery on power off
 
   /*Interrupts TODO: change the INT0_ISR to record magnetometer data*/
 

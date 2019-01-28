@@ -1,18 +1,20 @@
 // Firmware for the CIWS Residential Datalogger
-// Arduino IDE ver. 1.8.7
+// Arduino IDE ver. 1.8.8
 // Utah Water Research Lab
-// Updated: 10/25/2018
+// Updated: 1/28/2019
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow...
 
 /*******************************************************************************************\
 * Hardware Description
-*                     ___________________                             ___
+*                     ___________________   TWI                       ___
 *                    |                   |<------------------------->[___] RTC  
-*  ________          |                   |                            _______
+*                    |                   |                   |        ___
+*                    |                   |                    ------>|___| Magnetometer
+*  ________          |                   |  SPI                       _______
 * |        |         |                   |<------------------------->|       | SD
 * |        |<------->|                   |<-----[] Activate Serial   |______/
-* |________|         |___________________|<-----[] Sensor
+* |________|         |___________________|  GPIO
 *  Serial             Controller
 * 
 * Serial:          Serial interface for user interaction with the logger
@@ -23,11 +25,14 @@
 * RTC:             Real Time Clock to track time and wake up controller every four seconds.
 \*******************************************************************************************/
 
-/*********************************************************\
+/*****************************************************************\
 * Software Description
 * Overview: 
 *   User inputs:
 *     Serial input.
+*   Device inputs:
+*     Magnetometer Sensor
+*     Real Time Clock
 *   Device outputs:
 *     Serial output
 *     Datalog file
@@ -41,12 +46,12 @@
 *        If four seconds are up
 *          Update the time
 *          Construct a timestamp
-*          Power-on the SD card
 *          Write data
-*          Power-off the SD card
 *        If sleep is enabled (disabled when serial is enabled)
 *          Enter Sleep (low-power mode)
 *          < Will wake up on Interrupt and continue: >
+*        If the Magnetometer interrupted:
+*          Read the magnetometer data and check for peaks.
 *      Repeat Loop
 *      
 * Interrupts:
@@ -54,7 +59,7 @@
 *      
 *   2. INT1_ISR()
 *      
-\*********************************************************/
+\*****************************************************************/
 
 #include <SPI.h>
 #include <SD.h>
@@ -82,13 +87,18 @@
 
 /*********************************************************************************\
  * Setup:
- *    System State structure      Complete
- *    Setup Digital I/O pins
- *      Pin 2 (INT0)
- *      Pin 3 (INT1)
- *      Pin 4 (SD power on/off)
- *      Pin 5 (Serial Activate Button)
+ *    Setup the System State structure     
+ *    Setup the Digital I/O pins
+ *      Pin 2 (INT0):  Magnetometer Interrupt
+ *      Pin 3 (INT1):  RTC 4-Second Interrupt
+ *      Pin 5 (INPUT): Serial Activate Button
+ *    Initialize Magnetometer
+ *    Setup RTC Timer
  *    Setup interrupts
+ *    Load Date_t with Date/Time info
+ *    Disable unneeded peripherals
+ *    If Activate Serial Button is pressed
+ *      Power on the Serial Interface
 \*********************************************************************************/
 
 volatile State_t State;             // System State structure
@@ -101,7 +111,7 @@ void setup()
 {
   resetState(&State);             // Setup the System State structure
   
-  pinMode(2, INPUT);              // Setup the Digital Pins       
+  pinMode(2, INPUT);              // Setup the Digital I/O Pins       
   pinMode(3, INPUT_PULLUP);
   pinMode(5, INPUT);
 
@@ -112,9 +122,7 @@ void setup()
   rtcTransfer(reg_Tmr_A_freq_ctrl, WRITE, 0x02);
   rtcTransfer(reg_Tmr_A_reg, WRITE, 0x04);
   rtcTransfer(reg_Control_2, WRITE, 0x02);
-  rtcTransfer(reg_Control_3, WRITE, 0x80);                        // Set RTC to switch to Battery on power off
-
-  /*Interrupts TODO: change the INT0_ISR to record magnetometer data*/
+  rtcTransfer(reg_Control_3, WRITE, 0x80);                        
 
   attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, RISING);   // Setup Interrupts
   attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
@@ -125,9 +133,9 @@ void setup()
                                   
   disableUnneededPeripherals();   // Disable unneeded peripherals
 
-  if((digitalRead(5) == 0) && !State.serialOn)
+  if((digitalRead(5) == 0) && !State.serialOn)  // If Activate Serial Button is pressed
   {
-    State.serialOn = true;
+    State.serialOn = true;                        // Power on the Serial Interface
     serialPowerUp();
   }
 }

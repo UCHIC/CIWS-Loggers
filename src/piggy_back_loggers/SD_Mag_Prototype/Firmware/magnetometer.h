@@ -15,6 +15,7 @@
  * Functions:
  *    Initialize Magnetomter 
  *    Read Data
+ *    Initialize Data
  *    
 \*********************************************************************/
 

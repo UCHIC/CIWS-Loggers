@@ -1,77 +1,74 @@
-#include "magnetometer.h"
-#include <Arduino.h>
-#include <DebugMacros.h>
-#include <LSM303CTypes.h>
-#include <SparkFunIMU.h>
-#include <SparkFunLSM303C.h>
-#include "powerSleep.h"
-#include "state.h"
+#include "detectPeaks.h"
 
-/*********************************************************************\
- * 
- * Library for interfacing with the SparkFun LSM303C magnetometer.
- * 
- * Functions:
- *    Initialize Magnetomter 
- *    Read Data
- *    Initialize Data
- *    
-\*********************************************************************/
-
-void magnetometerInit(LSM303C *mag)
+bool peakDetected(volatile SignalState_t* signalState)
 {
-  twiPowerUp();
+  float s = 0;
+  bool peak = false;
+
+  signalState->offset = (signalState->x_max - signalState->x_min) / 2.208;
+
+  float high_thresh = signalState->x_max - signalState->offset;
+  float low_thresh = signalState->x_min + signalState->offset;
+
+  s = signalState->x[1] - signalState->x[0];
   
-  if (mag->begin(
-    MODE_I2C,
-    MAG_DO_20_Hz,
-    MAG_FS_8_Ga,
-    MAG_BDU_DISABLE,
-    MAG_OMXY_LOW_POWER,
-    MAG_OMZ_MEDIUM_PERFORMANCE,
-    MAG_MD_CONTINUOUS,
-    ACC_FS_2g,
-    ACC_BDU_DISABLE,
-    ACC_DISABLE_ALL,
-    ACC_ODR_POWER_DOWN
-    ) != IMU_SUCCESS)
+  if(s > 0)
+  {
+    signalState->slopeIsPositive = true;
+    signalState->slopeIsNegative = false;
+    if (signalState->x[1] > signalState->x_max)
     {
-      Serial.println("Magnetometer setup failed. Check connection and reset.");
-      while(1);
+      signalState->x_max = signalState->x[1];
+      high_thresh = signalState->x_max - signalState->offset;
     }
-    twiPowerDown();
+  }
+  else if(s < 0)
+  {
+    signalState->slopeIsPositive = false;
+    signalState->slopeIsNegative = true;
+    if (signalState->x[1] < signalState->x_min)
+    {
+      signalState->x_min = signalState->x[1];
+      low_thresh = signalState->x_min + signalState->offset;
+    }
+  }
 
-    return;
-}
+  if(!signalState->slopeIsNegative && signalState->slopeWasNegative)
+  {
+    signalState->currentMin = signalState->x[0];
+  }
 
-void readData(LSM303C* mag, volatile SignalState_t* SignalState)
-{
-  twiPowerUp();
-  SignalState->x[0] = SignalState->x[1];
-  SignalState->x[1] = mag->readMagZ();
-  twiPowerDown();
-  
-   /* Data to plot the waveform measured by the magnetometer. For testing purposes. To be removed when no longer needed. */
+  if(!signalState->slopeIsPositive && signalState->slopeWasPositive)
+  {
+    signalState->currentMax = signalState->x[0];
+    if((signalState->currentMax > high_thresh) && (signalState->currentMin < low_thresh))
+    {
+      peak = true;
+    }
+  }
+
+  if(signalState->slopeIsPositive)
+    signalState->slopeWasPositive = true;
+  else
+    signalState->slopeWasPositive = false;
+
+  if(signalState->slopeIsNegative)
+    signalState->slopeWasNegative = true;
+  else
+    signalState->slopeWasNegative = false;
+
+  /* Data to plot the waveform measured by the magnetometer. For testing purposes. To be removed when no longer needed. */
+  /* Along with the wavefrom, the calculated peaks are marked, where 1 indicates a peak and -2 indicates no peak.*/
   SDPowerUp();
   File waveFile = SD.open("waveform.csv", FILE_WRITE);
-  waveFile.println(SignalState->x[1], 4);
+  waveFile.print(SignalState->x[1], 4);
+  if(peak)
+    waveFile.print(",1");   // 1 on the graph means a peak
+  else
+    waveFile.print(",-2");  // -2 on the graph means no peak
+  waveFile.println();
   waveFile.close();
   SDPowerDown();
   
-  return;
-}
-
-
-void initializeData(LSM303C* mag, volatile SignalState_t* SignalState)
-{
-  twiPowerUp();
-  SignalState->x[0] = mag->readMagZ();
-  SignalState->x[1] = SignalState->x[0];
-  SignalState->x_max = SignalState->x[1];
-  SignalState->x_min = SignalState->x[1];
-  SignalState->currentMax = SignalState->x[1];
-  SignalState->currentMin = SignalState->x[1];
-  twiPowerDown();
-  
-  return;
+  return peak;
 }

@@ -2,4 +2,3 @@ This firmware is for the more power-efficient datalogger prototype based around 
 
 TODO:
   Verify the peak-counting algorithm.
-  Fix: Real Time Clock time/date data corrupted on power off.

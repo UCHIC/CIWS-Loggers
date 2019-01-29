@@ -51,6 +51,13 @@ void readData(LSM303C* mag, volatile SignalState_t* SignalState)
   SignalState->x[1] = mag->readMagZ();
   twiPowerDown();
   
+   /* Data to plot the waveform measured by the magnetometer. For testing purposes. To be removed when no longer needed. */
+  SDPowerUp();
+  File waveFile = SD.open("waveform.csv", FILE_WRITE);
+  waveFile.println(SignalState->x[1], 4);
+  waveFile.close();
+  SDPowerDown();
+  
   return;
 }
 

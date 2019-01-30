@@ -2,6 +2,8 @@ This firmware is for the more power-efficient datalogger prototype based around 
 
 Peak-counting algorithm verified. It works properly.
 
-TODO: Fix bug: Datalogger detects proper number of peaks, but logs completely different number. Write to serial to determine issue.
+DONE: Fixed bug: Datalogger detects proper number of peaks, but logs completely different number. Write to serial to determine issue.
 
 TODO: Reset State before or after every logging session.
+
+TODO: Find a way to ignore the preliminary noise when the logger first starts to log.

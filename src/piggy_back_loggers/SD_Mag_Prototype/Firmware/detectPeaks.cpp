@@ -1,4 +1,6 @@
 #include "detectPeaks.h"
+#include "powerSleep.h"
+#include <SD.h>
 
 bool peakDetected(volatile SignalState_t* signalState)
 {
@@ -61,7 +63,7 @@ bool peakDetected(volatile SignalState_t* signalState)
   /* Along with the wavefrom, the calculated peaks are marked, where 1 indicates a peak and -2 indicates no peak.*/
   SDPowerUp();
   File waveFile = SD.open("waveform.csv", FILE_WRITE);
-  waveFile.print(SignalState->x[1], 4);
+  waveFile.print(signalState->x[1], 4);
   if(peak)
     waveFile.print(",1");   // 1 on the graph means a peak
   else

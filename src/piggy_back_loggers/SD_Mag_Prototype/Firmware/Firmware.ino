@@ -205,13 +205,13 @@ void loop()
     if(peak)
       State.pulseCount += 1;
     /* Debugging Information: To be removed*/
-    SDPowerUp();
-    File waveFile = SD.open("waveform.csv", FILE_WRITE);
-    waveFile.print(peak, DEC);
-    waveFile.print(',');
-    waveFile.println(State.pulseCount);
-    waveFile.close();
-    SDPowerDown();
+    //SDPowerUp();
+    //File waveFile = SD.open("waveform.csv", FILE_WRITE);
+    //waveFile.print(peak, DEC);
+    //waveFile.print(',');
+    //waveFile.println(State.pulseCount);
+    //waveFile.close();
+    //SDPowerDown();
     /* End Debugging */
   }
 }

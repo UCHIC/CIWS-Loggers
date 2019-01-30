@@ -44,7 +44,7 @@ os.nice(-15)
 
 # Set all site specific configuration options for deployment
 # ----------------------------------------------------------
-siteCode = "LLC_BLDG_B"
+siteCode = "LLC_BLDG_F"
 # Set the scanning and recording intervals at which the program should run
 scanInterval = 1.0          # Time between scans within the main loop in seconds
 #recordInterval = 30.0       # Time between recorded values in seconds
@@ -257,6 +257,8 @@ time.sleep(remainder)
 previousTime = time.time()
 previousRecordTime = previousTime
 
+threadNotStarted = True			# Flag to track if the temp sensor threads have started.
+
 # Main program loop
 # -----------------
 while True:
@@ -268,10 +270,12 @@ while True:
 	HotReturnRead = threading.Thread(target=read_Hot_Return_Temp)
 	ColdSupplyRead = threading.Thread(target=read_Cold_Supply_Temp)
 
-	# Start temperature reading threads
-	HotSupplyRead.start()
-	HotReturnRead.start()
-	ColdSupplyRead.start()
+	if threadNotStarted:			# /!\ Don't start new threads if the three are already running!!!!!!!!!!!!!
+		# Start temperature reading threads
+		threadNotStarted = False	# Set flag false. Will be reset when threads join.
+		HotSupplyRead.start()
+		HotReturnRead.start()
+		ColdSupplyRead.start()
 
 	# Check for a new pulse from the multi-jet meter
   	if GPIO.input(GPIOPin) == 0:
@@ -343,9 +347,13 @@ while True:
         	netAvgFlowRate = netFlowSum / sampleCount                    # Average flow rate (gal/min)
 
 		# Wait for temperature threads to finish
-		HotSupplyRead.join()
-		HotReturnRead.join()
-		ColdSupplyRead.join()
+		if HotSupplyRead.isAlive():
+			HotSupplyRead.join()
+		if HotReturnRead.isAlive():
+			HotReturnRead.join()
+		if ColdSupplyRead.isAlive():
+			ColdSupplyRead.join()
+		threadNotStarted = True # Threads have joined, allow program loop to start new threads.
 
         	# Create a data record string
         	outputList = [now, sampleNum, 
@@ -400,4 +408,6 @@ while True:
 #	  Added support for DS18B20 Temperature Sensors (12/8/18)
 #
 #   End of Line
+
+
 

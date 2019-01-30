@@ -527,6 +527,7 @@ void startLogging(volatile State_t* State, LSM303C* mag, volatile SignalState_t*
   {
     State->logging = true;
     State->recordNum = 1;
+    State->pulseCount = 0;
     initializeData(mag, SignalState);
     EIMSK |= (1 << INT0);         // Enable Magnetometer Sensor interrupt.
     Serial.print(F(">> Logger: Logging started."));

@@ -201,8 +201,18 @@ void loop()
   {
     State.readMag = false;
     readData(&mag, &SignalState);
-    if(peakDetected(&SignalState));
+    bool peak = peakDetected(&SignalState);
+    if(peak)
       State.pulseCount += 1;
+    /* Debugging Information: To be removed*/
+    SDPowerUp();
+    File waveFile = SD.open("waveform.csv", FILE_WRITE);
+    waveFile.print(peak, DEC);
+    waveFile.print(',');
+    waveFile.println(State.pulseCount);
+    waveFile.close();
+    SDPowerDown();
+    /* End Debugging */
   }
 }
 

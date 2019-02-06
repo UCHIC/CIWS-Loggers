@@ -304,7 +304,7 @@ void printHelp()
   Serial.print(F("           h  -- Display help\n"));
   Serial.print(F("           i  -- Initialize the SD card\n"));
   Serial.print(F("           R  -- Diagnose the RTC\n"));
-  Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
+  Serial.print(F("           s  -- Start datalogging (will append to any existing datalog.csv)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));
   Serial.print(F("           u  -- Update date/time\n"));
 

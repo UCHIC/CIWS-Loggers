@@ -25,7 +25,7 @@ void magnetometerInit(LSM303C *mag)
   
   if (mag->begin(
     MODE_I2C,
-    MAG_DO_20_Hz,
+    MAG_DO_80_Hz,
     MAG_FS_8_Ga,
     MAG_BDU_DISABLE,
     MAG_OMXY_LOW_POWER,

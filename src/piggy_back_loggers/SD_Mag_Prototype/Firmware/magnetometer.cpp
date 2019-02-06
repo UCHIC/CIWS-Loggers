@@ -61,10 +61,14 @@ void initializeData(LSM303C* mag, volatile SignalState_t* SignalState)
   twiPowerUp();
   SignalState->x[0] = mag->readMagZ();
   SignalState->x[1] = SignalState->x[0];
-  SignalState->x_max = SignalState->x[1];
-  SignalState->x_min = SignalState->x[1];
-  SignalState->currentMax = SignalState->x[1];
-  SignalState->currentMin = SignalState->x[1];
+  if(SignalState->firstRun)
+  {
+    SignalState->firstRun = false;
+    SignalState->x_max = SignalState->x[1];
+    SignalState->x_min = SignalState->x[1];
+    SignalState->currentMax = SignalState->x[1];
+    SignalState->currentMin = SignalState->x[1];
+  }
   twiPowerDown();
   
   return;

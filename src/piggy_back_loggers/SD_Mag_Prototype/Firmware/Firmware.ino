@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.8
 // Utah Water Research Lab
-// Updated: 1/28/2019
+// Updated: 2/6/2019
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow...
 
@@ -114,6 +114,8 @@ void setup()
   pinMode(2, INPUT);              // Setup the Digital I/O Pins       
   pinMode(3, INPUT_PULLUP);
   pinMode(5, INPUT);
+  pinMode(4, OUTPUT); // For debugging
+  digitalWrite(4, LOW);
 
   magnetometerInit(&mag);         // Initialize Magnetometer
   
@@ -163,7 +165,7 @@ void loop()
   \*****************************************/
   if(State.serialOn)
     handleSerial(&State, &Date, &SignalState, &mag);
-
+  
   // DANIEL
   /*****************************************\
   * 4-second update: Update at 4 seconds
@@ -174,19 +176,10 @@ void loop()
   {
     State.flag4 = 0;                                    //     Reset flag4 to zero
     rtcTransfer(reg_Control_2, WRITE, 0x02);            //     Reset real time clock interrupt flag
-    loadDateTime(&Date);
+    //loadDateTime(&Date);
     if(State.logging)
       storeNewRecord();
   }
-  // JOSH
-  /*****************************************\
-  * Sleep: put processor to sleep
-  *        to be woken by interrupts
-  * If serialOn is not set:
-  *   call function Sleep();
-  \*****************************************/
-  if(!State.serialOn)
-    enterSleep();
 
   // JOSH
   /*****************************************\
@@ -200,20 +193,22 @@ void loop()
   if(State.readMag)
   {
     State.readMag = false;
-    readData(&mag, &SignalState);
+    readData(&mag, &SignalState);  // Apparent Bottleneck
     bool peak = peakDetected(&SignalState);
     if(peak)
       State.pulseCount += 1;
-    /* Debugging Information: To be removed*/
-    //SDPowerUp();
-    //File waveFile = SD.open("waveform.csv", FILE_WRITE);
-    //waveFile.print(peak, DEC);
-    //waveFile.print(',');
-    //waveFile.println(State.pulseCount);
-    //waveFile.close();
-    //SDPowerDown();
-    /* End Debugging */
   }
+  
+  // JOSH
+  /*****************************************\
+  * Sleep: put processor to sleep
+  *        to be woken by interrupts
+  * If serialOn is not set:
+  *   call function Sleep();
+  \*****************************************/
+  if(!State.serialOn)
+    enterSleep();
+
 }
 
 // DANIEL

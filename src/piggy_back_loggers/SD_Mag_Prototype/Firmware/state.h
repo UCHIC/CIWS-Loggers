@@ -31,6 +31,7 @@ typedef struct
   bool slopeIsPositive = false;
   bool slopeWasNegative = false;
   bool slopeIsNegative = false;
+  bool firstRun = true;
 } SignalState_t;
 
 void resetState(volatile State_t* State);

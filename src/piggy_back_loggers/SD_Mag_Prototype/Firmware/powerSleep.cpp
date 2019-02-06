@@ -22,7 +22,7 @@ void enterSleep()
 {
   /*** Setup Sleep options ***/
   
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN);  // Lowest powerdown mode
+  set_sleep_mode(SLEEP_MODE_STANDBY);  // Lowest powerdown mode
   sleep_enable();                       // Enable sleep
 
   /*** Put processor to sleep ***/
@@ -86,9 +86,9 @@ void disableUnneededPeripherals()
 void twiPowerUp()
 {
   power_twi_enable();
-  _delay_ms(10);
+  _delay_us(1);
   Wire.begin();
-  _delay_ms(10);
+  _delay_us(1);
 
   return;
 }

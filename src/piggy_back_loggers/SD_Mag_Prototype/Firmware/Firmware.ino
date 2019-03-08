@@ -194,7 +194,23 @@ void loop()
   {
     State.readMag = false;
     readData(&mag, &SignalState);
+
     bool peak = peakDetected(&SignalState);
+    /*
+    if(State.serialOn)
+    {
+      Serial.print(SignalState.x);
+      Serial.print(" ");
+      Serial.print(SignalState.y[1]);
+      Serial.print(" ");
+      Serial.print(SignalState.s);
+      Serial.print(" ");
+      Serial.print(SignalState.sf[1]);
+      Serial.print(" ");
+      Serial.println(peak);
+      Serial.println();
+    }
+    */
     if(peak)
       State.pulseCount += 1;
   }

@@ -54,6 +54,9 @@ bool peakDetected(volatile SignalState_t* signalState)
     signalState->slopeWasPositive = true;                                                                 //    Then on the next loop, the slope was positive
   else                                                                                                    // Otherwise
     signalState->slopeWasPositive = false;                                                                //    On the next loop, the slope was not positive
+
+  signalState->y[0] = signalState->y[1];                                                                  // Saving current y as old y
+  signalState->sf[0] = signalState->sf[1];                                                                // Saving current sf as old sf
   
   return peak;                                                                                            // Return whether or not a peak was detected.
 }

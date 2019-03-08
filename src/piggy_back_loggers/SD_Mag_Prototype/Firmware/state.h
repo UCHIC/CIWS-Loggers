@@ -21,17 +21,14 @@ typedef struct
 
 typedef struct
 {
-  volatile float x[2];
-  volatile float currentMax;
-  volatile float currentMin;
-  volatile float x_max;
-  volatile float x_min;
-  volatile float offset = 0;
+  volatile float x = 0;
+  volatile float s = 0;
+  volatile float sf[2] = {0, 0};
+  volatile float a = 0.2;
+  volatile float y[2] = {0, 0};
+  volatile float offset = 0.0005;
   bool slopeWasPositive = false;
   bool slopeIsPositive = false;
-  bool slopeWasNegative = false;
-  bool slopeIsNegative = false;
-  bool firstRun = true;
 } SignalState_t;
 
 void resetState(volatile State_t* State);

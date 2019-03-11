@@ -1,0 +1,21 @@
+The Hybrid Residential Prototype is meant to solve the power usage problems presented by the original Residential Prototype. 
+This is accomplished by using a low-powered AVR microcontroller, the ATtiny84, to count pulses from a Hall Effect sensor. The Raspberry Pi
+embedded computer will be disconnected from power until turned on by the ATtiny84, at which time the Raspberry Pi will read data collected
+by the Raspberry Pi. When the Raspberry Pi is finished, it shuts down and power is again disconnected by the ATtiny84.
+
+An electronic hardware schematic is provided, showing the ATtiny84 system connected to a Raspberry Pi. C code is provided for the ATtiny84
+microcontroller, and Python scripts are provided for the Raspberry Pi computer.
+
+      |   |              _________________                                ____________________
+      |   |             |                 |------------------------------|                    |
+     _|   |_            |    ATtiny84     |------------------------------|                    |
+    |_Meter_|-----------| Microcontroller |-------|      |---------------|                    |
+      |   |             |_________________|       |      |               |                    |
+      |   |                                       |      |               |    Raspberry Pi    |
+      |   |                                     __|______|__             |      Embedded      |
+                                               |            |            |      Computer      |
+                                               |   EEPROM   |            |                    |
+                                               |____________|            |                    |
+                                                                         |                    |
+                                                                         |____________________|
+                                               

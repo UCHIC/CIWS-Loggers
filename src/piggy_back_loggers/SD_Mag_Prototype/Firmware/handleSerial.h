@@ -11,6 +11,7 @@
 #include "RTC_PCF8523.h"
 
 void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t* SignalState, LSM303C* mag);
+void setMeter(volatile SignalState_t* SignalState);
 void cleanSD(volatile State_t* State);
 void viewDateTime(Date_t* Date);
 void exitSerial(volatile State_t* State, Date_t* Date);

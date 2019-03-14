@@ -48,7 +48,7 @@ void magnetometerInit(LSM303C *mag)
 void readData(LSM303C* mag, volatile SignalState_t* SignalState)
 {
   twiPowerUp();
-  SignalState->x = mag->readMagZ();
+  SignalState->x = mag->readMagX();
   twiPowerDown();
   
   return;
@@ -58,7 +58,7 @@ void readData(LSM303C* mag, volatile SignalState_t* SignalState)
 void initializeData(LSM303C* mag, volatile SignalState_t* SignalState)
 {
   twiPowerUp();
-  SignalState->x = mag->readMagZ();
+  SignalState->x = mag->readMagX();
   twiPowerDown();
   
   return;

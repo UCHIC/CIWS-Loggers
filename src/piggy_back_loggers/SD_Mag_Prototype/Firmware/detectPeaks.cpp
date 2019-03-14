@@ -40,6 +40,10 @@ bool peakDetected(volatile SignalState_t* signalState)
   signalState->s = signalState->y[1] - signalState->y[0];                                                 // Take discrete derivative of y
   
   signalState->sf[1] = signalState->sf[0] +(signalState->a * (signalState->s - signalState->sf[0]));      // Low Pass Filter: s to sf
+
+  signalState->y[0] = signalState->y[1];                                                                  // Saving current y as old y
+  signalState->sf[0] = signalState->sf[1];                                                                // Saving current sf as old sf
+  
   signalState->sf[1] += signalState->offset;                                                              // Add DC offset to derivative (ignores noise at zero flow)
   
   if(signalState->sf[1] > 0)                                                                              // If the magnitude of the derivative is greater than zero
@@ -54,9 +58,6 @@ bool peakDetected(volatile SignalState_t* signalState)
     signalState->slopeWasPositive = true;                                                                 //    Then on the next loop, the slope was positive
   else                                                                                                    // Otherwise
     signalState->slopeWasPositive = false;                                                                //    On the next loop, the slope was not positive
-
-  signalState->y[0] = signalState->y[1];                                                                  // Saving current y as old y
-  signalState->sf[0] = signalState->sf[1];                                                                // Saving current sf as old sf
   
   return peak;                                                                                            // Return whether or not a peak was detected.
 }

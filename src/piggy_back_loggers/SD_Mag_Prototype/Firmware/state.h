@@ -26,7 +26,8 @@ typedef struct
   volatile float sf[2] = {0, 0};
   volatile float a = 0.2;
   volatile float y[2] = {0, 0};
-  volatile float offset = 0.0005;
+  volatile float offset = 0.005;
+  //volatile float offset = 0.001;
   bool slopeWasPositive = false;
   bool slopeIsPositive = false;
 } SignalState_t;

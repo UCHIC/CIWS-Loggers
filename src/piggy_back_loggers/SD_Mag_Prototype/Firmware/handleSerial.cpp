@@ -140,6 +140,31 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
  *   char getNestedInput();                         Complete  Tested
 \********************************************************************************************************************************/
 
+
+void setMeter(volatile SignalState_t* SignalState)
+{
+  Serial.print(F(">> Logger: Select Meter\n"));
+  Serial.print(F("    1 -- 1\" Meter (Default on start-up)\n"));
+  Serial.print(F("    2 -- 5/8\" Meter\n"));
+  char input = getNestedInput();
+  switch(input)
+  {
+    case '1':
+      SignalState->a = 0.2;
+      SignalState->offset = -0.005;
+      Serial.print(F(">> Logger: 1\" Meter"));
+      break;
+
+    case '2':
+      SignalState->a = 0.4;
+      SignalState->offset = -0.004;
+      Serial.print(F("Logger: 5/8\" Meter"));
+      break;
+  }
+
+  return;
+}
+
 /*****************************************************************\
  * Function Name: cleanSD
  * Purpose:       Delete "datalog.csv" from the SD Card (Protected 
@@ -159,30 +184,6 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
  *    Prompt the user
  *  Return
 \*****************************************************************/
-
-void setMeter(volatile SignalState_t* SignalState)
-{
-  Serial.print(F(">> Logger: Select Meter\n"));
-  Serial.print(F("    1 -- 1\" Meter (Default on start-up)\n"));
-  Serial.print(F("    2 -- 5/8\" Meter\n"));
-  char input = getNestedInput();
-  switch(input)
-  {
-    case '1':
-      SignalState->a = 0.2;
-      SignalState->offset = 0.005;
-      Serial.print(F(">> Logger: 1\" Meter"));
-      break;
-
-    case '2':
-      SignalState->a = 0.4;
-      SignalState->offset = 0.005;
-      Serial.print(F("Logger: 5/8\" Meter"));
-      break;
-  }
-
-  return;
-}
 
 void cleanSD(volatile State_t* State)
 {

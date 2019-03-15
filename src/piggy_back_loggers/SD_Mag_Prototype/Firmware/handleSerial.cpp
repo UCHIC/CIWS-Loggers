@@ -146,19 +146,20 @@ void setMeter(volatile SignalState_t* SignalState)
   Serial.print(F(">> Logger: Select Meter\n"));
   Serial.print(F("    1 -- 1\" Meter (Default on start-up)\n"));
   Serial.print(F("    2 -- 5/8\" Meter\n"));
+  Serial.print(F(">> User:   "));
   char input = getNestedInput();
   switch(input)
   {
     case '1':
       SignalState->a = 0.2;
       SignalState->offset = -0.005;
-      Serial.print(F(">> Logger: 1\" Meter"));
+      Serial.print(F("\n>> Logger: 1\" Meter\n"));
       break;
 
     case '2':
       SignalState->a = 0.4;
       SignalState->offset = -0.004;
-      Serial.print(F("Logger: 5/8\" Meter"));
+      Serial.print(F("\nLogger: 5/8\" Meter\n"));
       break;
   }
 
@@ -333,7 +334,7 @@ void printHelp()
   Serial.print(F("           E  -- Eject SD card\n"));
   Serial.print(F("           h  -- Display help\n"));
   Serial.print(F("           i  -- Initialize the SD card\n"));
-  Serial.print(F("           m  -- Set Meter (1\" Default."));
+  Serial.print(F("           m  -- Set Meter (1\" Default.)\n"));
   Serial.print(F("           R  -- Diagnose the RTC\n"));
   Serial.print(F("           s  -- Start datalogging (will append to any existing datalog.csv)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));

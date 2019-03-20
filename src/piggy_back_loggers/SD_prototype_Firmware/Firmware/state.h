@@ -13,8 +13,9 @@ typedef struct
   volatile bool flag4;
   volatile bool serialOn;
   volatile bool SDin;
-  const char filename[12] = "datalog.csv";
 } State_t;
+
+const char filename[12] = "datalog.csv";
 
 void resetState(volatile State_t* State);
 

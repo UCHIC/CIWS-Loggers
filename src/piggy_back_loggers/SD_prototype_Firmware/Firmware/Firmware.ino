@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.7
 // Utah Water Research Lab
-// Updated: 10/25/2018
+// Updated: 3/20/2019
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow...
 
@@ -93,7 +93,7 @@ void setup()
   resetState(&State);             // Setup the System State structure
   
   pinMode(2, INPUT);              // Setup the Digital Pins       
-  pinMode(3, INPUT);
+  pinMode(3, INPUT_PULLUP);
   pinMode(4, OUTPUT);
   digitalWrite(4, HIGH);
   pinMode(5, INPUT);
@@ -102,6 +102,7 @@ void setup()
   rtcTransfer(reg_Tmr_A_freq_ctrl, WRITE, 0x02);
   rtcTransfer(reg_Tmr_A_reg, WRITE, 0x04);
   rtcTransfer(reg_Control_2, WRITE, 0x02);
+  rtcTransfer(reg_Control_3, WRITE, 0x80);
 
   attachInterrupt(digitalPinToInterrupt(2), INT0_ISR, FALLING);   // Setup Interrupts
   attachInterrupt(digitalPinToInterrupt(3), INT1_ISR, FALLING);
@@ -144,8 +145,13 @@ void loop()
   *   Store a new record
   \*****************************************/
   if(State.flag4)
-    storeNewRecord();
-
+  {
+    State.flag4 = 0;                                    //     Reset flag4 to zero
+    rtcTransfer(reg_Control_2, WRITE, 0x02);            //     Reset real time clock interrupt flag
+    loadDateTime(&Date);
+    if(State.logging)
+      storeNewRecord();
+  }
   // JOSH
   /*****************************************\
   * Sleep: put processor to sleep
@@ -245,8 +251,8 @@ void INT1_ISR()
 
 void storeNewRecord() 
 {                                                       // Begin
-    State.flag4 = 0;                                    //     Reset flag4 to zero
-    rtcTransfer(reg_Control_2, WRITE, 0x02);            //     Reset real time clock interrupt flag
+    //State.flag4 = 0;                                    //     Reset flag4 to zero
+    //rtcTransfer(reg_Control_2, WRITE, 0x02);            //     Reset real time clock interrupt flag
     byte finalCount;                                    //     Declare variables
     byte temp;
     finalCount = State.pulseCount;                      //     Store pulse count to a variable named final count
@@ -265,9 +271,11 @@ void storeNewRecord()
       temp         = rtcTransfer(reg_Seconds,READ, 0);  //         read the Seconds and store into temp variable 
       Date.seconds = bcdtobin(temp, SECONDS_REG_MASK);  //         convert from binary-coded decimal into binary, and store into seconds field of Date struct    
                                                         //     Write the new record to the SD card  
-      SDPowerUp();                                      //         power on SD card
-                                                        //         Write new record to SD card 
-        dataFile.print('\"'));                          //           open the date-time string by writing a double quotation mark
+      //SDPowerUp();                                      //         power on SD card
+      //SD.begin();
+        //Serial.println(F("SD Powerd up."));
+        dataFile = SD.open(F("datalog.csv"), FILE_WRITE);     //         Write new record to SD card 
+        dataFile.print('\"');                          //           open the date-time string by writing a double quotation mark
         dataFile.print(Date.years);                     //             write year, month, day, hours 
         dataFile.print('-');
         dataFile.print(Date.months);
@@ -280,20 +288,22 @@ void storeNewRecord()
         {                                               //             then
           dataFile.print('0');                         //               write a leading zero (the minutes value will be appended to it by the next statement)     
         }                                               //             endIf
-        dataFile.print(Date.minutes);                   //             write the minutes
-        dataFile.print(':');                            //             write a colon to separate minutes from seconds
+        dataFile.print(Date.minutes);                   //             write the minutes      
         if(Date.seconds < 10)                           //             if seconds is less than ten
         {                                               //             then
           dataFile.print('0');                         //               write a leading zero (the seconds value will be appended to it by the next statement)
         }                                               //             endIf
+        dataFile.print(':');                            //             write a colon to separate minutes from seconds
         dataFile.print(Date.seconds);                   //             write the seconds
         dataFile.print('\"');                           //           close date-time string by writing a double quotation mark       
         dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)
         dataFile.print(State.recordNum);                //           write the record number
         dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)
         dataFile.println(finalCount);                   //           write the number of pulses counted when function was called (finalCount) and then print a new line
-                                                        //         end of writing the record to SD card 
-      SDPowerDown();                                    //       power down SD card
+        
+        dataFile.close();                               //         end of writing the record to SD card 
+        State.recordNum += 1;
+      //SDPowerDown();                                    //       power down SD card
 }                                                       // End of function storeNewRecord() 
 
 
@@ -352,4 +362,3 @@ byte bcdtobin(byte bcdValue, byte sourceReg)
                                                //   step 2) Second parenthesis: move the ten's place value over by multiplying by ten
                                                //   step 3) Add the first parenthesis group to the second parenthesis group
 }
-

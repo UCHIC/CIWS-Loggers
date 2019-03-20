@@ -160,11 +160,8 @@ void cleanSD(volatile State_t* State)
   
   if(!State->logging)
   {
-    SDPowerUp();
-    SD.begin();
     SD.remove(F("datalog.csv"));
     Serial.print(F(">> Logger: File removed."));
-    SDPowerDown();
   }
   else
   {
@@ -271,6 +268,7 @@ void ejectSD(volatile State_t* State)
     return;
   }
   State->SDin = false;
+  SDPowerDown();
   Serial.print(F(">> Logger: SD Card may now be removed."));
   
   return;
@@ -299,7 +297,7 @@ void printHelp()
   Serial.print(F("           h  -- Display help\n"));
   Serial.print(F("           i  -- Initialize the SD card\n"));
   Serial.print(F("           R  -- Diagnose the RTC\n"));
-  Serial.print(F("           s  -- Start datalogging (will overwrite old datalog.csv)\n"));
+  Serial.print(F("           s  -- Start datalogging (reccommend deleting old datalog.csv first)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));
   Serial.print(F("           u  -- Update date/time\n"));
 
@@ -330,18 +328,16 @@ void printHelp()
 void initSD(volatile State_t* State)
 {
   SDPowerUp();
-  if(SD.begin())
-  {
-    State->SDin = true;
-    Serial.print(F(">> Logger: SD Ready."));
-  }
-  else
+  if(!SD.begin())
   {
     State->SDin = false; // Should already be false, but just in case.
     Serial.print(F(">> Logger: Error. Is the SD Card inserted?"));
   }
-  SDPowerDown();
-  
+  else
+  {
+    State->SDin = true;
+    Serial.print(F(">> Logger: SD Ready."));
+  } 
   return;
 }
 
@@ -520,6 +516,8 @@ void startLogging(volatile State_t* State)
 {
   if(State->SDin)
   {
+    State->recordNum = 1;
+    State->pulseCount = 0;
     State->logging = true;
     EIMSK |= (1 << INT0);         // Enable Hall Effect Sensor interrupt.
     Serial.print(F(">> Logger: Logging started."));

@@ -288,12 +288,12 @@ void storeNewRecord()
         {                                               //             then
           dataFile.print('0');                         //               write a leading zero (the minutes value will be appended to it by the next statement)     
         }                                               //             endIf
-        dataFile.print(Date.minutes);                   //             write the minutes      
+        dataFile.print(Date.minutes);                   //             write the minutes
+        dataFile.print(':');                            //             write a colon to separate minutes from seconds      
         if(Date.seconds < 10)                           //             if seconds is less than ten
         {                                               //             then
           dataFile.print('0');                         //               write a leading zero (the seconds value will be appended to it by the next statement)
         }                                               //             endIf
-        dataFile.print(':');                            //             write a colon to separate minutes from seconds
         dataFile.print(Date.seconds);                   //             write the seconds
         dataFile.print('\"');                           //           close date-time string by writing a double quotation mark       
         dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)

@@ -1,10 +1,10 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.8
 // Utah Water Research Lab
-// Updated: 4/24/2019 (changed to be compatible with Pololu LIS3MDL sensor board)
+// Updated: 5/7/2019 (changed to be compatible with Pololu LIS3MDL sensor board)
 // Daniel Henshaw and Josh Tracy
-// Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow...
-
+// Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow, and you'll find out your cricket ain't lucky.
+// Note: Be sure to process resulting data file as ASCII characters, not Unicode. 
 /*******************************************************************************************\
 * Hardware Description
 *                     ___________________   TWI                       ___
@@ -71,6 +71,7 @@
 #include "storeNewRecord.h"
 #include "detectPeaks.h"
 #include "magnetometer.h"
+#include "configuration.h"
 
 // These six macros below are the ten's place mask for the various real time clock registers
 #define SECONDS_REG_MASK 0x7                            // keep lower 3 bits
@@ -100,9 +101,7 @@
 volatile State_t State;             // System State structure
 Date_t Date;                        // System Time and Date structure
 File dataFile;                      // File pointer for SD Card operations
-//LSM303C mag;                        // Magnetometer Object  // commented out   4/17/19 by D.H.
 volatile SignalState_t SignalState; // Struct containing signal data from magnetometer
-
 
 void setup() 
 {
@@ -129,6 +128,18 @@ void setup()
   EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
   
   loadDateTime(&Date);            // Load Date_t with Date/Time info
+
+  if(configurationExists())
+  {
+    State.configured = true;
+    State.siteNum = readConfiguration(addr_siteNum);
+    State.meterSize = readConfiguration(addr_meterSize);
+    State.logID = readConfiguration(addr_logID);
+  }
+  else
+  {
+    State.configured = false;
+  }
                                   
   disableUnneededPeripherals();   // Disable unneeded peripherals
 
@@ -136,6 +147,8 @@ void setup()
   {
     State.serialOn = true;                        // Power on the Serial Interface
     serialPowerUp();
+    if(!State.configured)
+      Serial.print(F(">> Logger: Invalid device configuration. Reset configuration with command 'g'\n"));
   }
 }
 
@@ -152,6 +165,8 @@ void loop()
   {
     State.serialOn = true;
     serialPowerUp();
+    if(!State.configured)
+      Serial.print(F(">> Logger: Invalid device configuration. Reset configuration with command 'g'\n"));
   }
     
   // JOSH
@@ -301,14 +316,14 @@ void INT1_ISR()
  * End of function storeNewRecord() 
  */
 
-
-
 void storeNewRecord() 
 {                                                       // Begin
     byte finalCount;                                    //     Declare variables
     byte temp;
     finalCount = State.pulseCount;                      //     Store pulse count to a variable named final count
     State.pulseCount = 0;                               //     Set pulseCount to zero
+    State.lastCount = finalCount;
+    State.totalCount += finalCount;
                                                         //     Read current time from the Real Time Clock and update the Date struct with the current time                                                      
       temp         = rtcTransfer(reg_Years,  READ, 0);  //         read the Years and store into temp variable
       Date.years   = bcdtobin(temp, YEARS_REG_MASK);    //         convert from binary-coded decimal into binary, and store into years field of Date struct

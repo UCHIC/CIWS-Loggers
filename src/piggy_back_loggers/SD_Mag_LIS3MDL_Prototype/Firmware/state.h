@@ -8,12 +8,19 @@
 typedef struct
 {
   volatile byte pulseCount;
+  volatile byte lastCount;
+  volatile byte totalCount;
   volatile unsigned long recordNum;
   volatile bool logging;
   volatile bool flag4;
   volatile bool serialOn;
   volatile bool SDin;
   volatile bool readMag;
+  volatile bool configured;
+  volatile char siteNum;
+  volatile char meterSize;
+  volatile char sensorType;
+  volatile char logID;
   const char filename[12] = "datalog.csv";
 } State_t;
 

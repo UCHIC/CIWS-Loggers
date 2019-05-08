@@ -13,9 +13,10 @@
 
 #include "state.h"
 #include "RTC_PCF8523.h"
+#include "configuration.h"
 
 void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t* SignalState); // updated 4/17/19 by D.H.
-void setMeter(volatile SignalState_t* SignalState);
+void setConfiguration(volatile State_t* State);
 void cleanSD(volatile State_t* State);
 void viewDateTime(Date_t* Date);
 void exitSerial(volatile State_t* State, Date_t* Date);
@@ -28,5 +29,8 @@ void updateDateTime(Date_t* Date);
 void RTC_Doctor();
 char getInput();
 char getNestedInput();
+void printWater(State_t* State);
+void printConfig(State_t* State);
+void createHeader(State_t* State);
 
 #endif

@@ -60,8 +60,8 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
 
     switch(input)               // Switch statement for all defined inputs
     {
-      case 'm':                 // Set Meter (adjusts filtering parameter) (1" Default)
-        setMeter(SignalState);
+      case 'g':                 // Set Configuration
+        setConfiguration(State);
         Serial.print(F("\n>> User:   "));
         break;
         
@@ -94,6 +94,11 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
         Serial.print(F("\n>> User:   "));
         break;
 
+      case 'p':
+        printConfig(State);
+        Serial.print(F("\n>> User:   "));
+        break;
+
       case 'R':
         Serial.print(F(">> Logger: Calling the RTC Doctor...\n"));
         RTC_Doctor();
@@ -115,6 +120,11 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
         Serial.print(F("\n>> User:   "));
         break;
 
+      case 'w':
+        printWater(State);
+        Serial.print(F("\n>> User:   "));
+        break;
+
       case '\n':
         break;
 
@@ -129,8 +139,8 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
 
 /*******************************************************************************************************************************\
  * Supporting Functions:
- *   void setMeter(volatile SignalState_t* SignalState);
- *   void cleanSD(State_t* State, Date_t* Date);    Complete  ~Tested
+ *   void setConfiguration(State_t* State);
+ *   void cleanSD(State_t* State, Date_t* Date);    Complete  Tested
  *   void viewDateTime();                           Complete  Tested
  *   void exitSerial(State_t* State);               Complete  Tested
  *   void ejectSD(State_t* State);                  Complete  Tested
@@ -144,46 +154,81 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
 \********************************************************************************************************************************/
 
 /*****************************************************************\
- * Function Name: setMeter
- * Purpose:       Display supported water meter size options
- *                and set the parameters accordingly, per the 
- *                user's response. (1-inch meter is the default.)
- * Inputs:        Pointer to SignalState_t structure
+ * Function Name: setConfiguration
+ * Purpose:       
+ * Inputs:        Pointer to State_t structure
  * Outputs:       None
  * pseudocode:
  *  Begin
- *    Send serial data to be displayed to the user
- *    Get the user's input
- *    If the user selected option 1
- *    Then
- *      modify parameters a (filtering coefficient) and offset, accordingly for 1-inch meter
- *    Else If the user selected option 2
- *      modify parameters a (filtering coefficient) and offset, accordingly for 5/8-inch meter
- *    Endif
+ *    
  *  Return
 \*****************************************************************/
 
-void setMeter(volatile SignalState_t* SignalState)
+void setConfiguration(volatile State_t* State)
 {
-  Serial.print(F(">> Logger: Select Meter\n"));
-  Serial.print(F("    1 -- 1\" Meter (Default on start-up)\n"));
-  Serial.print(F("    2 -- 5/8\" Meter\n"));
+  Serial.print(F("\n>> Logger: Configuring\n"));
+  
+  Serial.print(F(">> Logger: Input Site Number. Current Site Number is "));
+  Serial.println(State->siteNum);
   Serial.print(F(">> User:   "));
   char input = getNestedInput();
+  State->siteNum = input;
+
+  Serial.print(F("\n>> Logger: Input Datalogger ID Number. Current ID is "));
+  Serial.println(State->logID);
+  Serial.print(F(">> User:   "));
+  input = getNestedInput();
+  State->logID = input;
+  
+  Serial.print(F("\n>> Logger: Select Meter\n"));
+  Serial.print(F("    1 -- 1\" Meter\n"));
+  Serial.print(F("    5 -- 5/8\" Meter\n"));
+  Serial.print(F(">> User:   "));
+  input = getNestedInput();
   switch(input)
   {
     case '1':
-      SignalState->a = 0.2;         // a is a.k.a. alpha, the filtering coefficient
-      SignalState->offset = -0.005;
       Serial.print(F("\n>> Logger: 1\" Meter\n"));
+      State->meterSize = '1';
       break;
 
-    case '2':
-      SignalState->a = 0.4;
-      SignalState->offset = -0.004;
-      Serial.print(F("\nLogger: 5/8\" Meter\n"));
+    case '5':
+      Serial.print(F("\n>> Logger: 5/8\" Meter\n"));
+      State->meterSize = '5';
+      break;
+
+    default:
+      Serial.print(F("\n>> Logger: WARNING: INVALID Meter setting\n"));
+      State->meterSize = NULL;
       break;
   }
+
+  writeConfiguration(addr_siteNum, State->siteNum);
+  writeConfiguration(addr_logID, State->logID);
+  writeConfiguration(addr_meterSize, State->meterSize);
+
+  bool configuredProperly = checkConfiguration(State);
+
+  if(configuredProperly)
+  {
+    writeConfiguration(addr_chs3, 0x95);
+    writeConfiguration(addr_chs2, 0x6A);
+    writeConfiguration(addr_chs1, 0xBD);
+    writeConfiguration(addr_chs0, 0x42);
+
+    if(configurationExists())
+    {
+      Serial.print(F("\n>> Logger: Configuration Successful\n"));
+      State->configured = true;
+    }
+    else
+    {
+      Serial.print(F("\n>> Logger: Configuration Unsuccessful. Try again\n"));
+      configuredProperly = false;
+      State->configured = false;
+    }
+  }
+  
 
   return;
 }
@@ -354,13 +399,15 @@ void printHelp()
   Serial.print(F("           d  -- View date/time\n"));
   Serial.print(F("           e  -- Exit serial interface\n"));
   Serial.print(F("           E  -- Eject SD card\n"));
+  Serial.print(F("           g  -- Set device configuration\n"));
   Serial.print(F("           h  -- Display help\n"));
   Serial.print(F("           i  -- Initialize the SD card\n"));
-  Serial.print(F("           m  -- Set Meter (1\" Default.)\n"));
+  Serial.print(F("           p  -- Print configuration data\n"));
   Serial.print(F("           R  -- Diagnose the RTC\n"));
   Serial.print(F("           s  -- Start datalogging (will append to any existing datalog.csv)\n"));
   Serial.print(F("           S  -- Stop datalogging\n"));
   Serial.print(F("           u  -- Update date/time\n"));
+  Serial.print(F("           w  -- Print water flow data from last complete sample\n"));
 
   return;
 }
@@ -582,6 +629,9 @@ void startLogging(volatile State_t* State, volatile SignalState_t* SignalState)
     State->logging = true;
     State->recordNum = 1;
     State->pulseCount = 0;
+    State->lastCount = 0;
+    State->totalCount = 0;
+    createHeader(State);
     initializeData(SignalState);  // To Do: can this be replaced with mag_transfer() ???
     EIMSK |= (1 << INT0);         // Enable Magnetometer Sensor interrupt.
     Serial.print(F(">> Logger: Logging started."));
@@ -752,4 +802,131 @@ char getNestedInput()
   }
   
   return input;
+}
+
+void printWater(State_t* State)
+{
+  Serial.println(F(">> Logger: Data from last sample:"));
+  byte pulses = State->lastCount;
+  byte totalPulses = State->totalCount;
+  float avgFlowRate;
+  float totFlow;
+  float totFlowSinceStart;
+  float convFactor;
+  switch(State->meterSize)
+  {
+    case '1':
+      convFactor = 0.033;
+      break;
+    case '5':
+      convFactor = 0.0087;
+      break;
+    default:
+      convFactor = NULL;
+      break;
+  }
+  totFlow = (float)pulses * convFactor;
+  totFlowSinceStart = (float)totalPulses * convFactor;
+  avgFlowRate = totFlow * 60.0 / 4.0;
+
+  Serial.print(F(">> Logger: Total Pulses: "));
+  Serial.println(pulses);
+  if(convFactor != NULL)
+  {
+    Serial.print(F(">> Logger: Total Flow:   "));
+    Serial.print(totFlow);
+    Serial.print(F(" Gal\n"));
+  
+    Serial.print(F(">> Logger: Average Flow: "));
+    Serial.print(avgFlowRate);
+    Serial.print(F(" Gal/min\n\n"));
+
+    Serial.print(F(">> Logger: Total Pulses since logging start: "));
+    Serial.println(totalPulses);
+
+    Serial.print(F(">> Logger: Total Flow since logging start:   "));
+    Serial.print(totFlowSinceStart);
+    Serial.print(F(" Gal\n"));
+  }
+  else
+  {
+    Serial.println(F(">> Logger: Invalid meter configuration. Cannot print more flow data. Reset configuration with 'g'."));
+  }
+
+  return;
+}
+
+void printConfig(State_t* State)
+{
+  Serial.print(F(">> Logger: Site #:          "));
+  Serial.println(State->siteNum);
+  
+  Serial.print(F(">> Logger: Datalogger ID #: "));
+  Serial.println(State->logID);
+  
+  Serial.print(F(">> Logger: Meter Size:      "));
+  switch(State->meterSize)
+  {
+    case '1':
+      Serial.println(F("1\""));
+      break;
+    case '5':
+      Serial.println(F("5/8\""));
+      break;
+    default:
+      Serial.println(F("INVALID"));
+      break;
+  }
+
+  return;
+}
+
+/****************************************************\
+ * Function Name: createHeader
+ * Purpose:       Write a header to datalog.csv
+ * 
+ * Inputs:        Pointer to State_t struct
+ * Outputs:       Writes to SD Card (no return)
+ * 
+ * Pseudocode:
+ *  Begin
+ *    Power on SD card
+ *    Print site number
+ *    Print datalogger ID
+ *    Print meter size
+ *    Print column names
+ *  Return
+\****************************************************/
+
+void createHeader(State_t* State)
+{
+  SDPowerUp();
+  File dataFile;
+  dataFile = SD.open(State->filename, FILE_WRITE);
+  dataFile.print(F("Site #: "));
+  dataFile.println(State->siteNum);
+  
+  dataFile.print(F("Datalogger ID #: "));
+  dataFile.println(State->logID);
+  
+  dataFile.print(F("Meter Size: "));
+  switch(State->meterSize)
+  {
+    case '1':
+      dataFile.println(F("1\""));
+      break;
+    case '5':
+      dataFile.println(F("5/8\""));
+      break;
+    default:
+      dataFile.println(F("INVALID"));
+      break;
+  }
+  
+  dataFile.print(F("Time,Record,Pulses\n"));
+
+  dataFile.close();
+  SDPowerDown();
+
+  return;
 }

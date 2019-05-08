@@ -9,7 +9,7 @@ typedef struct
 {
   volatile byte pulseCount;
   volatile byte lastCount;
-  volatile byte totalCount;
+  volatile unsigned int totalCount;
   volatile unsigned long recordNum;
   volatile bool logging;
   volatile bool flag4;

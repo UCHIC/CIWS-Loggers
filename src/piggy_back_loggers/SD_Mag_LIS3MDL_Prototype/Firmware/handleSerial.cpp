@@ -808,7 +808,7 @@ void printWater(State_t* State)
 {
   Serial.println(F(">> Logger: Data from last sample:"));
   byte pulses = State->lastCount;
-  byte totalPulses = State->totalCount;
+  unsigned int totalPulses = State->totalCount;
   float avgFlowRate;
   float totFlow;
   float totFlowSinceStart;

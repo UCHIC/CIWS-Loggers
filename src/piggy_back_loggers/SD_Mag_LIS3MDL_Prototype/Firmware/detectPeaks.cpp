@@ -98,8 +98,8 @@ bool peakDetected(volatile SignalState_t* signalState)
 bool peakDetected2(volatile SignalState_t* signalState)
 {
   bool peak = false;                                                                                      // Default: No peak has been detected
-  int8_t pos_thresh = 1;                                                                                  // Positive threshold for schmitt triggering
-  int8_t neg_thresh = -1;                                                                                 // Negative threshold for schmitt triggering
+  float pos_thresh = 1;                                                                                 // Positive threshold for schmitt triggering
+  float neg_thresh = -1;                                                                                // Negative threshold for schmitt triggering
 
   signalState->y[1] = signalState->a * signalState->y[0] + signalState->x[1] - signalState->x[0];         // Filter: Remove DC Offset
 

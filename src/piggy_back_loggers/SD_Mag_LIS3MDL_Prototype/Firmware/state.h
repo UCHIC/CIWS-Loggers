@@ -21,7 +21,7 @@ typedef struct
   volatile char meterSize;
   volatile char sensorType;
   volatile char logID;
-  const char filename[12] = "datalog.csv";
+  volatile char filename[13];
 } State_t;
 
 // Signal State Struct

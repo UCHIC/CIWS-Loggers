@@ -94,6 +94,11 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
         Serial.print(F("\n>> User:   "));
         break;
 
+      case 'l':
+        listFiles();
+        Serial.print(F("\n>> User:   "));
+        break;
+
       case 'p':
         printConfig(State);
         Serial.print(F("\n>> User:   "));
@@ -106,7 +111,7 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
         break;
 
       case 's':                 // Start logging data from meter.
-        startLogging(State, SignalState);
+        startLogging(State, SignalState, Date);
         Serial.print(F("\n>> User:   "));
         break;
 
@@ -164,20 +169,28 @@ void handleSerial(volatile State_t* State, Date_t* Date, volatile SignalState_t*
  *  Return
 \*****************************************************************/
 
+/*
+ * Bug: Writes, but cannot read (saved binary, not ASCII). 
+ */
+
 void setConfiguration(volatile State_t* State)
 {
   Serial.print(F("\n>> Logger: Configuring\n"));
   
   Serial.print(F(">> Logger: Input Site Number. Current Site Number is "));
-  Serial.println(State->siteNum);
+  Serial.println(byte(State->siteNum));
   Serial.print(F(">> User:   "));
-  char input = getNestedInput();
+  char input10 = getNestedInput();
+  char input1  = getNestedInput();
+  char input   = (input1 - 48) + ((input10 - 48) * 10);
   State->siteNum = input;
 
   Serial.print(F("\n>> Logger: Input Datalogger ID Number. Current ID is "));
-  Serial.println(State->logID);
+  Serial.println(byte(State->logID));
   Serial.print(F(">> User:   "));
-  input = getNestedInput();
+  input10 = getNestedInput();
+  input1  = getNestedInput();
+  input   = (input1 - 48) + ((input10 - 48) * 10);
   State->logID = input;
   
   Serial.print(F("\n>> Logger: Select Meter\n"));
@@ -263,11 +276,43 @@ void cleanSD(volatile State_t* State)
   
   if(!State->logging)
   {
-    SDPowerUp();
-    SD.begin();
-    SD.remove(F("datalog.csv"));
-    Serial.print(F(">> Logger: File removed."));
-    SDPowerDown();
+    char filename[13];
+    filename[12] = '\0';
+
+    listFiles();
+
+    Serial.print(F(">> Logger: File to remove: "));
+
+    for(byte i = 0; i < 12; i++)
+    {
+      filename[i] = getNestedInput();
+    }
+
+    Serial.print(F("\n>> Logger: WARNING: This operation will permanently delete "));
+    Serial.print(filename);
+    Serial.print(F(". Continue?(y/n): "));
+
+    char Continue = getNestedInput();
+
+    switch(Continue)
+    {
+      case 'y':
+      case 'Y':
+        SDPowerUp();
+        SD.begin();
+        SD.remove(filename);
+        SDPowerDown();
+        break;
+      case 'n':
+      case 'N':
+        break;
+      default:
+        break;       
+    }
+
+    Serial.println();
+    listFiles();
+
   }
   else
   {
@@ -402,6 +447,7 @@ void printHelp()
   Serial.print(F("           g  -- Set device configuration\n"));
   Serial.print(F("           h  -- Display help\n"));
   Serial.print(F("           i  -- Initialize the SD card\n"));
+  Serial.print(F("           l  -- List files on the SD card\n"));
   Serial.print(F("           p  -- Print configuration data\n"));
   Serial.print(F("           R  -- Diagnose the RTC\n"));
   Serial.print(F("           s  -- Start datalogging (will append to any existing datalog.csv)\n"));
@@ -448,6 +494,52 @@ void initSD(volatile State_t* State)
   }
   SDPowerDown();
   
+  return;
+}
+
+void listFiles(void)
+{
+  SDPowerUp();
+  float fileSize;
+  File root;
+  root = SD.open("/");
+
+  root.rewindDirectory();
+  Serial.print(F(">> Logger: Files on this SD Card\n\nName    \tSize\n--------\t-----\n"));
+    
+  while(true)
+  {
+    File entry;
+    entry = root.openNextFile();
+    if(!entry)
+    {
+      Serial.print(F("\n>> Logger: End of files"));
+      break;
+    }
+    Serial.print(entry.name());
+    Serial.print("\t");
+    fileSize = float(entry.size());
+    if((fileSize > 1024) && (fileSize < 1048576))
+    {
+      fileSize = fileSize / 1024.0;
+      Serial.print(fileSize, 1);
+      Serial.print(F(" kB\n"));
+    }
+    else if(fileSize >= 1048576)
+    {
+      fileSize = fileSize / 1048576.0;
+      Serial.print(fileSize, 1);
+      Serial.print(F(" MB\n"));
+    }
+    else
+    {
+      Serial.print(fileSize, 0);
+      Serial.print(F(" Bytes\n"));
+    }
+    
+    entry.close();
+  }
+  SDPowerDown();
   return;
 }
 
@@ -622,19 +714,56 @@ void RTC_Doctor()
  *  Return
 \*********************************************/
 
-void startLogging(volatile State_t* State, volatile SignalState_t* SignalState)
+void startLogging(volatile State_t* State, volatile SignalState_t* SignalState, volatile Date_t* Date)
 {
   if(State->SDin)
   {
-    State->logging = true;
-    State->recordNum = 1;
-    State->pulseCount = 0;
-    State->lastCount = 0;
-    State->totalCount = 0;
-    createHeader(State);
-    initializeData(SignalState);  // To Do: can this be replaced with mag_transfer() ???
-    EIMSK |= (1 << INT0);         // Enable Magnetometer Sensor interrupt.
-    Serial.print(F(">> Logger: Logging started."));
+    nameFile(State, Date);
+    Serial.print(F(">> Logger: "));
+    for(int i = 0; i < 13; i++)
+    {
+      Serial.print(State->filename[i]);
+    }
+    Serial.println();
+    SDPowerUp();
+    if(SD.exists(State->filename))
+    {
+      Serial.print(F(">> Logger: WARNING: Conflicting file name. Data will be appended to existing file. Continue?(y/n): "));
+      char Continue = getNestedInput();
+
+      switch(Continue)
+      {
+        case 'y':
+        case 'Y':
+          State->logging = true;
+          State->recordNum = 1;
+          State->pulseCount = 0;
+          State->lastCount = 0;
+          State->totalCount = 0;
+          createHeader(State);
+          initializeData(SignalState);  // To Do: can this be replaced with mag_transfer() ???
+          EIMSK |= (1 << INT0);         // Enable Magnetometer Sensor interrupt.
+          Serial.print(F("\n>> Logger: Logging started."));
+          break;
+        case 'n':
+        case 'N':
+          break;
+        default:
+          break;       
+      }
+    }
+    else
+    {
+      State->logging = true;
+      State->recordNum = 1;
+      State->pulseCount = 0;
+      State->lastCount = 0;
+      State->totalCount = 0;
+      createHeader(State);
+      initializeData(SignalState);  // To Do: can this be replaced with mag_transfer() ???
+      EIMSK |= (1 << INT0);         // Enable Magnetometer Sensor interrupt.
+      Serial.print(F("\n>> Logger: Logging started."));
+    }
   }
   else
   {
@@ -859,10 +988,10 @@ void printWater(State_t* State)
 void printConfig(State_t* State)
 {
   Serial.print(F(">> Logger: Site #:          "));
-  Serial.println(State->siteNum);
+  Serial.println(byte(State->siteNum));
   
   Serial.print(F(">> Logger: Datalogger ID #: "));
-  Serial.println(State->logID);
+  Serial.println(byte(State->logID));
   
   Serial.print(F(">> Logger: Meter Size:      "));
   switch(State->meterSize)
@@ -904,10 +1033,10 @@ void createHeader(State_t* State)
   File dataFile;
   dataFile = SD.open(State->filename, FILE_WRITE);
   dataFile.print(F("Site #: "));
-  dataFile.println(State->siteNum);
+  dataFile.println(byte(State->siteNum));
   
   dataFile.print(F("Datalogger ID #: "));
-  dataFile.println(State->logID);
+  dataFile.println(byte(State->logID));
   
   dataFile.print(F("Meter Size: "));
   switch(State->meterSize)
@@ -927,6 +1056,43 @@ void createHeader(State_t* State)
 
   dataFile.close();
   SDPowerDown();
+
+  return;
+}
+
+void nameFile(State_t* State, Date_t* Date)
+{
+  byte siteNum = byte(State->siteNum);
+  char siteNum1 = (siteNum % 10) + 48;
+  siteNum = siteNum / 10;
+  char siteNum10 = (siteNum % 10) + 48;
+
+  State->filename[0] = siteNum10;
+  State->filename[1] = siteNum1;
+  State->filename[2] = '_';
+
+  byte months = byte(Date->months);
+  char months1 = (months % 10) + 48;
+  months = months / 10;
+  char months10 = (months % 10) + 48;
+
+  State->filename[3] = months10;
+  State->filename[4] = months1;
+  State->filename[5] = '-';
+
+  byte days = byte(Date->days);
+  char days1 = (days % 10) + 48;
+  days = days / 10;
+  char days10 = (days % 10) + 48;
+
+  State->filename[6] = days10;
+  State->filename[7] = days1;
+
+  State->filename[8] = '.';
+  State->filename[9] = 'c';
+  State->filename[10] = 's';
+  State->filename[11] = 'v';
+  State->filename[12] = '\0';
 
   return;
 }

@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.8
 // Utah Water Research Lab
-// Updated: 6/6/2019 (changed to be compatible with Pololu LIS3MDL sensor board)
+// Updated: 6/10/2019 (changed to be compatible with Pololu LIS3MDL sensor board)
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow, and you'll find out your cricket ain't lucky.
 // Note: Be sure to process resulting data file as ASCII characters, not Unicode. 
@@ -132,14 +132,10 @@ void setup()
   if(configurationExists())
   {
     State.configured = true;
-    State.siteNum = readConfiguration(addr_siteNum);
     State.meterSize = readConfiguration(addr_meterSize);
-    State.logID = readConfiguration(addr_logID);
   }
   else
-  {
     State.configured = false;
-  }
                                   
   disableUnneededPeripherals();   // Disable unneeded peripherals
 

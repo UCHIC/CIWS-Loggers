@@ -12,10 +12,6 @@ void resetState(volatile State_t* State)
   State->SDin = false;
   State->readMag = false;
   State->configured = false;
-  State->siteNum = 0;
-  State->meterSize = 0;
-  State->sensorType = 0;
-  State->logID = 0;
 
   return;
 }

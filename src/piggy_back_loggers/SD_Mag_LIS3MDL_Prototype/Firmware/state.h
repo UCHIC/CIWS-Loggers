@@ -16,11 +16,8 @@ typedef struct
   volatile bool serialOn;
   volatile bool SDin;
   volatile bool readMag;
-  volatile bool configured;
-  volatile char siteNum;
   volatile char meterSize;
-  volatile char sensorType;
-  volatile char logID;
+  volatile bool configured;
   volatile char filename[13];
 } State_t;
 

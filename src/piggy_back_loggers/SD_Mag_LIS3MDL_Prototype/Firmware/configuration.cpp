@@ -4,7 +4,7 @@ bool configurationExists(void)
 {
   bool exist = false;
 
-  uint8_t addr = 0x6;
+  uint8_t addr = addr_chs0;
   uint8_t i;
   uint8_t chs[4];
 
@@ -22,22 +22,6 @@ bool configurationExists(void)
 
   return exist;
   
-}
-
-bool checkConfiguration(State_t* State)
-{
-  bool validConfig = true;
-  char siteNumCheck = (char)readConfiguration(addr_siteNum);
-  char meterSizeCheck = (char)readConfiguration(addr_meterSize);
-  char logID_Check = (char)readConfiguration(addr_logID);
-  if(State->siteNum != siteNumCheck)
-    validConfig = false;
-  if(State->meterSize != meterSizeCheck)
-    validConfig = false;
-  if(State->logID != logID_Check)
-    validConfig = false;
-
-  return validConfig;
 }
 
 uint8_t readConfiguration(uint8_t segment)

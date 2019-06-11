@@ -177,27 +177,31 @@ void setConfiguration(volatile State_t* State)
 {
   Serial.print(F("\n>> Logger: Configuring\n"));
   
-  Serial.print(F(">> Logger: Input Site Number. Current Site Number is "));
-  Serial.println(byte(State->siteNum));
+  Serial.print(F(">> Logger: Input Site Number (3 DIGITS). Current Site Number is "));
+  Serial.write(readConfiguration(addr_siteNum100));
+  Serial.write(readConfiguration(addr_siteNum10));
+  Serial.write(readConfiguration(addr_siteNum1));
+  Serial.println();
   Serial.print(F(">> User:   "));
-  char input10 = getNestedInput();
-  char input1  = getNestedInput();
-  char input   = (input1 - 48) + ((input10 - 48) * 10);
-  State->siteNum = input;
+  writeConfiguration(addr_siteNum100, getNestedInput());
+  writeConfiguration(addr_siteNum10, getNestedInput());
+  writeConfiguration(addr_siteNum1, getNestedInput());
 
-  Serial.print(F("\n>> Logger: Input Datalogger ID Number. Current ID is "));
-  Serial.println(byte(State->logID));
+  Serial.print(F("\n>> Logger: Input Datalogger ID Number (3 DIGITS). Current ID is "));
+  Serial.write(readConfiguration(addr_logID100));
+  Serial.write(readConfiguration(addr_logID10));
+  Serial.write(readConfiguration(addr_logID1));
+  Serial.println();
   Serial.print(F(">> User:   "));
-  input10 = getNestedInput();
-  input1  = getNestedInput();
-  input   = (input1 - 48) + ((input10 - 48) * 10);
-  State->logID = input;
+  writeConfiguration(addr_logID100, getNestedInput());
+  writeConfiguration(addr_logID10, getNestedInput());
+  writeConfiguration(addr_logID1, getNestedInput());
   
   Serial.print(F("\n>> Logger: Select Meter\n"));
   Serial.print(F("    1 -- 1\" Meter\n"));
   Serial.print(F("    5 -- 5/8\" Meter\n"));
   Serial.print(F(">> User:   "));
-  input = getNestedInput();
+  char input = getNestedInput();
   switch(input)
   {
     case '1':
@@ -215,32 +219,29 @@ void setConfiguration(volatile State_t* State)
       State->meterSize = NULL;
       break;
   }
-
-  writeConfiguration(addr_siteNum, State->siteNum);
-  writeConfiguration(addr_logID, State->logID);
   writeConfiguration(addr_meterSize, State->meterSize);
+  
+  Serial.print(F("\n>> Logger: Input Sequential File Number (4 DIGITS). Current Number is "));
+  Serial.write(readConfiguration(addr_fileNum1000));
+  Serial.write(readConfiguration(addr_fileNum100));
+  Serial.write(readConfiguration(addr_fileNum10));
+  Serial.write(readConfiguration(addr_fileNum1));
+  Serial.println();
+  Serial.print(F(">> User:   "));
+  writeConfiguration(addr_fileNum1000, getNestedInput());
+  writeConfiguration(addr_fileNum100, getNestedInput());
+  writeConfiguration(addr_fileNum10, getNestedInput());
+  writeConfiguration(addr_fileNum1, getNestedInput());
 
-  bool configuredProperly = checkConfiguration(State);
 
-  if(configuredProperly)
-  {
-    writeConfiguration(addr_chs3, 0x95);
-    writeConfiguration(addr_chs2, 0x6A);
-    writeConfiguration(addr_chs1, 0xBD);
-    writeConfiguration(addr_chs0, 0x42);
+  writeConfiguration(addr_chs3, 0x95);
+  writeConfiguration(addr_chs2, 0x6A);
+  writeConfiguration(addr_chs1, 0xBD);
+  writeConfiguration(addr_chs0, 0x42);
 
-    if(configurationExists())
-    {
-      Serial.print(F("\n>> Logger: Configuration Successful\n"));
-      State->configured = true;
-    }
-    else
-    {
-      Serial.print(F("\n>> Logger: Configuration Unsuccessful. Try again\n"));
-      configuredProperly = false;
-      State->configured = false;
-    }
-  }
+  Serial.println();
+
+  printConfig(State);
   
 
   return;
@@ -718,42 +719,25 @@ void startLogging(volatile State_t* State, volatile SignalState_t* SignalState, 
 {
   if(State->SDin)
   {
-    nameFile(State, Date);
-    Serial.print(F(">> Logger: "));
-    for(int i = 0; i < 13; i++)
+    if(State->logging)
     {
-      Serial.print(State->filename[i]);
-    }
-    Serial.println();
-    SDPowerUp();
-    if(SD.exists(State->filename))
-    {
-      Serial.print(F(">> Logger: WARNING: Conflicting file name. Data will be appended to existing file. Continue?(y/n): "));
-      char Continue = getNestedInput();
-
-      switch(Continue)
-      {
-        case 'y':
-        case 'Y':
-          State->logging = true;
-          State->recordNum = 1;
-          State->pulseCount = 0;
-          State->lastCount = 0;
-          State->totalCount = 0;
-          createHeader(State);
-          initializeData(SignalState);  // To Do: can this be replaced with mag_transfer() ???
-          EIMSK |= (1 << INT0);         // Enable Magnetometer Sensor interrupt.
-          Serial.print(F("\n>> Logger: Logging started."));
-          break;
-        case 'n':
-        case 'N':
-          break;
-        default:
-          break;       
-      }
+      Serial.print(F(">> Logger: Already Logging."));
     }
     else
     {
+      nameFile(State, Date);
+      SDPowerUp();
+      while(SD.exists(State->filename))
+      {
+        incrementFileNumber();
+        nameFile(State, Date);
+      }
+      Serial.print(F(">> Logger: "));
+      for(int i = 0; i < 13; i++)
+      {
+        Serial.print(State->filename[i]);
+      }
+      Serial.println();
       State->logging = true;
       State->recordNum = 1;
       State->pulseCount = 0;
@@ -798,6 +782,7 @@ void stopLogging(volatile State_t* State)
     State->logging = false;
     EIMSK &= ~(1 << INT0);         // Disable Hall Effect Sensor interrupt
     Serial.print(F(">> Logger: Logging stopped."));
+    incrementFileNumber();
   }
   else
   {
@@ -987,13 +972,26 @@ void printWater(State_t* State)
 
 void printConfig(State_t* State)
 {
-  Serial.print(F(">> Logger: Site #:          "));
-  Serial.println(byte(State->siteNum));
+  Serial.print(F(">> Logger: Site #:            "));
+  Serial.write(readConfiguration(addr_siteNum100));
+  Serial.write(readConfiguration(addr_siteNum10));
+  Serial.write(readConfiguration(addr_siteNum1));
+  Serial.println();
   
-  Serial.print(F(">> Logger: Datalogger ID #: "));
-  Serial.println(byte(State->logID));
+  Serial.print(F(">> Logger: Datalogger ID #:   "));
+  Serial.write(readConfiguration(addr_logID100));
+  Serial.write(readConfiguration(addr_logID10));
+  Serial.write(readConfiguration(addr_logID1));
+  Serial.println();
+
+  Serial.print(F(">> Logger: Sequential File #: "));
+  Serial.write(readConfiguration(addr_fileNum1000));
+  Serial.write(readConfiguration(addr_fileNum100));
+  Serial.write(readConfiguration(addr_fileNum10));
+  Serial.write(readConfiguration(addr_fileNum1));
+  Serial.println();
   
-  Serial.print(F(">> Logger: Meter Size:      "));
+  Serial.print(F(">> Logger: Meter Size:        "));
   switch(State->meterSize)
   {
     case '1':
@@ -1033,10 +1031,16 @@ void createHeader(State_t* State)
   File dataFile;
   dataFile = SD.open(State->filename, FILE_WRITE);
   dataFile.print(F("Site #: "));
-  dataFile.println(byte(State->siteNum));
+  dataFile.write(readConfiguration(addr_siteNum100));
+  dataFile.write(readConfiguration(addr_siteNum10));
+  dataFile.write(readConfiguration(addr_siteNum1));
+  dataFile.println();
   
   dataFile.print(F("Datalogger ID #: "));
-  dataFile.println(byte(State->logID));
+  dataFile.write(readConfiguration(addr_logID100));
+  dataFile.write(readConfiguration(addr_logID10));
+  dataFile.write(readConfiguration(addr_logID1));
+  dataFile.println();
   
   dataFile.print(F("Meter Size: "));
   switch(State->meterSize)
@@ -1062,37 +1066,41 @@ void createHeader(State_t* State)
 
 void nameFile(State_t* State, Date_t* Date)
 {
-  byte siteNum = byte(State->siteNum);
-  char siteNum1 = (siteNum % 10) + 48;
-  siteNum = siteNum / 10;
-  char siteNum10 = (siteNum % 10) + 48;
+  State->filename[0] = readConfiguration(addr_siteNum100);
+  State->filename[1] = readConfiguration(addr_siteNum10);
+  State->filename[2] = readConfiguration(addr_siteNum1);
+  State->filename[3] = '_';
 
-  State->filename[0] = siteNum10;
-  State->filename[1] = siteNum1;
-  State->filename[2] = '_';
-
-  byte months = byte(Date->months);
-  char months1 = (months % 10) + 48;
-  months = months / 10;
-  char months10 = (months % 10) + 48;
-
-  State->filename[3] = months10;
-  State->filename[4] = months1;
-  State->filename[5] = '-';
-
-  byte days = byte(Date->days);
-  char days1 = (days % 10) + 48;
-  days = days / 10;
-  char days10 = (days % 10) + 48;
-
-  State->filename[6] = days10;
-  State->filename[7] = days1;
+  State->filename[4] = readConfiguration(addr_fileNum1000);
+  State->filename[5] = readConfiguration(addr_fileNum100);
+  State->filename[6] = readConfiguration(addr_fileNum10);
+  State->filename[7] = readConfiguration(addr_fileNum1);
 
   State->filename[8] = '.';
   State->filename[9] = 'c';
   State->filename[10] = 's';
   State->filename[11] = 'v';
   State->filename[12] = '\0';
+
+  return;
+}
+
+void incrementFileNumber(void)
+{
+  int fileNum1000 = (readConfiguration(addr_fileNum1000) - 48) * 1000;
+  int fileNum100  = (readConfiguration(addr_fileNum100) - 48) * 100;
+  int fileNum10   = (readConfiguration(addr_fileNum10) - 48) * 10;
+  int fileNum1    = (readConfiguration(addr_fileNum1) - 48);
+
+  int fileNum = fileNum1000 + fileNum100 + fileNum10 + fileNum1 + 1;
+
+  writeConfiguration(addr_fileNum1, ((fileNum % 10) + 48));
+  fileNum = fileNum / 10;
+  writeConfiguration(addr_fileNum10, ((fileNum % 10) + 48));
+  fileNum = fileNum / 10;
+  writeConfiguration(addr_fileNum100, ((fileNum % 10) + 48));
+  fileNum = fileNum / 10;
+  writeConfiguration(addr_fileNum1000, ((fileNum % 10) + 48));
 
   return;
 }

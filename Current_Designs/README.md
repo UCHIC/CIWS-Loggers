@@ -1,0 +1,1 @@
+This folder contains the design files for the dataloggers currently in use. Each of the folders pertains to a particular datalogger, and contains the hardware and firmware/software design files, along with relevant documentation.

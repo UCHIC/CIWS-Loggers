@@ -1,0 +1,17 @@
+Steps to adapt the Adafruit Datalogger Shield (Rev. C) to a 3.3 V Arduino Pro:
+
+	1. Solder Header Pins
+
+	2. Short SCL and SDA jumpers on bottom to connect SCL and SDA to A5 and A4, respectively.
+		This is done because the 3.3 V Arduino Pro does not have seperate SCL and SDA pins like a normal Uno.
+
+	3. Short the IOr, 3V, and 5V pads. This connects the I2C pullup resistors to 3.3 V.
+		Because the Arduino Pro runs on 3.3 V, the "5V" pad is really at 3.3 V. Note that the datalogger shield does not
+		connect with the Arduino Uno 3.3 V output, as it is designed to generate its own.
+
+	4. Remove the 3.3 V Regulator. The system is already supplied with 3.3 V.
+
+	5. Remove the Power LED -- This helps extend battery life.
+
+	6. Mark the shield to note that it has been modified for the 3.3 V Arduino Pro.
+

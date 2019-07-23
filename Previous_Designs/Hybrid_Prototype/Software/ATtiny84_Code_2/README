@@ -1,0 +1,2 @@
+The main program and libraries for the ATtiny84 microcontroller section of the Hybrid Prototype. Code was developed with WinAVR.
+Linux users can use GCC-AVR (or AVR-GCC?) to compile this code and AVRDUDE to load the compiled hex files onto the microcontroller.

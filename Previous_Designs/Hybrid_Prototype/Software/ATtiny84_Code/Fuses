@@ -1,0 +1,11 @@
+ATtiny84 configuration fuse settings:
+lfuse = 0xED
+hfuse = 0xDF
+efuse = 0xFF
+
+To set the fuses using AVRDUDE and a usbtiny-based programmer:
+  avrdude -c usbtiny -p t84 -U lfuse:w:0xED:m
+  avrdude -c usbtiny -p t84 -U hfuse:w:0xDF:m
+  avrdude -c usbtiny -p t84 -U efuse:w:0xFF:m
+  
+These values should be the defaults for hfuse and efuse. lfuse should need to be written, check the others just in case.

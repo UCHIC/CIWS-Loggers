@@ -224,8 +224,8 @@ void loop()
  * 
  * Friendly Name:  Sensor Interrupt Service Routine (ISR)
  * 
- * Description: increments the value of the pulse count variable by one, each time this 
- *              function is called by hardware.
+ * Description: sets readMag flag to true every time this function is
+ *              called by hardware.
  */
 void INT0_ISR()
 {

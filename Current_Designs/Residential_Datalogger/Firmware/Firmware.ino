@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.8
 // Utah Water Research Lab
-// Updated: 6/10/2019 (changed to be compatible with Pololu LIS3MDL sensor board)
+// Updated: 7/30/2019 (Updated comments)
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow, and you'll find out your cricket ain't lucky.
 // Note: Be sure to process resulting data file as ASCII characters, not Unicode. 
@@ -31,11 +31,11 @@
 *   User inputs:
 *     Serial input.
 *   Device inputs:
-*     Magnetometer Sensor
-*     Real Time Clock
+*     Magnetometer Sensor (LIS3MDL)
+*     Real Time Clock     (PCF8523)
 *   Device outputs:
 *     Serial output
-*     Datalog file
+*     Datalog file        (SD Card)
 *     
 * Structure:
 *   1. Setup
@@ -47,18 +47,16 @@
 *          Update the time
 *          Construct a timestamp
 *          Write data
-*        If sleep is enabled (disabled when serial is enabled)
-*          Enter Sleep (low-power mode)
-*          < Will wake up on Interrupt and continue: >
 *        If the Magnetometer interrupted:
 *          Read the magnetometer data and check for peaks.
 *      Repeat Loop
 *      
 * Interrupts:
 *   1. INT0_ISR()
-*      
+*      Magnetometer Data Ready signal. When magnetometer data is ready, set State.readMag
+*
 *   2. INT1_ISR()
-*      
+*      RTC Four Second signal. When four seconds pass, set State.flag4
 \*****************************************************************/
 
 #include <SPI.h>
@@ -93,6 +91,7 @@
  *    Setup RTC Timer
  *    Setup interrupts
  *    Load Date_t with Date/Time info
+ *    Check for device configuration data
  *    Disable unneeded peripherals
  *    If Activate Serial Button is pressed
  *      Power on the Serial Interface
@@ -113,7 +112,7 @@ void setup()
   pinMode(4, OUTPUT); // For debugging
   digitalWrite(4, LOW);
 
-  mag_init(); //magnetometerInit(&mag);         // Initialize Magnetometer    // changed out to new function.  4/17/19 by D.H.
+  mag_init(); //magnetometerInit(&mag);         // Initialize Magnetometer
   
 
   rtcTransfer(reg_Tmr_CLKOUT_ctrl, WRITE, 0x3A);                  // Setup RTC Timer
@@ -156,6 +155,8 @@ void loop()
   * If button is pressed (active-low):
   *   Set serialOn flag.
   *   call serialPowerUp()
+  *   If device is not configured:
+  *     Prompt user
   \*****************************************/  
   if((digitalRead(5) == 0) && !State.serialOn)
   {
@@ -177,6 +178,8 @@ void loop()
   // DANIEL
   /*****************************************\
   * 4-second update: Update at 4 seconds
+  * Clear interrupt flag on RTC
+  * Load date and time
   * If 4-second flag is set:
   *   Store a new record
   \*****************************************/
@@ -214,17 +217,6 @@ void loop()
         //Serial.println("Peak Detected");
     }
   }
-  
-  // JOSH
-  /*****************************************\
-  * Sleep: put processor to sleep
-  *        to be woken by interrupts
-  * If serialOn is not set:
-  *   call function Sleep();
-  \*****************************************/
-  //if(!State.serialOn)
-    //enterSleep();
-
 }
 
 // DANIEL

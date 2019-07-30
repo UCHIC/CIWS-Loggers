@@ -167,7 +167,6 @@ void serialPowerDown()
  * Outputs:       None
  * pseudocode:
  *  Power on the SPI interface
- *  Enable power to the SD Card
  *  Return
 \**********************************/
 
@@ -186,7 +185,6 @@ void SDPowerUp()
  * Inputs:        None
  * Outputs:       None
  * pseudocode:
- *  Cut power to the SD Card
  *  Power down the SPI interface
  *  Return
 \**********************************/

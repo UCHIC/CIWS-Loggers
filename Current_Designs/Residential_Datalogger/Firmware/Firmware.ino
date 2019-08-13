@@ -21,7 +21,7 @@
 * Controller:      Arduino Pro/Pro Mini (used for SD library and lower power options)
 * SD:              External SD Card storage for the logger.
 * Activate Serial: Button to wake up the controller and activate the Serial interface
-* Sensor:          Hall Effect Sensor for logging pulses from water meters.
+* Magnetometer:    LIS3MDL Magnetometer for reading magnetic signals from water meters.
 * RTC:             Real Time Clock to track time and wake up controller every four seconds.
 \*******************************************************************************************/
 

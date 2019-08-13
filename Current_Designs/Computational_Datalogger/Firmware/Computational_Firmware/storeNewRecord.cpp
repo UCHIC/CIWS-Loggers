@@ -27,14 +27,14 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
   {
     romAddr = State->romAddr;                         // Load the current ROM address (points to next available cell)
 
+    romAddr0 = romAddr & 0xFF;                          // Split the ROM address into three bytes
+    romAddr = romAddr >> 8;
+    romAddr1 = romAddr & 0xFF;
+    romAddr = romAddr >> 8;
+    romAddr2 = romAddr & 0xFF;
+
     if(romDataBufferIndex > 0)                          // If romDataBufferIndex is greater than zero, then there is data in the romDataBuffer that must be written to the EEPROM
     {
-      romAddr0 = romAddr & 0xFF;                          // Split the ROM address into three bytes
-      romAddr = romAddr >> 8;
-      romAddr1 = romAddr & 0xFF;
-      romAddr = romAddr >> 8;
-      romAddr2 = romAddr & 0xFF;
-
       data[0] = writeInstr;                               // Load the data array with the write instruction and three-byte ROM address
       data[1] = romAddr2;
       data[2] = romAddr1;

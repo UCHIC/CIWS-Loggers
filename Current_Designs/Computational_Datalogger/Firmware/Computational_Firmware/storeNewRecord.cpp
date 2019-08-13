@@ -16,6 +16,12 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
   State->pulseCount = 0;                                // Reset pulseCount to zero
   State->lastCount = finalCount;                        // lastCount is used to generate water usage information for the report swap between microcontroller and host computer. This is used to report the current water flow during a logging session.
   State->totalCount += (unsigned int)finalCount;        // totalCount is also used to generate water usage information. This holds the total water flow during a logging session.
+
+  spiSelectSlave();                                   // Select the EEPROM chip
+  spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
+  spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
+
+  spiSelectSlave();                                   // Select the EEPROM chip
   
   if(State->romFree)                                  // If the microcontroller has control over the EEPROM chip,
   {
@@ -34,41 +40,15 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
       data[2] = romAddr1;
       data[3] = romAddr0;
 
-      spiSelectSlave();                                   // Select the EEPROM chip
-      spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
-      spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
-
-      spiSelectSlave();                                   // Select the EEPROM chip
       spiTransceive(data, 4);                             // Send the write instruction and the address to write to
       spiTransceive(romDataBuffer, romDataBufferIndex);   // Write the contents of the romDataBuffer to the EEPROM
-      spiReleaseSlave();                                  // De-Select the EEPROM chip
 
       State->romAddr += romDataBufferIndex;               // Update the ROM address
       State->recordNum += romDataBufferIndex;             // Update the record number
       romDataBufferIndex = 0;                             // Reset the romDataBufferIndex to zero
-      // Note: may need a delay here to accomodate the time it takes to write a page.
     }
 
-    romAddr = State->romAddr;                           // Load the current ROM address (points to next available cell)
-    
-    romAddr0 = romAddr & 0xFF;                          // Split the ROM address into three bytes
-    romAddr = romAddr >> 8;
-    romAddr1 = romAddr & 0xFF;
-    romAddr = romAddr >> 8;
-    romAddr2 = romAddr & 0xFF;
-  
-    data[0] = writeInstr;                               // Load the data array with the write instruction, the three-byte ROM address, and the final pulse count for the 4-second sample.
-    data[1] = romAddr2;
-    data[2] = romAddr1;
-    data[3] = romAddr0;
-    data[4] = finalCount;
-  
-    spiSelectSlave();                                   // Select the EEPROM chip
-    spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
-    spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
-  
-    spiSelectSlave();                                   // Select the EEPROM chip
-    spiTransceive(data, 5);                             // Send the write instruction, the address to write to, and the data byte to write.
+    spiTransceive(&finalCount, 1);                      // Send the write instruction, the address to write to, and the data byte to write.
     spiReleaseSlave();                                  // De-Select the EEPROM chip
   
     State->recordNum += 1;                              // Update the record number

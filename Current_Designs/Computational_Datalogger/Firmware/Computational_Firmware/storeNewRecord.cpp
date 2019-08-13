@@ -46,6 +46,7 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
       State->romAddr += romDataBufferIndex;               // Update the ROM address
       State->recordNum += romDataBufferIndex;             // Update the record number
       romDataBufferIndex = 0;                             // Reset the romDataBufferIndex to zero
+      // Note: may need a delay here to accomodate the time it takes to write a page.
     }
 
     romAddr = State->romAddr;                           // Load the current ROM address (points to next available cell)
@@ -73,6 +74,7 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
     State->recordNum += 1;                              // Update the record number
     State->romAddr += 1;                                // Update the ROM address
     // TODO: Need a way to tell host computer how many bytes there are to read. Most of the time it will be the same. The discrepancy will be when the host computer is activated by the user.
+              // The easiest thing to do would probably be to reserve the first cell for storing the number of data cells to be read. Write this number once, when the host computer is turned on.
   }
   else                                                // If the microcontroller does not have control over the EEPROM chip
   {

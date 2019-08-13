@@ -6,7 +6,7 @@ void resetState(volatile State_t* State)
   State->lastCount = 0;
   State->totalCount = 0;
   State->recordNum = 1;
-  State->romAddr = 0;
+  State->romAddr = 3;
   State->logging = false;
   State->flag4 = false;
   State->SDin = false;

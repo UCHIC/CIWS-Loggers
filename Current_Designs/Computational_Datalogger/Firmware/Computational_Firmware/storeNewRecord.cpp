@@ -3,10 +3,40 @@
 unsigned char romDataBuffer[romDataBufferSize];       // Data buffer for when the RPi is in control of the EEPROM chip. Gets copied to EEPROM once freed.
 unsigned char romDataBufferIndex = 0;                 // romDataBufferIndex always points to the next available memory location in the buffer.
 
+void writeDataSize(State_t* State)
+{
+  delay(6);                                           // delay for 6 ms in case the EEPROM is writing.
+  
+  unsigned char data[7];                              // This is the array that will be populated and then written to the EEPROM
+  
+  recordNum  = State->recordNum;                      // Use recordNum to tell number of records
+  recordNum0 = recordNum & 0xFF;                      // Split the recordNum into three bytes
+  recordNum  = recordNum >> 8;
+  recordNum1 = recordNum & 0xFF;
+  recordNum  = recordNum >> 8;
+  recordNum2 = recordNum & 0xFF;
+
+  data[0] = writeInstr;                               // Load data array with the write instruction, address 0, and recordNum
+  data[1] = 0;
+  data[2] = 0;
+  data[3] = 0;
+  data[4] = recordNum2;
+  data[5] = recordNum1;
+  data[6] = recordNum0;
+  
+  spiSelectSlave();                                   // Select the EEPROM chip
+  spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
+  spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
+
+  spiSelectSlave();                                   // Select the EEPROM chip
+  spiTransceive(data, 7);                             // Write data to the EEPROM chip
+  spiReleaseSlave();                                  // De-Select the EEPROM chip
+
+  return;
+}
+
 void storeNewRecord(State_t* State)                   // Stores a new record in either the EEPROM chip or the romDataBuffer array.
 {
-  unsigned char writeInstr = 0x02;                      // This instruction tells the EEPROM chip the controller wants to write to it.
-  unsigned char wrenInstr = 0x06;                       // This instruction enables writes to the EEPROM chip. Must be done for each write operation.
   unsigned char finalCount;                             // Holds the final count for the four-second sample.
   unsigned char romAddr2, romAddr1, romAddr0;           // Each address in the EEPROM is 24 bits, which must be split into three bytes.
   unsigned char data[5];                                // This is the array that will be populated and then written to the EEPROM
@@ -68,5 +98,6 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
       State->RPiFalseON = true;                           // Let the rest of the program know that the host computer needs to be powered off.
     }
   }
+  
   return;
 }

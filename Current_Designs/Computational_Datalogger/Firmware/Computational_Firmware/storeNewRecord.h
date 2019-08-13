@@ -7,9 +7,6 @@
 
 #define romDataBufferSize 128
 
-unsigned char writeInstr = 0x02;      // This instruction tells the EEPROM chip the controller wants to write to it.
-unsigned char wrenInstr = 0x06;       // This instruction enables writes to the EEPROM chip. Must be done for each write operation.
-
 void writeDataSize(State_t* State);   // Writes the number of records to the first three bytes of the EEPROM chip
 void storeNewRecord(State_t* State);  // Stores a new record, either on an external EEPROM chip or an array in RAM. Designed for Microchip's 25LC1024 SPI Serial EEPROM
                                       // If RAM array gets full, it assumes the host computer is frozen and sets the flag State.RPiFalseON accordingly. Change the value for romDataBufferSize above for different buffer sizes. Be careful, don't max out memory.

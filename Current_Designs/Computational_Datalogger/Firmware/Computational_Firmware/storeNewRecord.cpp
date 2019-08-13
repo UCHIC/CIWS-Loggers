@@ -3,13 +3,18 @@
 unsigned char romDataBuffer[romDataBufferSize];       // Data buffer for when the RPi is in control of the EEPROM chip. Gets copied to EEPROM once freed.
 unsigned char romDataBufferIndex = 0;                 // romDataBufferIndex always points to the next available memory location in the buffer.
 
+unsigned char writeInstr = 0x02;                      // This instruction tells the EEPROM chip the controller wants to write to it.
+unsigned char wrenInstr = 0x06;                       // This instruction enables writes to the EEPROM chip. Must be done for each write operation.
+
 void writeDataSize(State_t* State)
 {
   delay(6);                                           // delay for 6 ms in case the EEPROM is writing.
   
   unsigned char data[7];                              // This is the array that will be populated and then written to the EEPROM
   
-  recordNum  = State->recordNum;                      // Use recordNum to tell number of records
+  unsigned long recordNum  = State->recordNum - 1;    // Use recordNum to tell number of records. Subtract one because the number of records on the EEPROM chip is always one less than State.recordNum
+  unsigned char recordNum0, recordNum1, recordNum2;
+  
   recordNum0 = recordNum & 0xFF;                      // Split the recordNum into three bytes
   recordNum  = recordNum >> 8;
   recordNum1 = recordNum & 0xFF;
@@ -83,8 +88,6 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
   
     State->recordNum += 1;                              // Update the record number
     State->romAddr += 1;                                // Update the ROM address
-    // TODO: Need a way to tell host computer how many bytes there are to read. Most of the time it will be the same. The discrepancy will be when the host computer is activated by the user.
-              // The easiest thing to do would probably be to reserve the first cell for storing the number of data cells to be read. Write this number once, when the host computer is turned on.
   }
   else                                                // If the microcontroller does not have control over the EEPROM chip
   {

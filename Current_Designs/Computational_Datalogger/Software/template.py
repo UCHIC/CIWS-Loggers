@@ -27,4 +27,4 @@ Logger.setRomFree()		# Tell the AVR datalogger that the EEPROM chip is no longer
 # ...		 ...
 
 Logger.setPowerOff()		# Tell the AVR datalogger that the Raspberry Pi is shutting down.
-os.system('sudo poweroff')
+os.system("sudo poweroff")

@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define HEADER_SIZE 9
+
 // State Struct
 
 typedef struct

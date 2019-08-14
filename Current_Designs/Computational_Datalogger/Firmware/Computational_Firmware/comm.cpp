@@ -21,6 +21,8 @@ void updateReport(char* report, Date_t* Date, State_t* State)
       State->logging = true;        // Let the rest of the program know that the microcontroller is logging
       State->readMag = true;        // Tell the program to read the magnetometer data (since the interrupt has already fired)
       State->recordNum = 1;         // Reset record number counter
+      State->romAddr = HEADER_SIZE; // Reset ROM Address
+      writeDateAndTime(Date);       // Store the date/time of the first data byte
       EIMSK |= (1 << INT0);         // Enable Sensor interrupt
     }
     else

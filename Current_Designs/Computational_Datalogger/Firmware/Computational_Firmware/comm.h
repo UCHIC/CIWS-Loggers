@@ -6,6 +6,7 @@
 #include "avr/interrupt.h"
 #include "RTC_PCF8523.h"
 #include "state.h"
+#include "storeNewRecord.h"
 
 #define FOSC 8000000
 #define BAUD 9600

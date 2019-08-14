@@ -6,8 +6,6 @@
  *********************************************************************/
 
 #include "detectPeaks.h"
-#include "powerSleep.h"
-#include <SD.h>
 
 /*********************************************************\
  * Function Name: peakDetected

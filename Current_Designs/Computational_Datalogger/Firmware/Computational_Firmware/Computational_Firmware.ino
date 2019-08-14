@@ -40,13 +40,15 @@
 * Software Description
 * Overview: 
 *   User inputs:
-*     Serial input.
+*     Activation Button.
 *   Device inputs:
 *     Magnetometer Sensor
 *     Real Time Clock
+*     Serial Reports
 *   Device outputs:
-*     Serial output
-*     Datalog file
+*     Data Records
+*     Serial Reports
+*     Power Control for host computer
 *     
 * Structure:
 *   1. Setup
@@ -137,10 +139,10 @@ void setup()
 
 void loop()
 {
-  if((((PIND & 0x20) == 0x00) && !State.RPiON) || (State.romAddr > (BUFFER_MAX + 3))) // If (button is pressed and the host computer is off) OR (The ROM address is greater than zero)
+  if((((PIND & 0x20) == 0x00) && !State.RPiON) || (State.romAddr > (BUFFER_MAX + HEADER_SIZE))) // If (button is pressed and the host computer is off) OR (The ROM address is greater than the data length)
   {
     State.RPiON = true;                                                               // Let the rest of the program know that the host computer is on
-    State.romAddr = 3;                                                                // Reset the ROM address
+    State.romAddr = HEADER_SIZE;                                                      // Reset the ROM address
     State.romFree = false;                                                            // Let the rest of the program know that the EEPROM chip is not accessible
     writeDataSize(&State);                                                            // Store the number of data bytes in the first three bytes of the EEPROM chip for the host computer
     powerRPiON();                                                                     // Power on the host computer

@@ -40,6 +40,30 @@ void writeDataSize(State_t* State)
   return;
 }
 
+void writeDateAndTime(Date_t* Date)
+{
+  unsigned char dateTimeArray[10];                    // Holds write instruction, address, and the date/time to be written
+
+  dateTimeArray[0] = writeInstr;                      // Write Instruction: tells EEPROM chip to receive data to write
+  dateTimeArray[1] = 0;                               // Store starting at address 0x003
+  dateTimeArray[2] = 0;
+  dateTimeArray[3] = 3;
+  dateTimeArray[4] = Date->years;                     // Years
+  dateTimeArray[5] = Date->months;                    // Months
+  dateTimeArray[6] = Date->days;                      // Days
+  dateTimeArray[7] = Date->hours;                     // Hours
+  dateTimeArray[8] = Date->minutes;                   // Minutes
+  dateTimeArray[9] = Date->seconds + 4;               // Seconds + 4: The first data byte will be 4 seconds after the timestamp for logging start
+
+  spiSelectSlave();                                   // Select the EEPROM chip
+  spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
+  spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
+
+  spiSelectSlave();                                   // Select the EEPROM chip
+  spiTransceive(dateTimeArray, 7);                    // Write dateTimeArray to the EEPROM chip
+  spiReleaseSlave();                                  // De-Select the EEPROM chip
+}
+
 void storeNewRecord(State_t* State)                   // Stores a new record in either the EEPROM chip or the romDataBuffer array.
 {
   unsigned char finalCount;                             // Holds the final count for the four-second sample.

@@ -1,8 +1,9 @@
 import Logger
 import os
 
-# The following four lines of code MUST ABSOLUTELY appear in this order. DO NOT MOVE OR CHANGE THE FOLLOWING FOUR LINES OF CODE.
+# The following five lines of code MUST ABSOLUTELY appear in this order. DO NOT MOVE OR CHANGE THE FOLLOWING FOUR LINES OF CODE.
 
+Logger.init()			# Initialzie the Logger Python module.
 Logger.setRomBusy()		# Tell the AVR datalogger that the EEPROM chip is in use
 Logger.setPowerGood()		# Tell the AVR datalogger that the Raspberry Pi is powered on
 dataTuple = Logger.loadData()	# Read the data from the EEPROM chip

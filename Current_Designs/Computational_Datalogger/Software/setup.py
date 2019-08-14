@@ -6,5 +6,5 @@ loggerModule = Extension('Logger',
 			 library_dirs = ['/usr/lib'],
 			 sources = ['logger.c'])
 
-setup(name = 'Logger', version = '1.0', ext_modules = [Extension('Logger', ['logger.c'])])
+setup(name = 'Logger', version = '1.0', ext_modules = [loggerModule])
 

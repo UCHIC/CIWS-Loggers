@@ -14,6 +14,8 @@
 #define BUFFER_MAX  21600
 #define HEADER_SIZE 9
 
+/** Initialize the Logger Module **/
+
 static PyObject* init(PyObject* self, PyObject* args)
 {
 	wiringPiSetupGpio();			// Setup the wiringPi library to use Broadcom GPIO numbers.
@@ -28,59 +30,62 @@ static PyObject* init(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+/** Return the maximum allowable buffer value **/
+
 static PyObject* bufferMax(PyObject* self, PyObject* args)
 {
 	return Py_BuildValue("i", BUFFER_MAX);
 }
 
+/** Tell the AVR datalogger that the EEPROM chip is in use **/
+
 static PyObject* setRomBusy(PyObject* self, PyObject* args)
 {
-	digitalWrite(ROM_BUSY, HIGH);
+	digitalWrite(ROM_BUSY, HIGH);	// Setting this pin high tells the datalogger the chip is in use
 
 	return Py_None;
 }
+
+/** Tell the AVR datalogger that the Pi has successfully powered up **/
 
 static PyObject* setPowerGood(PyObject* self, PyObject* args)
 {
-	digitalWrite(POWER_GOOD, HIGH);
+	digitalWrite(POWER_GOOD, HIGH);	// Setting this pin high tells the datalogger the Pi is on.
 
 	return Py_None;
 }
 
+/** Read the contents of the EEPROM chip **/
+
 static PyObject* loadData(PyObject* self, PyObject* args)
 {
-	unsigned int dataSize = BUFFER_MAX + HEADER_SIZE + 4;
-	unsigned char data[dataSize];
-	data[0] = 0x03;
-	data[1] = 0x00;
-	data[2] = 0x00;
-	data[3] = 0x00;
+	unsigned int dataSize = BUFFER_MAX + HEADER_SIZE + 4;	// How many bytes to read from the EEPROM
+	unsigned char data[dataSize];				// Array will hold data from the EEPROM
+	data[0] = 0x03;						// Load the array with: Read instruction
+	data[1] = 0x00;						//                      Address (High): 0
+	data[2] = 0x00;						//                      Address (Mid):  0
+	data[3] = 0x00;						//                      Address (Low):  0
 
-	wiringPiSPIDataRW(0, data, dataSize);
+	wiringPiSPIDataRW(0, data, dataSize);			// SPI Transaction: The contents of data are overwritten by the EEPROM response
 
-	unsigned int recordNum = (data[4] << 16) + (data[5] << 8) + data[6];
+	unsigned int recordNum = (data[4] << 16) + (data[5] << 8) + data[6];	// Calculate number of records stored
 
-	unsigned char yearStart = data[7];
-	unsigned char monthStart = data[8];
-	unsigned char dayStart = data[9];
-	unsigned char hourStart = data[10];
-	unsigned char minuteStart = data[11];
-	unsigned char secondStart = data[12];
+	unsigned int lastIndex = recordNum + 12;		// lastIndex points to the last record stored on the EEPROM chip
 
-	unsigned int lastIndex = recordNum + 13;
+	PyObject* dataTuple = PyTuple_New(recordNum);		// The dataTuple is what will be used in the Python script Logger is used in.
 
-	PyObject* dataTuple = PyTuple_New(recordNum);
-
-	PyTuple_SetItem(dataTuple, 0, recordNum);
+	PyTuple_SetItem(dataTuple, 0, recordNum);		// The first value in dataTuple is the number of records it holds.
 
 	unsigned int i;
-	for(i = 7; i < lastIndex; i++)
+	for(i = 7; i <= lastIndex; i++)				// This loop fills dataTuple with date/time and records.
 	{
 		PyTuple_SetItem(dataTuple, i - 6, data[i]);
 	}
 
-	return dataTuple;
+	return dataTuple;					// dataTuple is returned for use in a Python script
 }
+
+/** Tell the AVR datalogger that the EEPROM chip is no longer in use **/
 
 static PyObject* setRomFree(PyObject* self, PyObject* args)
 {
@@ -88,6 +93,8 @@ static PyObject* setRomFree(PyObject* self, PyObject* args)
 
 	return Py_None;
 }
+
+/** Tell the AVR datalogger that the Pi is shutting down **/
 
 static PyObject* setPowerOff(PyObject* self, PyObject* args)
 {
@@ -112,4 +119,3 @@ PyMODINIT_FUNC initLogger(void)
 {
         Py_InitModule3("Logger", methods, "Python Module written in C for interacting with specific external hardware");
 }
-

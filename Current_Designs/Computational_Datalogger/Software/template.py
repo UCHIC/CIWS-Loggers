@@ -25,6 +25,6 @@ Logger.setRomFree()		# Tell the AVR datalogger that the EEPROM chip is no longer
 # 10		 Data Byte
 # ...		 ...
 
-if (dataTuple[0] == BUFFER_MAX):	# This means that the Pi was turned on by the Datalogger, not a user, so it should turn itself off.
-	Logger.setPowerOff()		# Tell the AVR datalogger that the Raspberry Pi is shutting down.
-	os.system("sudo poweroff")	# Shut down the Raspberry Pi
+if (dataTuple[0] == Logger.bufferMax()):	# This means that the Pi was turned on by the Datalogger, not a user, so it should turn itself off.
+	Logger.setPowerOff()			# Tell the AVR datalogger that the Raspberry Pi is shutting down.
+	os.system("sudo poweroff")		# Shut down the Raspberry Pi

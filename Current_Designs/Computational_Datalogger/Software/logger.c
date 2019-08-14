@@ -74,12 +74,15 @@ static PyObject* loadData(PyObject* self, PyObject* args)
 
 	PyObject* dataTuple = PyTuple_New(recordNum);		// The dataTuple is what will be used in the Python script Logger is used in.
 
-	PyTuple_SetItem(dataTuple, 0, recordNum);		// The first value in dataTuple is the number of records it holds.
+	PyObject* PyData = Py_BuildValue("i", recordNum);	// To store data in dataTuple, we need a PyObject.
+
+	PyTuple_SetItem(dataTuple, 0, PyData);			// The first value in dataTuple is the number of records it holds.
 
 	unsigned int i;
 	for(i = 7; i <= lastIndex; i++)				// This loop fills dataTuple with date/time and records.
 	{
-		PyTuple_SetItem(dataTuple, i - 6, data[i]);
+		PyData = Py_BuildValue("b", data[i]);
+		PyTuple_SetItem(dataTuple, i - 6, PyData);
 	}
 
 	return dataTuple;					// dataTuple is returned for use in a Python script

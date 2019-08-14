@@ -70,9 +70,9 @@ static PyObject* loadData(PyObject* self, PyObject* args)
 
 	unsigned int recordNum = (data[4] << 16) + (data[5] << 8) + data[6];	// Calculate number of records stored
 
-	unsigned int lastIndex = recordNum + 12;		// lastIndex points to the last record stored on the EEPROM chip
+	unsigned int lastIndex = recordNum + 12;		// lastIndex points to the last record stored in data[]
 
-	PyObject* dataTuple = PyTuple_New(recordNum);		// The dataTuple is what will be used in the Python script Logger is used in.
+	PyObject* dataTuple = PyTuple_New(recordNum + 7);	// The dataTuple is what will be used in the Python script Logger is used in.
 
 	PyObject* PyData = Py_BuildValue("i", recordNum);	// To store data in dataTuple, we need a PyObject.
 

@@ -11,20 +11,19 @@ Logger.setRomFree()		# Tell the AVR datalogger that the EEPROM chip is no longer
 # Process the contents of dataTuple here. The format is as follows:
 # Index    |    dataTuple
 # ---------------------------------------------------------
-#  0	         Number of Records (Most significant byte)
-#  1             Number of Records (Middle byte)
-#  2		 Number of Records (Least significant byte)
-#  3             Year logging started
-#  4             Month logging started
-#  5             Day logging started
-#  6             Hour logging started
-#  7             Minute logging started
-#  8             Second logging started
-#  9             Data Byte
+#  0	         Number of Records
+#  1             Year logging started
+#  2             Month logging started
+#  3             Day logging started
+#  4             Hour logging started
+#  5             Minute logging started
+#  6             Second logging started
+#  7             Data Byte
+#  8		 Data Byte
+#  9		 Data Byte
 # 10		 Data Byte
-# 11		 Data Byte
-# 12		 Data Byte
 # ...		 ...
 
-Logger.setPowerOff()		# Tell the AVR datalogger that the Raspberry Pi is shutting down.
-os.system("sudo poweroff")
+if (dataTuple[0] == BUFFER_MAX):	# This means that the Pi was turned on by the Datalogger, not a user, so it should turn itself off.
+	Logger.setPowerOff()		# Tell the AVR datalogger that the Raspberry Pi is shutting down.
+	os.system("sudo poweroff")	# Shut down the Raspberry Pi

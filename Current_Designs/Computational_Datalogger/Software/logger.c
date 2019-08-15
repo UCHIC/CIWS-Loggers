@@ -8,7 +8,7 @@
 #include <Python.h>
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
-#include <unistd.h>
+#include <wiringSerial.h>
 
 #define ROM_BUSY    24
 #define POWER_GOOD  25
@@ -20,7 +20,12 @@
 static PyObject* init(PyObject* self, PyObject* args)
 {
 	wiringPiSetupGpio();			// Setup the wiringPi library to use Broadcom GPIO numbers.
-	wiringPiSPISetup(0, 2000000);		// Setup the wiringPi SPI library to use CS 0 @ 2 MHz.
+
+	int spiFD = -1;
+	while(spiFD < 0)
+	{
+		spiFD = wiringPiSPISetup(0, 2000000);		// Setup the wiringPi SPI library to use CS 0 @ 2 MHz.
+	}
 
 	pinMode(ROM_BUSY, OUTPUT);		// ROM_BUSY Pin output low
 	digitalWrite(ROM_BUSY, LOW);
@@ -91,6 +96,39 @@ static PyObject* loadData(PyObject* self, PyObject* args)
 	return dataTuple;					// dataTuple is returned for use in a Python script
 }
 
+/** Exchange Reports with the AVR datalogger **/
+
+static PyObject* reportSwap(PyObject* self, PyObject* args)
+{
+	PyObject* PyReport;
+
+	int i;
+	char report[9];
+
+	int serialFD = -1;
+	while(serialFD < 0)
+	{
+		serialFD = serialOpen("/dev/ttyS0", 9600);	// Setup the wiringPi Serial library to use the mini UART @ 9600 Baud
+	}
+
+
+	if(!PyArg_ParseTuple(args, "O!", &PyList_Type, &PyReport))
+	{
+		PyErr_SetString(PyExc_TypeError, "Parameter must be a list.");
+		return NULL;
+	}
+
+	for(i = 0; i < 9; i++)
+	{
+		report[i] = 0xFF & (char)PyInt_AS_LONG(PyList_GetItem(PyReport, i));
+		serialPutchar(serialFD, report[i]);
+		report[i] = (char)serialGetchar(serialFD);
+		PyList_SetItem(PyReport, i, Py_BuildValue("b", report[i]));
+	}
+
+	return PyReport;
+}
+
 /** Tell the AVR datalogger that the EEPROM chip is no longer in use **/
 
 static PyObject* setRomFree(PyObject* self, PyObject* args)
@@ -115,6 +153,7 @@ static PyMethodDef methods[] = {
         { "setRomBusy", setRomBusy, METH_NOARGS, "Sends a signal to the datalogger that the EEPROM chip is in use" },
         { "setPowerGood", setPowerGood, METH_NOARGS, "Sends a signal to the datalogger that the Pi booted succesfully" },
         { "loadData", loadData, METH_NOARGS, "Reads data from the EEPROM chip and returns a tuple" },
+	{ "reportSwap", reportSwap, METH_VARARGS, "Swaps reports with the AVR datalogger" },
         { "setRomFree", setRomFree, METH_NOARGS, "Sends a signal to the datalogger that the EEPROM chip is not in use" },
         { "setPowerOff", setPowerOff, METH_NOARGS, "Sends a signal to the datalogger that the Pi is shutting down" },
         { NULL, NULL, 0, NULL }

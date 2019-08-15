@@ -10,6 +10,6 @@ Dependancies:
 python-dev
 wiringpi
 ```
-You can now use the Logger module in Python. Note that this was built with Python 2.7.</br></br>
+You can now use the Logger module in Python. Note that this was built with Python 2.7. The script output may tell you to reboot.</br></br>
 Template code for using the Logger module is included as `template.py`.</br></br>
 WARNING: This code is still under development and not ready for use.

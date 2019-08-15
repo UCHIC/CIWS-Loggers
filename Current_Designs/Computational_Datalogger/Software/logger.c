@@ -8,6 +8,7 @@
 #include <Python.h>
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+#include <unistd.h>
 
 #define ROM_BUSY    24
 #define POWER_GOOD  25
@@ -26,6 +27,8 @@ static PyObject* init(PyObject* self, PyObject* args)
 
 	pinMode(POWER_GOOD, OUTPUT);		// POWER_GOOD Pin output low
 	digitalWrite(POWER_GOOD, LOW);
+
+	sleep(1);				// Delay for one second
 
 	return Py_None;
 }
@@ -116,7 +119,6 @@ static PyMethodDef methods[] = {
         { "setPowerOff", setPowerOff, METH_NOARGS, "Sends a signal to the datalogger that the Pi is shutting down" },
         { NULL, NULL, 0, NULL }
 };
-
 
 PyMODINIT_FUNC initLogger(void)
 {

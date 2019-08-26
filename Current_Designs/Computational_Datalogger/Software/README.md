@@ -15,4 +15,4 @@ wiringpi
 WARNING: This code is still under development and not ready for use:</br>
 Issues:</br>
 reportSwap can only be called twice before it causes a segmentation fault (very consistent)</br>
-setup.sh does not properly detect the line 'console=ttyS0,115200' in line /boot/cmdline.txt</br>
+setup.sh does not properly detect the line 'console=serial0,115200' in line /boot/cmdline.txt</br>

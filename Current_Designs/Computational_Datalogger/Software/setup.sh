@@ -10,6 +10,8 @@
 #	4) sudo systemctl disable serial-getty@ttyS0.service
 #	5) Remove console=serial0,115200 from /boot/cmdline.txt
 
+# NEW TODO: Method is unreliable. Need to simply replace existing files with our own.
+
 echo "Checking /boot/cmdline.txt for spidev buffer size..."
 
 grep -q -F 'spidev.bufsiz=65536' /boot/cmdline.txt

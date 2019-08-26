@@ -126,6 +126,8 @@ static PyObject* reportSwap(PyObject* self, PyObject* args)
 		PyList_SetItem(PyReport, i, Py_BuildValue("b", report[i]));
 	}
 
+	serialClose(serialFD);
+
 	return PyReport;
 }
 

@@ -23,8 +23,8 @@ fi
 echo "Checking /boot/cmdline.txt for enabled serial console..."
 
 grep -q -F 'console=serial0,115200' /boot/cmdline.txt
-if [ $? -ne 0 ]; then
-	sed 's/console=serial0,115200//g' /boot/cmdline.txt
+if [ $? -eq 0 ]; then
+	sed -i -e 's/console=serial0,115200//g' /boot/cmdline.txt
 	echo "Disabled Serial Console. Reboot required in order to complete setup."
 fi
 

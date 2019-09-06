@@ -149,6 +149,43 @@ static PyObject* setPowerOff(PyObject* self, PyObject* args)
 	return Py_None;
 }
 
+static PyObject* writeToFile(PyObject* self, PyObject* args)
+{
+	PyObject* DataList;						// DataList will hold the list of collected data.
+	char* filename;							// filname will hold the name of the file to write DataList to.
+	FILE* dataOut;							// Pointer to the output file.
+
+	if(!PyArg_ParseTuple(args, "Os", &DataList, &filename))		// Retrieve the data and put it into DataList.
+	{
+		PyErr_SetString(PyExc_TypeError, "Expected a list and a string.");	// If the operation fails, set an error and return.
+		return PyString_FromString("Bad arguments");
+	}
+
+	PyObject* Iterator = PyObject_GetIter(DataList);		// Create an iterator to traverse the contents of DataList
+	if(!Iterator)
+	{
+		PyErr_SetString(PyExc_TypeError, "Error setting list iterator.");
+		return PyString_FromString("Error setting list iterators.");
+	}
+
+	dataOut = fopen(filename, "w");
+	if(dataOut == NULL)						// Create new data file
+	{
+		PyErr_SetString(PyExc_TypeError, "Could not create file.");
+		return PyString_FromString("Could not create file.");
+	}
+
+	PyObject* next = PyIter_Next(Iterator);				// Each next holds the data from the current DataList index.
+
+	while(next != NULL)						// Print each value to the output file.
+	{
+		fprintf(dataOut, "%ld\n", PyInt_AsLong(next));
+		next = PyIter_Next(Iterator);
+	}
+
+	return Py_None;
+}
+
 static PyMethodDef methods[] = {
 	{ "init", init, METH_NOARGS, "Initializes the Logger Python Module" },
 	{ "bufferMax", bufferMax, METH_NOARGS, "Returns the maximum buffer size from the datalogger" },
@@ -158,6 +195,7 @@ static PyMethodDef methods[] = {
 	{ "reportSwap", reportSwap, METH_VARARGS, "Swaps reports with the AVR datalogger" },
         { "setRomFree", setRomFree, METH_NOARGS, "Sends a signal to the datalogger that the EEPROM chip is not in use" },
         { "setPowerOff", setPowerOff, METH_NOARGS, "Sends a signal to the datalogger that the Pi is shutting down" },
+	{ "writeToFile", writeToFile, METH_VARARGS, "Writes a list of data to a file" },
         { NULL, NULL, 0, NULL }
 };
 

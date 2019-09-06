@@ -9,6 +9,8 @@ Logger.setPowerGood()		# Tell the AVR datalogger that the Raspberry Pi is powere
 dataTuple = Logger.loadData()	# Read the data from the EEPROM chip
 Logger.setRomFree()		# Tell the AVR datalogger that the EEPROM chip is no longer in use.
 
+Logger.writeToFile(dataTuple, "rawPulses.csv")	# Write the raw pulses read from the EEPROM chip to a .csv file.
+
 # Process the contents of dataTuple here. The format is as follows:
 # Index    |    dataTuple
 # ---------------------------------------------------------

@@ -48,6 +48,7 @@ fi
 echo "Building module Logger"
 
 rm -f -r build
+rm -f /usr/local/lib/python2.7/dist-packages/Logger*
 python setup.py build
 python setup.py install
 

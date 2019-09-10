@@ -5,6 +5,8 @@
 #include <avr/sleep.h>
 #include <avr/power.h>
 
+#define NOP __asm__ __volatile__ ("nop\n\t")
+
 /***************************************\
  * Function Name: enterSleep()
  * Purpose:       Put the controller to
@@ -80,9 +82,9 @@ void disableUnneededPeripherals()
 void twiPowerUp()
 {
   power_twi_enable();
-  _delay_us(1);
+  NOP;
   Wire.begin();
-  _delay_us(1);
+  NOP;
 
   return;
 }
@@ -125,10 +127,7 @@ void twiPowerDown()
 void serialPowerUp()
 {
   power_usart0_enable();
-  _delay_ms(10);
-  Serial.begin(9600);
-  _delay_ms(10);
-  Serial.print(F(">> Logger: Logger ready.\n>> User:   "));
+  NOP;
 
   return;
 }
@@ -167,6 +166,7 @@ void serialPowerDown()
 void spiPowerUp()
 {
   power_spi_enable();
+  NOP;
 
   return;
 }

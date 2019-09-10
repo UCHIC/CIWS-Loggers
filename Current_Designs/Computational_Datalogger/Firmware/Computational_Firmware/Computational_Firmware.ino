@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.9
 // Utah Water Research Lab
-// Updated: 8/14/2019
+// Updated: 9/10/2019
 // Daniel Henshaw and Josh Tracy
 
 /*****************************************************************************************************************\

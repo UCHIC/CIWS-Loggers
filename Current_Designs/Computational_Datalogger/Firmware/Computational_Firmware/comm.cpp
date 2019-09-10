@@ -63,6 +63,7 @@ void powerRPiOFF(void)
 void UART_Init(unsigned int ubrr)
 {
   serialPowerUp();                        // Enable clock and power to UART Module
+  UCSR0A &= ~0x02;
   
   DDRD |= 0x02;                           // Set TX pin OUTPUT (was input to avoid driving unpowered host computer RX pin)
   

@@ -98,10 +98,13 @@ void UART_End()
 
 void spiInit(void)
 {
+  char temp;
   spiPowerUp();   // Enable clock and power to SPI module
   DDRB = 0x2F;    // MOSI, SCK, PB1, and PB0 Outputs, MISO Input
   PORTB |= 0x02;  // EEPROM CS pin High at startup
   SPCR = 0x50;    // Enable SPI Module as Master at 2 MHz Clock
+  temp = SPSR;    // Read SPI Status Register (Clears SPIF flag)
+  temp = SPDR;    // Read SPI Data Register (Clears SPIF flag)
   spiPowerDown(); // Disable clock and power to SPI module
 
   return;

@@ -3,15 +3,18 @@
 unsigned char romDataBuffer[romDataBufferSize];       // Data buffer for when the RPi is in control of the EEPROM chip. Gets copied to EEPROM once freed.
 unsigned char romDataBufferIndex = 0;                 // romDataBufferIndex always points to the next available memory location in the buffer.
 
-unsigned char writeInstr = 0x02;                      // This instruction tells the EEPROM chip the controller wants to write to it.
-unsigned char wrenInstr = 0x06;                       // This instruction enables writes to the EEPROM chip. Must be done for each write operation.
+#define writeInstr 0x02                               // This instruction tells the EEPROM chip the controller wants to write to it.
+#define wrenInstr 0x06                                // This instruction enables writes to the EEPROM chip. Must be done for each write operation.
 
 void writeDataSize(State_t* State)
 {
   delay(6);                                           // delay for 6 ms in case the EEPROM is writing.
   
   unsigned char data[7];                              // This is the array that will be populated and then written to the EEPROM
-  
+
+  unsigned char writeEnable[1];                       // writeEnable[0] is a copy of wrenInstr. Since spiTranceive overwrites input data, can't just pass a pointer to wrenInstr.
+  writeEnable[0] = wrenInstr;
+
   unsigned long recordNum  = State->recordNum - 1;    // Use recordNum to tell number of records. Subtract one because the number of records on the EEPROM chip is always one less than State.recordNum
   unsigned char recordNum0, recordNum1, recordNum2;
   
@@ -30,7 +33,7 @@ void writeDataSize(State_t* State)
   data[6] = recordNum0;
   
   spiSelectSlave();                                   // Select the EEPROM chip
-  spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
+  spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
   spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
 
   spiSelectSlave();                                   // Select the EEPROM chip
@@ -44,6 +47,9 @@ void writeDateAndTime(Date_t* Date)
 {
   unsigned char dateTimeArray[10];                    // Holds write instruction, address, and the date/time to be written
 
+  unsigned char writeEnable[1];                       // writeEnable[0] is a copy of wrenInstr. Since spiTranceive overwrites input data, can't just pass a pointer to wrenInstr.
+  writeEnable[0] = wrenInstr;
+
   dateTimeArray[0] = writeInstr;                      // Write Instruction: tells EEPROM chip to receive data to write
   dateTimeArray[1] = 0;                               // Store starting at address 0x003
   dateTimeArray[2] = 0;
@@ -56,7 +62,7 @@ void writeDateAndTime(Date_t* Date)
   dateTimeArray[9] = Date->seconds + 4;               // Seconds + 4: The first data byte will be 4 seconds after the timestamp for logging start
 
   spiSelectSlave();                                   // Select the EEPROM chip
-  spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
+  spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
   spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
 
   spiSelectSlave();                                   // Select the EEPROM chip
@@ -71,13 +77,16 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
   unsigned char data[5];                                // This is the array that will be populated and then written to the EEPROM
   unsigned long romAddr;                                // Holds current ROM address
 
+  unsigned char writeEnable[1];                       // writeEnable[0] is a copy of wrenInstr. Since spiTranceive overwrites input data, can't just pass a pointer to wrenInstr.
+  writeEnable[0] = wrenInstr;
+
   finalCount = State->pulseCount;                       // Assign current pulseCount to finalCount
   State->pulseCount = 0;                                // Reset pulseCount to zero
   State->lastCount = finalCount;                        // lastCount is used to generate water usage information for the report swap between microcontroller and host computer. This is used to report the current water flow during a logging session.
   State->totalCount += (unsigned int)finalCount;        // totalCount is also used to generate water usage information. This holds the total water flow during a logging session.
 
   spiSelectSlave();                                   // Select the EEPROM chip
-  spiTransceive(&wrenInstr, 1);                       // Send the Write Enable instruction
+  spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
   spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
 
   spiSelectSlave();                                   // Select the EEPROM chip

@@ -134,6 +134,8 @@ static PyObject* reportSwap(PyObject* self, PyObject* args)
 
 	serialClose(serialFD);
 
+	delay(20)		// Delay 20 milliseconds
+
 	return PyReport;
 }
 

@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.9
 // Utah Water Research Lab
-// Updated: 8/13/2019
+// Updated: 8/14/2019
 // Daniel Henshaw and Josh Tracy
 
 /*****************************************************************************************************************\
@@ -178,7 +178,7 @@ void loop()
     {
       State.romFree = true;                                             // Let the rest of the program know that the EEPROM is accessible
       PORTB |= 0x01;                                                    // Set the host computer's SPI bus enable line high (active low, so the host computer is disconnected).
-      DDRB |= 0x02;                                                     // Set the microcontroller's chip select line to output again
+      spiInit();                                                        // Set the microcontroller's SPI pins appropriately again.
     }
   
     if(((PINC & 0x02) == 0x02) && !State.powerGood)   // If the host computer's power good line transitions from low to high

@@ -46,7 +46,7 @@ void powerRPiON()
 {
   PORTC |= 0x4;     // Power up RPi by setting Analog Pin 2 HIGH (used as digital pin)
   UART_Init(UBRR);  // Initialize the UART module according to the parameters set in comm.h define statements
-  DDRB &= ~0x02;    // Set AVR EEPROM Chip Select as input to avoid bus contention
+  spiOff();         // Set all SPI pins as inputs to avoid bus contention
   PORTB &= ~0x01;   // Enable Bus to host computer
 
   return;
@@ -103,6 +103,15 @@ void spiInit(void)
   PORTB |= 0x02;  // EEPROM CS pin High at startup
   SPCR = 0x50;    // Enable SPI Module as Master at 2 MHz Clock
   spiPowerDown(); // Disable clock and power to SPI module
+
+  return;
+}
+
+void spiOff(void)
+{
+  spiPowerUp(); // Enable clock and power to SPI module
+  DDRB = 0x01;  // Set SPI pins to inputs, leave Host Computer SPI bus enable (buffer chip) output
+  spiPowerDown();
 
   return;
 }

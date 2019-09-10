@@ -25,6 +25,7 @@ unsigned char UART_Receive(void);                                 // Read the la
 void UART_End(void);                                              // Disable the UART module, set TX pin as input to avoid driving unpowered host computer receive pin
 
 void spiInit(void);                                               // Initialize the SPI module
+void spiOff(void);                                                // Set SPI pins to input so as not to contend with host computer SPI bus
 void spiSelectSlave(void);                                        // Assert the chip select pin
 void spiReleaseSlave(void);                                       // De-assert (is that a word?) the chip select pin
 void spiTransceive(unsigned char* data, unsigned char dataSize);  // Transmit data to the SPI slave

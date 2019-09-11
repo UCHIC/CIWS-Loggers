@@ -1,5 +1,7 @@
 #include "comm.h"
 
+char decimalToBCD(char decVal);
+
 void updateReport(char* report, Date_t* Date, State_t* State)
 {
   if(report[0] != 0xFF)         // If the new value for years is not 0xFF
@@ -32,12 +34,20 @@ void updateReport(char* report, Date_t* Date, State_t* State)
       State->readMag = false;       // Let the rest of the program know that it does not need to read the magnetometer data
     }
   }
-  rtcTransfer(reg_Months, WRITE, Date->months);   // Send the new date and time to the RTC (Incoming data must already be formatted for the RTC)
-  rtcTransfer(reg_Days, WRITE, Date->days);
-  rtcTransfer(reg_Years, WRITE, Date->years);
-  rtcTransfer(reg_Hours, WRITE, Date->hours);
-  rtcTransfer(reg_Minutes, WRITE, Date->minutes);
-  rtcTransfer(reg_Seconds, WRITE, Date->seconds);
+
+  char years_BCD = decimalToBCD(Date->years);
+  char months_BCD = decimalToBCD(Date->months);
+  char days_BCD = decimalToBCD(Date->days);
+  char hours_BCD = decimalToBCD(Date->hours);
+  char minutes_BCD = decimalToBCD(Date->minutes);
+  char seconds_BCD = decimalToBCD(Date->seconds);
+
+  rtcTransfer(reg_Months, WRITE, months_BCD);   // Send the new date and time to the RTC
+  rtcTransfer(reg_Days, WRITE, days_BCD);
+  rtcTransfer(reg_Years, WRITE, years_BCD);
+  rtcTransfer(reg_Hours, WRITE, hours_BCD);
+  rtcTransfer(reg_Minutes, WRITE, minutes_BCD);
+  rtcTransfer(reg_Seconds, WRITE, seconds_BCD);
     
   return;
 }
@@ -146,4 +156,13 @@ void spiTransceive(unsigned char* data, unsigned char dataSize)
   }
 
   return;
+}
+
+char decimalToBCD(char decVal)
+{
+  char bcd_1 = decVal % 10;
+  decVal = decVal / 10;
+  char bcd_10 = (decVal % 10) << 4;
+  
+  return bcd_1 + bcd_10;
 }

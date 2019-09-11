@@ -221,6 +221,12 @@ void loop()
     State.flag4 = 0;                                    // Reset flag4 to zero
     rtcTransfer(reg_Control_2, WRITE, 0x02);            // Reset real time clock interrupt flag
     loadDateTime(&Date);                                // Update the date and time from the real time clock
+    report[0] = Date.years;                             // Sync report date/time with RTC date/time
+    report[1] = Date.months;
+    report[2] = Date.days;
+    report[3] = Date.hours;
+    report[4] = Date.minutes;
+    report[5] = Date.seconds;
     if(State.logging)                                   // If the microcontroller is logging data
       storeNewRecord(&State);                             // Store a new record
     if(countDown)                                       // If it's time to count to the host computer's shutdown time

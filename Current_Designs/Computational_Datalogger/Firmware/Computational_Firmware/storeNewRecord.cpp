@@ -8,7 +8,7 @@ unsigned char romDataBufferIndex = 0;                 // romDataBufferIndex alwa
 
 void writeDataSize(State_t* State)
 {
-  delay(6);                                           // delay for 6 ms in case the EEPROM is writing.
+  delay(10);                                          // delay for 10 ms in case the EEPROM is writing.
   
   unsigned char data[7];                              // This is the array that will be populated and then written to the EEPROM
 
@@ -45,6 +45,8 @@ void writeDataSize(State_t* State)
 
 void writeDateAndTime(Date_t* Date)
 {
+  delay(10);                                          // delay for 10 ms in case the EEPROM is writing.
+
   unsigned char dateTimeArray[10];                    // Holds write instruction, address, and the date/time to be written
 
   unsigned char writeEnable[1];                       // writeEnable[0] is a copy of wrenInstr. Since spiTranceive overwrites input data, can't just pass a pointer to wrenInstr.
@@ -72,10 +74,13 @@ void writeDateAndTime(Date_t* Date)
 
 void storeNewRecord(State_t* State)                   // Stores a new record in either the EEPROM chip or the romDataBuffer array.
 {
+  delay(10);                                            // delay for 10 ms in case the EEPROM is writing.
   unsigned char finalCount;                             // Holds the final count for the four-second sample.
   unsigned char romAddr2, romAddr1, romAddr0;           // Each address in the EEPROM is 24 bits, which must be split into three bytes.
   unsigned char data[5];                                // This is the array that will be populated and then written to the EEPROM
   unsigned long romAddr;                                // Holds current ROM address
+  unsigned long pageBoundary = 0;                       // This variable holds a page boundary address if one is about to be crossed (Bad ju-ju, don't want that)
+  unsigned long i;                                      // This variable is used for looping over all the addresses about to be written when checking for page boundaries.
 
   unsigned char writeEnable[1];                       // writeEnable[0] is a copy of wrenInstr. Since spiTranceive overwrites input data, can't just pass a pointer to wrenInstr.
   writeEnable[0] = wrenInstr;
@@ -110,11 +115,75 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
 
     if(romDataBufferIndex > 0)                          // If romDataBufferIndex is greater than zero, then there is data in the romDataBuffer that must be written to the EEPROM //TODO: Check for page boundary
     {
-      spiTransceive(romDataBuffer, romDataBufferIndex);   // Write the contents of the romDataBuffer to the EEPROM
+      for(i = romAddr; i < romDataBufferIndex; i++)       // Look at all the addresses we're about to write to
+      {
+        if(i % 256 == 0)                                    // If any of them are the beginning of a new page
+        {
+          pageBoundary = i;                                 // Keep the address of the page boundary.
+          i = romDataBufferIndex;                           // Set i to break out of the for loop
+        }
+      }
+      if(pageBoundary == 0)
+      {
+        spiTransceive(romDataBuffer, romDataBufferIndex);   // Write the contents of the romDataBuffer to the EEPROM
+      }
+      else
+      {
+        unsigned char firstDataSize = (unsigned char)pageBoundary - romAddr;
+        spiTransceive(romDataBuffer, firstDataSize);
+        for(i = firstDataSize; i < romDataBufferIndex; i++)
+        {
+          romDataBuffer[i - firstDataSize] = romDataBuffer[i];
+        }
+        spiReleaseSlave();
+        delay(10);                                          // delay for 10 ms while the EEPROM is writing
+        writeEnable[0] = wrenInstr;
+        spiSelectSlave();                                   // Select the EEPROM chip
+        spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
+        spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
+
+        romAddr0 = pageBoundary & 0xFF;                          // Split the ROM address into three bytes
+        pageBoundary = pageBoundary >> 8;
+        romAddr1 = pageBoundary & 0xFF;
+        pageBoundary = pageBoundary >> 8;
+        romAddr2 = pageBoundary & 0xFF;
+
+        data[0] = writeInstr;                               // Load the data array with the write instruction and three-byte ROM address
+        data[1] = romAddr2;
+        data[2] = romAddr1;
+        data[3] = romAddr0;
+        
+        spiSelectSlave();
+        spiTransceive(data, 4);                             // Send the write instruction and the address to write to
+        spiTransceive(romDataBuffer, romDataBufferIndex - firstDataSize);
+      }
 
       State->romAddr += romDataBufferIndex;               // Update the ROM address
       State->recordNum += romDataBufferIndex;             // Update the record number
       romDataBufferIndex = 0;                             // Reset the romDataBufferIndex to zero
+      romAddr = State->romAddr;
+      if(romAddr % 256 == 0)
+      {
+        spiReleaseSlave();
+        delay(10);                                          // delay for 10 ms while the EEPROM is writing
+        writeEnable[0] = wrenInstr;
+        spiSelectSlave();                                   // Select the EEPROM chip
+        spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
+        spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
+
+        romAddr0 = romAddr & 0xFF;                          // Split the ROM address into three bytes
+        romAddr = romAddr >> 8;
+        romAddr1 = romAddr & 0xFF;
+        romAddr = romAddr >> 8;
+        romAddr2 = romAddr & 0xFF;
+
+        data[0] = writeInstr;                               // Load the data array with the write instruction and three-byte ROM address
+        data[1] = romAddr2;
+        data[2] = romAddr1;
+        data[3] = romAddr0;
+        spiSelectSlave();
+        spiTransceive(data, 4);                             // Send the write instruction and the address to write to
+      }
     }
 
     spiTransceive(&finalCount, 1);                      // Send the write instruction, the address to write to, and the data byte to write.

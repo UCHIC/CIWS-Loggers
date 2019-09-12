@@ -84,15 +84,15 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
   State->pulseCount = 0;                                // Reset pulseCount to zero
   State->lastCount = finalCount;                        // lastCount is used to generate water usage information for the report swap between microcontroller and host computer. This is used to report the current water flow during a logging session.
   State->totalCount += (unsigned int)finalCount;        // totalCount is also used to generate water usage information. This holds the total water flow during a logging session.
-
-  spiSelectSlave();                                   // Select the EEPROM chip
-  spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
-  spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
-
-  spiSelectSlave();                                   // Select the EEPROM chip
   
   if(State->romFree)                                  // If the microcontroller has control over the EEPROM chip,
   {
+    spiSelectSlave();                                   // Select the EEPROM chip
+    spiTransceive(writeEnable, 1);                      // Send the Write Enable instruction
+    spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
+
+    spiSelectSlave();                                   // Select the EEPROM chip
+
     romAddr = State->romAddr;                         // Load the current ROM address (points to next available cell)
 
     romAddr0 = romAddr & 0xFF;                          // Split the ROM address into three bytes

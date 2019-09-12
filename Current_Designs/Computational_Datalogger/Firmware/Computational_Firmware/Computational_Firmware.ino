@@ -202,8 +202,9 @@ void loop()
     if(State.RPiFalseON)                              // If a certain amount of time passes and the host computer is not freeing up the EEPROM
     {
       State.romFree = true;                             // Let the rest of the program know that the EEPROM chip is now accessible
+      State.RPiFalseON = false;
       PORTB |= 0x01;                                    // Disable the host computer's SPI bus
-      DDRB |= 0x02;                                     // Set the microcontroller's chip select pin to output again
+      spiInit();                                        // Set the microcontroller's SPI pins appropriately again.
       powerRPiOFF();                                    // Disconnect power to the host computer
       State.RPiON = false;                              // Let the rest of the program know that the host computer is no longer on
       State.powerGood = false;                          // Let the rest of the program know that the host computer is no longer on

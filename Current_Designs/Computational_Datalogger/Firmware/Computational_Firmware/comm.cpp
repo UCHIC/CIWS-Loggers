@@ -4,51 +4,61 @@ char decimalToBCD(char decVal);
 
 void updateReport(char* report, Date_t* Date, State_t* State)
 {
-  if(report[0] != 0xFF)         // If the new value for years is not 0xFF
-    Date->years = report[0];      // Update the new year
-  if(report[1] != 0xFF)         // If the new value for months is not 0xFF
-    Date->months = report[1];     // Update the new month
-  if(report[2] != 0xFF)         // If the new value for days is not 0xFF
-    Date->days = report[2];       // Update the new day
-  if(report[3] != 0xFF)         // If the new value for hours is not 0xFF
-    Date->hours = report[3];      // Update the new hour
-  if(report[4] != 0xFF)         // If the new value for minutes is not 0xFF
-    Date->minutes = report[4];    // Update the new minute
-  if(report[5] != 0xFF)         // If the new value for seconds is not 0xFF
-    Date->seconds = report[5];    // Update the new second
-  if(report[8] != 0xFF)         // If the new value for logging is not 0xFF
+  if(report[0] != 0xFF)                           // If the new value for years is not 0xFF
   {
-    if(report[8] == 1)            // If the new value is 1
+    Date->years = report[0];                            // Update the new year
+    char years_BCD = decimalToBCD(Date->years);         // Convert to RTC format (BCD)
+    rtcTransfer(reg_Years, WRITE, years_BCD);           // Send the new date and time to the RTC
+  }
+  if(report[1] != 0xFF)                           // If the new value for months is not 0xFF
+  {
+    Date->months = report[1];                           // Update the new month
+    char months_BCD = decimalToBCD(Date->months);       // Convert to RTC format (BCD)
+    rtcTransfer(reg_Months, WRITE, months_BCD);         // Send the new date and time to the RTC
+  }
+  if(report[2] != 0xFF)                           // If the new value for days is not 0xFF
+  {
+    Date->days = report[2];                             // Update the new day
+    char days_BCD = decimalToBCD(Date->days);           // Convert to RTC format (BCD)
+    rtcTransfer(reg_Days, WRITE, days_BCD);             // Send the new date and time to the RTC
+  }
+  if(report[3] != 0xFF)                           // If the new value for hours is not 0xFF
+  {
+    Date->hours = report[3];                            // Update the new hour
+    char hours_BCD = decimalToBCD(Date->hours);         // Convert to RTC format (BCD)
+    rtcTransfer(reg_Hours, WRITE, hours_BCD);           // Send the new date and time to the RTC
+  }
+  if(report[4] != 0xFF)                           // If the new value for minutes is not 0xFF
+  {
+    Date->minutes = report[4];                          // Update the new minute
+    char minutes_BCD = decimalToBCD(Date->minutes);     // Convert to RTC format (BCD)
+    rtcTransfer(reg_Minutes, WRITE, minutes_BCD);       // Send the new date and time to the RTC
+  }
+  if(report[5] != 0xFF)                           // If the new value for seconds is not 0xFF
+  {
+    Date->seconds = report[5];                          // Update the new second
+    char seconds_BCD = decimalToBCD(Date->seconds);     // Convert to RTC format (BCD)
+    rtcTransfer(reg_Seconds, WRITE, seconds_BCD);       // Send the new date and time to the RTC
+  }
+  if(report[8] != 0xFF)                           // If the new value for logging is not 0xFF
+  {
+    if((report[8] == 1) && !State->logging)       // If the new value is 1
     {
-      State->logging = true;        // Let the rest of the program know that the microcontroller is logging
-      State->readMag = true;        // Tell the program to read the magnetometer data (since the interrupt has already fired)
-      State->recordNum = 1;         // Reset record number counter
-      State->romAddr = HEADER_SIZE; // Reset ROM Address
-      writeDateAndTime(Date);       // Store the date/time of the first data byte
-      EIMSK |= (1 << INT0);         // Enable Sensor interrupt
+      State->logging = true;                            // Let the rest of the program know that the microcontroller is logging
+      State->readMag = true;                            // Tell the program to read the magnetometer data (since the interrupt has already fired)
+      State->recordNum = 1;                             // Reset record number counter
+      State->romAddr = HEADER_SIZE;                     // Reset ROM Address
+      writeDateAndTime(Date);                           // Store the date/time of the first data byte
+      EIMSK |= (1 << INT0);                             // Enable Sensor interrupt
     }
-    else
+    else if((report[8] == 0) && State->logging)   // Else
     {
-      EIMSK &= ~(1 << INT0);        // Disable Sensor interrupt
-      State->logging = false;       // Let the rest of the program know that the microcontroller is no longer logging
-      State->readMag = false;       // Let the rest of the program know that it does not need to read the magnetometer data
+      EIMSK &= ~(1 << INT0);                            // Disable Sensor interrupt
+      State->logging = false;                           // Let the rest of the program know that the microcontroller is no longer logging
+      State->readMag = false;                           // Let the rest of the program know that it does not need to read the magnetometer data
     }
   }
-
-  char years_BCD = decimalToBCD(Date->years);
-  char months_BCD = decimalToBCD(Date->months);
-  char days_BCD = decimalToBCD(Date->days);
-  char hours_BCD = decimalToBCD(Date->hours);
-  char minutes_BCD = decimalToBCD(Date->minutes);
-  char seconds_BCD = decimalToBCD(Date->seconds);
-
-  rtcTransfer(reg_Months, WRITE, months_BCD);   // Send the new date and time to the RTC
-  rtcTransfer(reg_Days, WRITE, days_BCD);
-  rtcTransfer(reg_Years, WRITE, years_BCD);
-  rtcTransfer(reg_Hours, WRITE, hours_BCD);
-  rtcTransfer(reg_Minutes, WRITE, minutes_BCD);
-  rtcTransfer(reg_Seconds, WRITE, seconds_BCD);
-    
+ 
   return;
 }
 

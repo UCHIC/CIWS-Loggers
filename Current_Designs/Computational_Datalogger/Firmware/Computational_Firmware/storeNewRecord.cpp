@@ -66,7 +66,7 @@ void writeDateAndTime(Date_t* Date)
   spiReleaseSlave();                                  // De-Select the EEPROM chip (or writing will not be enabled)
 
   spiSelectSlave();                                   // Select the EEPROM chip
-  spiTransceive(dateTimeArray, 7);                    // Write dateTimeArray to the EEPROM chip
+  spiTransceive(dateTimeArray, 10);                   // Write dateTimeArray to the EEPROM chip
   spiReleaseSlave();                                  // De-Select the EEPROM chip
 }
 
@@ -101,14 +101,15 @@ void storeNewRecord(State_t* State)                   // Stores a new record in 
     romAddr = romAddr >> 8;
     romAddr2 = romAddr & 0xFF;
 
-    if(romDataBufferIndex > 0)                          // If romDataBufferIndex is greater than zero, then there is data in the romDataBuffer that must be written to the EEPROM
-    {
-      data[0] = writeInstr;                               // Load the data array with the write instruction and three-byte ROM address
-      data[1] = romAddr2;
-      data[2] = romAddr1;
-      data[3] = romAddr0;
+    data[0] = writeInstr;                               // Load the data array with the write instruction and three-byte ROM address
+    data[1] = romAddr2;
+    data[2] = romAddr1;
+    data[3] = romAddr0;
 
-      spiTransceive(data, 4);                             // Send the write instruction and the address to write to
+    spiTransceive(data, 4);                             // Send the write instruction and the address to write to
+
+    if(romDataBufferIndex > 0)                          // If romDataBufferIndex is greater than zero, then there is data in the romDataBuffer that must be written to the EEPROM //TODO: Check for page boundary
+    {
       spiTransceive(romDataBuffer, romDataBufferIndex);   // Write the contents of the romDataBuffer to the EEPROM
 
       State->romAddr += romDataBufferIndex;               // Update the ROM address

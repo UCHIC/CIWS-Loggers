@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.9
 // Utah Water Research Lab
-// Updated: 9/11/2019
+// Updated: 9/12/2019
 // Daniel Henshaw and Josh Tracy
 
 /*****************************************************************************************************************\
@@ -91,7 +91,7 @@ volatile State_t State;             // System State structure
 volatile Date_t Date;               // System Time and Date structure
 volatile SignalState_t SignalState; // Struct containing signal data from magnetometer
 volatile char report[9];            // Array containing system information. The report is passed between the microcontroller and the host computer (designed for a Raspberry Pi)
-volatile char reportIndex;          // current index of the above report
+volatile char reportIndex = 0;      // current index of the above report
 bool countDown = false;             // Tells program to count every four seconds until it's time to power off the host computer.
 char powerOff_Count = 0;            // Stores the count as described above.
 

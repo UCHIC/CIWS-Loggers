@@ -15,6 +15,8 @@
 #define BUFFER_MAX  21600
 #define HEADER_SIZE 9
 
+int serialFD;
+
 /** Initialize the Logger Module **/
 
 static PyObject* init(PyObject* self, PyObject* args)
@@ -27,13 +29,26 @@ static PyObject* init(PyObject* self, PyObject* args)
 		spiFD = wiringPiSPISetup(0, 2000000);		// Setup the wiringPi SPI library to use CS 0 @ 2 MHz.
 	}
 
+	serialFD = -1;
+	while(serialFD < 0)
+	{
+		serialFD = serialOpen("/dev/ttyS0", 9600);	// Setup the wiringPi Serial library to use the mini UART @ 9600 Baud
+	}
+
+	sleep(1);				// Delay for one second
+
+	return Py_None;
+}
+
+static PyObject* initPins(PyObject* self, PyObject* args)
+{
 	pinMode(ROM_BUSY, OUTPUT);		// ROM_BUSY Pin output low
 	digitalWrite(ROM_BUSY, LOW);
 
 	pinMode(POWER_GOOD, OUTPUT);		// POWER_GOOD Pin output low
 	digitalWrite(POWER_GOOD, LOW);
 
-	sleep(1);				// Delay for one second
+	sleep(1);
 
 	return Py_None;
 }
@@ -111,13 +126,6 @@ static PyObject* reportSwap(PyObject* self, PyObject* args)
 	int i;
 	char report[9];
 
-	int serialFD = -1;
-	while(serialFD < 0)
-	{
-		serialFD = serialOpen("/dev/ttyS0", 9600);	// Setup the wiringPi Serial library to use the mini UART @ 9600 Baud
-	}
-
-
 	if(!PyArg_ParseTuple(args, "O!", &PyList_Type, &PyReport))
 	{
 		PyErr_SetString(PyExc_TypeError, "Parameter must be a list.");
@@ -131,10 +139,6 @@ static PyObject* reportSwap(PyObject* self, PyObject* args)
 		report[i] = (char)serialGetchar(serialFD);
 		PyList_SetItem(PyReport, i, Py_BuildValue("b", report[i]));
 	}
-
-	serialClose(serialFD);
-
-	delay(20)		// Delay 20 milliseconds
 
 	return PyReport;
 }
@@ -153,6 +157,7 @@ static PyObject* setRomFree(PyObject* self, PyObject* args)
 static PyObject* setPowerOff(PyObject* self, PyObject* args)
 {
 	digitalWrite(POWER_GOOD, LOW);
+	serialClose(serialFD);
 
 	return Py_None;
 }
@@ -195,7 +200,8 @@ static PyObject* writeToFile(PyObject* self, PyObject* args)
 }
 
 static PyMethodDef methods[] = {
-	{ "init", init, METH_NOARGS, "Initializes the Logger Python Module" },
+	{ "init", init, METH_NOARGS, "Performs necessary setup to communicate with GPIO and SPI." },
+	{ "initPins", initPins, METH_NOARGS, "Sets powerGood and romBusy lines low" },
 	{ "bufferMax", bufferMax, METH_NOARGS, "Returns the maximum buffer size from the datalogger" },
         { "setRomBusy", setRomBusy, METH_NOARGS, "Sends a signal to the datalogger that the EEPROM chip is in use" },
         { "setPowerGood", setPowerGood, METH_NOARGS, "Sends a signal to the datalogger that the Pi booted succesfully" },

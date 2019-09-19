@@ -2,14 +2,14 @@ import Logger
 import os
 
 # The following five lines of code MUST ABSOLUTELY appear in this order. DO NOT MOVE OR CHANGE THE FOLLOWING FOUR LINES OF CODE.
+# Logger.initPins() Should never be called by the user. It should only be called when this script is automatically run.
 
 Logger.init()			# Initialzie the Logger Python module.
+Logger.initPins()		# Sets pins to initial state. This function should only be called once, when called automatically when powered on.
 Logger.setRomBusy()		# Tell the AVR datalogger that the EEPROM chip is in use
 Logger.setPowerGood()		# Tell the AVR datalogger that the Raspberry Pi is powered on
 dataTuple = Logger.loadData()	# Read the data from the EEPROM chip
 Logger.setRomFree()		# Tell the AVR datalogger that the EEPROM chip is no longer in use.
-
-Logger.writeToFile(dataTuple, "rawPulses.csv")	# Write the raw pulses read from the EEPROM chip to a .csv file.
 
 # Process the contents of dataTuple here. The format is as follows:
 # Index    |    dataTuple

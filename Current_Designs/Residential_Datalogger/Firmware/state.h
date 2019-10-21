@@ -19,6 +19,7 @@ typedef struct
   volatile char meterSize;
   volatile bool configured;
   volatile char filename[13];
+  volatile bool rewrite;
 } State_t;
 
 // Signal State Struct

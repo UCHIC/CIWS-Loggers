@@ -17,25 +17,19 @@
  *   Continue on wake-up
  *   Return
 \***************************************/
-
+/*
 void enterSleep()
 {
-  /*** Setup Sleep options ***/
-  
   set_sleep_mode(SLEEP_MODE_STANDBY);  // Lowest powerdown mode
   sleep_enable();                       // Enable sleep
 
-  /*** Put processor to sleep ***/
-
   sleep_mode();
-
-  /*** Continue ***/
   
   sleep_disable();
 
   return;
 }
-
+*/
 /**********************************************\
  * Function Name: disableUnneededPeripherals
  * Purpose:       Cut all power to peripherals
@@ -167,6 +161,7 @@ void serialPowerDown()
  * Outputs:       None
  * pseudocode:
  *  Power on the SPI interface
+ *  Enable power to the SD Card
  *  Return
 \**********************************/
 
@@ -185,6 +180,7 @@ void SDPowerUp()
  * Inputs:        None
  * Outputs:       None
  * pseudocode:
+ *  Cut power to the SD Card
  *  Power down the SPI interface
  *  Return
 \**********************************/

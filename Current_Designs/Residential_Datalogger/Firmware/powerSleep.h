@@ -4,7 +4,7 @@
 #include <avr/sleep.h>
 #include <avr/power.h>
 
-void enterSleep();
+//void enterSleep();
 void disableUnneededPeripherals();
 void twiPowerUp();
 void twiPowerDown();

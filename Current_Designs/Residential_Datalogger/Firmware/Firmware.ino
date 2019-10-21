@@ -1,7 +1,7 @@
 // Firmware for the CIWS Residential Datalogger
 // Arduino IDE ver. 1.8.8
 // Utah Water Research Lab
-// Updated: 7/30/2019 (Updated comments)
+// Updated: 10/15/2019 (changed to be compatible with Pololu LIS3MDL sensor board)
 // Daniel Henshaw and Josh Tracy
 // Note: F("String") keeps string literals in program memory and out of RAM. Saves RAM space. Very good. Don't remove the F. I know it looks funny. But don't do it. Really. The program might crash if you do. And then you'll have dishonor on yourself, dishonor on your cow, and you'll find out your cricket ain't lucky.
 // Note: Be sure to process resulting data file as ASCII characters, not Unicode. 
@@ -21,7 +21,7 @@
 * Controller:      Arduino Pro/Pro Mini (used for SD library and lower power options)
 * SD:              External SD Card storage for the logger.
 * Activate Serial: Button to wake up the controller and activate the Serial interface
-* Magnetometer:    LIS3MDL Magnetometer for reading magnetic signals from water meters.
+* Sensor:          Hall Effect Sensor for logging pulses from water meters.
 * RTC:             Real Time Clock to track time and wake up controller every four seconds.
 \*******************************************************************************************/
 
@@ -31,11 +31,11 @@
 *   User inputs:
 *     Serial input.
 *   Device inputs:
-*     Magnetometer Sensor (LIS3MDL)
-*     Real Time Clock     (PCF8523)
+*     Magnetometer Sensor
+*     Real Time Clock
 *   Device outputs:
 *     Serial output
-*     Datalog file        (SD Card)
+*     Datalog file
 *     
 * Structure:
 *   1. Setup
@@ -47,16 +47,18 @@
 *          Update the time
 *          Construct a timestamp
 *          Write data
+*        If sleep is enabled (disabled when serial is enabled)
+*          Enter Sleep (low-power mode)
+*          < Will wake up on Interrupt and continue: >
 *        If the Magnetometer interrupted:
 *          Read the magnetometer data and check for peaks.
 *      Repeat Loop
 *      
 * Interrupts:
 *   1. INT0_ISR()
-*      Magnetometer Data Ready signal. When magnetometer data is ready, set State.readMag
-*
+*      
 *   2. INT1_ISR()
-*      RTC Four Second signal. When four seconds pass, set State.flag4
+*      
 \*****************************************************************/
 
 #include <SPI.h>
@@ -91,7 +93,6 @@
  *    Setup RTC Timer
  *    Setup interrupts
  *    Load Date_t with Date/Time info
- *    Check for device configuration data
  *    Disable unneeded peripherals
  *    If Activate Serial Button is pressed
  *      Power on the Serial Interface
@@ -101,6 +102,7 @@ volatile State_t State;             // System State structure
 Date_t Date;                        // System Time and Date structure
 File dataFile;                      // File pointer for SD Card operations
 volatile SignalState_t SignalState; // Struct containing signal data from magnetometer
+byte currDay;                       // Tracks current day for file chunking
 
 void setup() 
 {
@@ -112,7 +114,7 @@ void setup()
   pinMode(4, OUTPUT); // For debugging
   digitalWrite(4, LOW);
 
-  mag_init(); //magnetometerInit(&mag);         // Initialize Magnetometer
+  mag_init(); //magnetometerInit(&mag);         // Initialize Magnetometer    // changed out to new function.  4/17/19 by D.H.
   
 
   rtcTransfer(reg_Tmr_CLKOUT_ctrl, WRITE, 0x3A);                  // Setup RTC Timer
@@ -127,7 +129,8 @@ void setup()
   EIMSK |= (1 << INT1);         // Enable 4-Second RTC interrupt.
   
   loadDateTime(&Date);            // Load Date_t with Date/Time info
-
+  currDay = Date.days;
+  
   if(configurationExists())
   {
     State.configured = true;
@@ -155,8 +158,6 @@ void loop()
   * If button is pressed (active-low):
   *   Set serialOn flag.
   *   call serialPowerUp()
-  *   If device is not configured:
-  *     Prompt user
   \*****************************************/  
   if((digitalRead(5) == 0) && !State.serialOn)
   {
@@ -178,8 +179,6 @@ void loop()
   // DANIEL
   /*****************************************\
   * 4-second update: Update at 4 seconds
-  * Clear interrupt flag on RTC
-  * Load date and time
   * If 4-second flag is set:
   *   Store a new record
   \*****************************************/
@@ -189,9 +188,21 @@ void loop()
     rtcTransfer(reg_Control_2, WRITE, 0x02);            //     Reset real time clock interrupt flag
     loadDateTime(&Date);
     if(State.logging)
-      storeNewRecord();
+    {
+      if(Date.days != currDay)
+      {
+        currDay = Date.days;
+        incrementFileNumber();
+        nameFile(&State, &Date);
+        createHeader(&State);
+      }
+      do
+      {
+        storeNewRecord();
+      }while(State.rewrite == true);
+    }
   }
-
+  
   // JOSH
   /*****************************************\
    * Read Magnetometer: 
@@ -217,6 +228,17 @@ void loop()
         //Serial.println("Peak Detected");
     }
   }
+  
+  // JOSH
+  /*****************************************\
+  * Sleep: put processor to sleep
+  *        to be woken by interrupts
+  * If serialOn is not set:
+  *   call function Sleep();
+  \*****************************************/
+  //if(!State.serialOn)
+    //enterSleep();
+
 }
 
 // DANIEL
@@ -224,8 +246,8 @@ void loop()
  * 
  * Friendly Name:  Sensor Interrupt Service Routine (ISR)
  * 
- * Description: sets readMag flag to true every time this function is
- *              called by hardware.
+ * Description: increments the value of the pulse count variable by one, each time this 
+ *              function is called by hardware.
  */
 void INT0_ISR()
 {
@@ -245,6 +267,31 @@ void INT0_ISR()
 void INT1_ISR()
 {
   State.flag4 = true;     // sets the "four second flag" to true
+}
+
+bool sdWriteError(File* dataFile, byte numBytesAttempted, byte numBytesWritten)
+{
+  bool errorCaught = false;
+  if(dataFile->getWriteError())
+    errorCaught = true;
+  if(numBytesAttempted != numBytesWritten)
+    errorCaught = true;
+
+  return errorCaught;
+}
+
+byte numDigits(unsigned long value)
+{
+  byte count = 0;
+  if(value == 0)
+    count = 1;
+  while(value != 0)
+  {
+    value = value / 10;
+    count++;
+  }
+
+  return count;
 }
 
 /* Function: storeNewRecord
@@ -308,11 +355,13 @@ void storeNewRecord()
 {                                                       // Begin
     byte finalCount;                                    //     Declare variables
     byte temp;
+    bool writeErrorCaught = false;
+    byte numBytes = 0;
     finalCount = State.pulseCount;                      //     Store pulse count to a variable named final count
     State.pulseCount = 0;                               //     Set pulseCount to zero
     State.lastCount = finalCount;
     State.totalCount += (unsigned int)finalCount;
-                                                        //     Read current time from the Real Time Clock and update the Date struct with the current time                                                      
+    /*                                                    //     Read current time from the Real Time Clock and update the Date struct with the current time                                                      
       temp         = rtcTransfer(reg_Years,  READ, 0);  //         read the Years and store into temp variable
       Date.years   = bcdtobin(temp, YEARS_REG_MASK);    //         convert from binary-coded decimal into binary, and store into years field of Date struct
       temp         = rtcTransfer(reg_Months, READ, 0);  //         read the Months and store into temp variable
@@ -325,38 +374,116 @@ void storeNewRecord()
       Date.minutes = bcdtobin(temp, MINUTES_REG_MASK);  //         convert from binary-coded decimal into binary, and store into minutes field of Date struct      
       temp         = rtcTransfer(reg_Seconds,READ, 0);  //         read the Seconds and store into temp variable 
       Date.seconds = bcdtobin(temp, SECONDS_REG_MASK);  //         convert from binary-coded decimal into binary, and store into seconds field of Date struct    
-                                                        //     Write the new record to the SD card  
+      */                                                  //     Write the new record to the SD card  
       SDPowerUp();                                      //         power on SD card
       dataFile = SD.open(State.filename, FILE_WRITE);
-                                                        //         Write new record to SD card 
-        dataFile.print('\"');                          //           open the date-time string by writing a double quotation mark
-        dataFile.print(Date.years);                     //             write year, month, day, hours 
-        dataFile.print('-');
-        dataFile.print(Date.months);
-        dataFile.print('-');
-        dataFile.print(Date.days);
-        dataFile.print(' ');
-        dataFile.print(Date.hours);
-        dataFile.print(':');
+      if(!dataFile)
+      {
+        if(State.serialOn)
+          Serial.print(F("\n>> Whoa dudes, bad file pointer!\n>> User:   "));
+        writeErrorCaught = true;
+      }
+      else
+      {                                                  //         Write new record to SD card 
+        numBytes = dataFile.print('\"');                          //           open the date-time string by writing a double quotation mark
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(Date.years);                     //             write year, month, day, hours 
+        if(sdWriteError(&dataFile, numDigits((unsigned long)Date.years), numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print('-');
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(Date.months);
+        if(sdWriteError(&dataFile, numDigits((unsigned long)Date.months), numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print('-');
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(Date.days);
+        if(sdWriteError(&dataFile, numDigits((unsigned long)Date.days), numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(' ');
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(Date.hours);
+        if(sdWriteError(&dataFile, numDigits((unsigned long)Date.hours), numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(':');
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
         if(Date.minutes < 10)                           //             if minutes is less than ten
         {                                               //             then
-          dataFile.print('0');                         //               write a leading zero (the minutes value will be appended to it by the next statement)     
+          numBytes = dataFile.print('0');                         //               write a leading zero (the minutes value will be appended to it by the next statement)     
+          if(sdWriteError(&dataFile, 1, numBytes))
+            writeErrorCaught = true;
         }                                               //             endIf
-        dataFile.print(Date.minutes);                   //             write the minutes
-        dataFile.print(':');                            //             write a colon to separate minutes from seconds
+        numBytes = dataFile.print(Date.minutes);                   //             write the minutes
+        if(sdWriteError(&dataFile, numDigits((unsigned long)Date.minutes), numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(':');                            //             write a colon to separate minutes from seconds
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
         if(Date.seconds < 10)                           //             if seconds is less than ten
         {                                               //             then
-          dataFile.print('0');                         //               write a leading zero (the seconds value will be appended to it by the next statement)
+          numBytes = dataFile.print('0');                         //               write a leading zero (the seconds value will be appended to it by the next statement)
+          if(sdWriteError(&dataFile, 1, numBytes))
+            writeErrorCaught = true;
         }                                               //             endIf
-        dataFile.print(Date.seconds);                   //             write the seconds
-        dataFile.print('\"');                           //           close date-time string by writing a double quotation mark       
-        dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)
-        dataFile.print(State.recordNum);                //           write the record number
-        dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)
-        dataFile.println(finalCount);                   //           write the number of pulses counted when function was called (finalCount) and then print a new line
+        numBytes = dataFile.print(Date.seconds);                   //             write the seconds        
+        if(sdWriteError(&dataFile, numDigits((unsigned long)Date.seconds), numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print('\"');                           //           close date-time string by writing a double quotation mark       
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.print(State.recordNum);                //           write the record number       
+        if(sdWriteError(&dataFile, numDigits((unsigned long)State.recordNum), numBytes))
+          writeErrorCaught = true;
+        
+        numBytes = dataFile.print(',');                            //           write a comma to begin a new field (CSV file format)
+        if(sdWriteError(&dataFile, 1, numBytes))
+          writeErrorCaught = true;
+          
+        numBytes = dataFile.println(finalCount);                   //           write the number of pulses counted when function was called (finalCount) and then print a new line      
+        if(sdWriteError(&dataFile, (numDigits((unsigned long)finalCount) + 2), numBytes))
+          writeErrorCaught = true;
+          
         dataFile.close();
-        State.recordNum += 1;
+      }
       SDPowerDown();                                    //       power down SD card
+      if(writeErrorCaught)
+      {
+        if(State.serialOn)
+          Serial.print(F("\n>> Error writing to SD card. Attempting to create a new file.\n>> User:   "));
+        incrementFileNumber();
+        nameFile(&State, &Date);
+        createHeader(&State);
+        State.rewrite = true;
+      }
+      else
+      {
+        if(State.serialOn)
+          Serial.print(F("\n>> Data file written successfully.\n>> User:   "));
+        State.recordNum += 1;
+        State.rewrite = false;
+      }
 }                                                       // End of function storeNewRecord() 
 
 

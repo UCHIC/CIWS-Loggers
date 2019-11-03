@@ -9,14 +9,6 @@ We are developing ways to turn most analog, positive displacement water meters w
 The following is an example of the type of data we are collecting from individual residences:
 
 ![Data](/doc/images/data.png)
-   
-## Getting Started
-
-Visit the [documentation page](/doc/readme.md) for instructions on how we are building and communicating with smart metering devices. 
-
-Visit the [source code](https://github.com/UCHIC/ciws/tree/master/src) folder if you are interested in our data collection scripts for the dataloggers we are prototyping.
-
-Visit the [hardware design](https://github.com/UCHIC/CIWS/tree/master/hardwaredesign) folder if you are interested in the custom data logging hardware we are using to enable high frequency data collection on both commercial meters with 4-20 mA outputs and residential meters with analog registers.
 
 ## Sponsors and Credits
 
